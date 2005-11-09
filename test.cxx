@@ -2,7 +2,7 @@
 #include "itkImageFileWriter.h"
 #include "itkCommand.h"
 
-#include "itkImageFilter.h"
+#include "itkMorphologicalWatershedImageFilter.h"
 
 template < class TFilter >
 class ProgressCallback : public itk::Command
@@ -54,7 +54,7 @@ int main(int, char * argv[])
   ReaderType::Pointer reader = ReaderType::New();
   reader->SetFileName( argv[1] );
 
-  typedef itk::ImageFilter< IType, IType > FilterType;
+  typedef itk::MorphologicalWatershedImageFilter< IType, IType > FilterType;
   FilterType::Pointer filter = FilterType::New();
   filter->SetInput( reader->GetOutput() );
 
