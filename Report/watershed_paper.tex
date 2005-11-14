@@ -1,0 +1,353 @@
+\documentclass{llncs}
+\usepackage{graphicx}
+
+\begin{document}
+\title{The watershed transform in ITK - discussion and new developments}
+\author{Richard Beare{1} \and Gaetan Lehmann{2}}
+\institute{Department of Medicine, Moansh University, Australia
+\and Biologie du Developpement et de la Reproduction, INRA de Jouy-en-Josas (France)}
+\maketitle
+
+\begin{abstract}
+This report discusses various definitions and implementations of the
+watershed transform as well as providing an introduction to some well
+known techniques for applying the watershed transform to practical
+problems. The discussion will be focussed on new and existing ITK
+classes.
+\end{abstract}
+
+\section{Introduction}
+The watershed transform is a tool for image segmentation that is fast
+and flexible and potentially fairly parameter free. It was originally
+derived from a geophysical model of rain falling on a terrain and a variety
+of more formal definitions have been devised to allow development of
+practical algorithms. A brief discussion of some of these definitions
+and algorithms is provided in Section \ref{sect:history}. 
+
+Section \ref{sect:usingWT} provides an introduction to a
+methodology known as {\em marker based} watershed. Using markers in
+watershed transforms is a well established technique in the
+morphological image analysis community and has proved very useful for
+many applications. The aim of this part of the report is to describe
+the technique to a wider audience \footnote{It should also be noted
+that the lack of a marker based watershed motivated the recent work on
+ITK filter classes.}.
+
+A brief description of two algorithms used to implement the watershed
+transform is given in Section \ref{sect:algorithms}.
+
+\section{Image segmentation}
+Image segmentation, in the context of this report, may be broadly
+defined as finding the part(s) of the image that is of interest in
+order to make measurements. This is a basic definition of image
+analysis, which is different from image processing and computer
+vision\footnote{Image processing produces images, usually for human
+consumption, while computer vision aims to produce high level semantic
+descriptions of images.}.
+
+It is very rare to achieve a useful segmentation using a single
+procedure, even under the most favourable conditions. Successful
+segmentation algorithms typically use a carefully constructed
+combination of procedures to achieve useful results. Some modern
+algorithms, especially the family of routines related to geodesic
+active contours, may seem to be an exception to this rule of thumb
+because they are often presented as achieving good segmentation
+results entirely on their own. However close examination will show
+that a variety of preprocessing steps in addition to careful parameter
+tuning is necessary to achieve anything useful.
+
+These comments are also relevant to the watershed transform -- it is
+very unlikely that any segmentation problem can be solved using the
+watershed alone. However it is a very useful and flexible tool that
+can be applied in a number of ways. This report will emphasise the
+marker based approach to using the watershed transform, but there are
+a number of others including watershed trees and region merging
+algorithms.
+
+Finally, an important point that should be mentioned, is that the
+output of a low level segmentation procedure such as the watershed
+transform will typically be a {\em label image}. A label image,
+sometimes referred to as a categorical image, has unique values for
+each region. For example, if a watershed produces 2 regions, all
+pixels belonging to one region would have value $A$, and all belonging
+to the other might have value $B$. Unassigned pixels, such as
+watershed lines, might have value of $0$.
+
+\section{The watershed transform -- a brief history}
+\label{sect:history}
+The watershed transform was first proposed by Beucher and
+Lantu\'{e}joul\cite{Beucher-Lantu-79} as a geophysical model of rain
+falling on a terrain. The idea is that a raindrop falling on a surface
+will trickle down the path of steepest descent to a minima. The set of
+points on the surface that lead to the same minima is known as a
+catchment basin and borders between catchment basins are watershed
+lines\footnote{Major geographical features, like rivers or oceans, are
+often considered as separated by watershed lines, usually along
+mountain ranges.}. If an image is considered as a terrain and divided
+into catchment basins then the hope is that each catchment basin would
+contain an object of interest. The image representing the terrain will
+be referred to as the {\em control surface} in this report.
+
+Translating the model of rain falling on a terrain to an algorithm has
+a number of problems\footnote{Although this is what the first ITK
+implementation does.} which are discussed in Section
+\ref{sect:rainfallmodel}. The alternative is to imagine a flooding
+process, with each regional minima\footnote{A regional minima is a set
+of pixels surrounded by pixels of higher value.} becoming the source
+of a lake. The terrain is progressively flooded and lakes eventually
+meet neighboring lakes. Virtual dams are constructed to keep the
+neighboring lakes separate as the waterlevel rises. When the image
+surface is completely fooded the virtual dams correspond to the
+watershed lines\footnote{In 3D neighboring lakes meet at surfaces.}.
+
+A major breakthrough in the implementation of the watershed was made
+by Vincent and Soille \cite{Vincent91a} with the introduction of the
+first queue based implementation of the watershed transform. This was
+especially significant because it allowed similar execution times on
+conventional computer systems as was being achieved with specialized
+parallel processing systems. The Vincent-Soille algorithm appears to
+be used in the matlab image processing toolbox watershed
+implementation (based on the observation that the library function has
+a {\tt \_vs} suffix).
+
+Another major advance made soon after by Meyer and Beucher
+\cite{Beucher93a,Meyer1994a}. Meyer defined the watershed transform in terms of {\em
+topographic distances} through {\em lower complete} images. These
+definitions rigorously defined the behavior in the presence of
+plateaus and lead to some new algorithms based on graph theory. Two
+examples of these algorithms are {\em hill-climbing} and {\em image
+integration} and will be discussed in more detail in this report.
+
+
+Readers interested in more technical detail should refer to \cite{Roerdink2000a,Meijster2004a}.
+
+{\em what about the topological watershed?}
+
+\section{Rainfall model}
+\label{sect:rainfall}
+{\em where should we put this?}  The original concept behind the
+watershed transform was rain falling on a terrain and flowing down
+paths of steepest descent to local minima. There has been a lot of
+work on alternatives to this approach because of the problems with
+it. These problems are basically to do with flat zones in an image
+which have no paths of steepest descent leading from them, which means
+that water would just sit in the one spot. A simple minded
+implementation of this idea would therefore produce a separate
+catchment basin for each pixel in the flat zone, which is not a very
+useful result. The ITK watershed uses a number of steps to avoid this problem:
+\begin{enumerate}
+\item Label all minima and flat zones.
+\item Trace all unlabelled pixels to a labelled one using gradient descent.
+\item Check each flat region and find the lowest neighbor. Change the label of the flat region to that of the lowest neighbor.
+\end{enumerate}
+ 
+It should be evident that a number of arbitary choices have been made
+here - for example it is impossible to break a flat region into
+pieces, which would probably better fit the physical reality of
+rainfall (consider a flat topped ridge which should perhaps be split
+down the middle). What happens of there are multiple neighboring
+regions with equal height - is the labelling decision now somewhat arbitary?
+
+In general the flooding models avoid these dilemas and lead to more
+elegant algorithms.
+
+
+\section{Using the watershed tranform}
+\label{sect:usingWT}
+\subsection{Classical approach}
+The simplest way of using the watershed is to preprocess the image we
+want to segment so that the boundaries of our objects are bright (e.g
+apply an edge detector) and compute the watershed transform of the
+edge image. Watershed lines will correspond to the boundaries and our
+problem will be solved. This is rarely useful in practice because
+there are always more regional minima than there are objects, either
+due to noise or natural variations in the object surfaces. Therefore,
+while many watershed lines do lie on significant boundaries, there are
+many that don't. Figure \ref{fig:overseg} illustrates the problem. The ITK
+watershed implementation provides a way of addressing this problem
+using a measure of significance of the boundary and allowing a
+threshold to be applied first to reduce the number of local minima. 
+
+An Obvious alternative that is very similar in practice is to 
+smooth the image so that there are fewer regional minima.
+\begin{figure}
+\begin{center}
+\label{fig:overseg}
+\caption{Classical over segmentation.}
+\end{center}
+\end{figure}
+
+There are some situations where this direct approach can be
+useful. The best known of these is probably binary object splitting,
+in which the watershed transform is applied to the distance transform
+of a mask. This approach is widely used to split touching,
+approximately circular objects, such as cells.
+
+\subsection{Watershed from selected minima}
+An alternative approach leads us to the concept of markers mentioned
+earlier. We will also see that the thresholding approach used by ITK
+may be considered as a specific case of the same approach.
+
+Suppose we have preprocessing steps that let select regional minima
+that lead to the correct segmentation. How would we modify the
+topography of the image so that only the desired regional minima are
+present and the watershed lines that remain are the same as they were
+before the modification (i.e we only remove the unwanted boundaries)?
+
+This can be achieved by performing a {\em reconstruction by erosion}
+or {\em recursive conditional erosion} from the seleted regional
+minima. Figure \ref{fig:recon} illustrates the results of apply a
+reconstruction by erosion to a 1D image. The original image is shown
+in blue and has regional minima A, B, C, D and E. The marker image
+which is recursively eroded is shown in black, with a single zero at
+regional minimum B. The red plateaus illustrate the parts of the
+result image that are above the orginal. The resulting image has only
+on regional minima that corresponds to B.
+\begin{figure}[htbp]
+\begin{center}
+\includegraphics[scale=0.5]{Pics/recon.eps}
+\label{fig:recon}
+\caption{Reconstruction by erosion from a single regional minimum.}
+\end{center}
+\end{figure}
+
+A more formal definition of recursive erosion is:
+\begin{equation}
+\label{eq:recon_erosion}
+h_{n+1}=\max\{f, \varepsilon h_n\}
+\end{equation}
+where $h_0(x)$ is the function, with value 0 at the markers and
+$\infty$ otherwise and $\varepsilon$ denotes the erosion
+operation.
+
+This procedure may not seem to offer much advantage -- after all how
+are we going to decide which minima are useful to us? The key step to
+using these ideas in practice is to realize that an arbitary mask
+image can be used to create minima in an image in locations we want
+simply by multiplying the image by the mask. Recursive erosion of the
+original image using that mask then produces a topology to which we
+can apply a watershed transform. The mask image is commonly called a
+marker image.
+
+This is the fundamental concept behind the use of markers in watershed
+based segmentation.
+
+Let's summarize the steps again:
+
+\begin{enumerate}
+\item Generate a marker image. The marker image will be used to create 
+one, possibly extended, minima inside each object of interest. A
+marker image will always need to create at least two minima, and at
+least one minima will probably be used to segment the background. The
+marker image may be generated via interaction with an operator or by
+various preprocessing steps.
+\item \label{recipe:min}Impose the minima on the control surface. This 
+might be done by multiplying by the marker image (or an inverted
+version of it, depending on convention).
+\item \label{recipe:erode}Recursively erode the control surface to eliminate all minima besides those introduced in the previous step. This produces a new control surface.
+\item Apply the watershed tranform to the new surface.
+\end{enumerate}
+
+\subsection{Efficiency issues}
+The procedure outlined above introduces a lot of additional steps,
+some of which could be reasonably computationally expensive
+(i.e. recursive erosion). Other steps have also been mentioned in
+passing ({\em lower completion} in Section \ref{sect:history} that may
+be potentially time consuming. Fortunately we will discover in Section
+\ref{sect:algorithms} that the appropriate choice of algorithm implementing the
+watershed transform will carry out these steps implicitly.
+
+\section{Algorithms}
+\label{sect:algorithms}
+The two that will be outlined here are known as {\em image
+integration}\cite{Meyer1994a} and {\em hill climbing}
+\cite{Beucher93a}, both of which are classed as ordered
+algorithms and are examples of graph flooding approaches. These
+algorithms implement the watershed tranform by topographic distance
+(or approximate it) and are derived from Dijkstra-Moore minimal path
+algorithms of graph theory.
+
+\subsection{Ordered queues}
+Both of these implementations depend on ordered queues to avoid the
+need for explicit computation of lower complete images and recursive
+erosion. An ordered queue is a heirarchical priority queue with two
+levels. One level is defined by the pixel gray level, with darker
+pixels having higher priority, while the second applies to pixels of
+the same grey level and provides a FIFO ordering. The FIFO ordering
+leads to a breadth first propogation across plateaus because the
+ordering becomes related to distance from the regional minima. This is
+the mechanism that avoids the to explicitly compute lower slope.
+
+Early implementations used a special ordered queue for 8 bit data,
+which may be where the misconception that a morphological watershed
+can only be applied to 8 bit data types arose. The new ITK watershed
+algorithms use standard c++ containers (maps and standard queues) to
+implement the ordered queue\footnote{One potential problem with
+applying this style of algorithm to non integer data is finding the
+regional minima. Reconstruction approaches are often used to find
+regional minima of integer type images, but subtracting 1, carrying
+out a recursive dilation and subtracting the two. The same concept
+does not extend to floating point data. However, if regional minima
+are available the algorithms we are discussing can be applied to
+floating point data.}.
+
+In both algorithms each pixel is regarded as a node in a graph that is
+connected to neighboring pixels by pairs of edges. Costs of the edges
+are defined in terms of a cost related to the gradient.
+
+\subsection{Image integration}
+This algorithm maintains a pair of images -- a distance image and a
+label image. The distance image is initialized to initialized to
+$\infty$ everywhere, except at the minima where it is initialized to
+the value of the minima while the label image is initialized to $0$
+everywhere, except at the minima where it is initialized to the index
+of the minima (or, more typically, the value of the marker image at
+those points).
+
+Wavefronts are propogated from each minima, using the ordered queue
+approach. As the wavefront reaches pixel the distance travelled by the
+wavefront is compared to the distance stored in the distance image. If
+the distance travelled by the new wavefront is less than the stored
+value then that pixel is given the label associated with the
+wavefront, otherwise the label is left unchanged.
+
+\subsection{Hill climbing}
+Hill climbing is an approximation that eliminates the need to maintain
+a distance image. The approximation employed is that distances between
+all neighbors in a 4, 6, 8, 18 or 26\footnote{4 and 8 connected
+neighborhoods are used in 2D, 6, 18 and 26 in 3D} and the center of
+the neighborhood are equal -- i.e the various $\sqrt{2}$ terms are
+ignored. The position of the watershed lines can have some dependence
+on raster ordering because of this. In general the approach is very useful and efficient.
+
+Hill climbing requires a label image which is initialized to the
+indexes of the regional minima at the regional minima and an UNKNOWN
+value elsewhere\footnote{In the ITK implementation a separate image is
+used to track UNKNOWN locations because UNKNOWN values are difficult
+to deal with in a type independent way.}. The priority queue is
+initialised with the borders of the regional minima. Pixels pushed
+onto the queue with priority defined by their grey level and labelled
+as they are pushed. When pixels are popped from the queue their
+neighbors are checked, labelled, and pushed onto the queue if they
+aren't watershed pixels. The lower completion step is carried out
+implicitly by not allowing pixels to be pushed onto the queue with a
+priority lower than the priority of the neighbor which was popped from
+the queue.
+
+The assumption that the distance between a pixel and all of its
+neighbors is 1 means that the steepest upper neighbors of a pixel are
+simply the unlabelled neighbors. 
+
+\section{Using watersheds in ITK}
+
+\section{Timing and performance}
+streaming and threading.
+
+\section{Discussion}
+There is a level of erroneous folklore surrounding the watershed
+transform and it is hoped that this report helps to clear the air.
+
+\bibliographystyle{splncs}
+\bibliography{Refnames}
+
+\end{document}
