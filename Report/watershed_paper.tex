@@ -3,7 +3,7 @@
 
 \begin{document}
 \title{The watershed transform in ITK - discussion and new developments}
-\author{Richard Beare{1} \and Gaetan Lehmann{2}}
+\author{Richard Beare{$^1$} \and Gaetan Lehmann{$^2$}}
 \institute{Department of Medicine, Moansh University, Australia
 \and Biologie du Developpement et de la Reproduction, INRA de Jouy-en-Josas (France)}
 \maketitle
@@ -121,7 +121,17 @@ integration} and will be discussed in more detail in this report.
 
 Readers interested in more technical detail should refer to \cite{Roerdink2000a,Meijster2004a}.
 
-{\em what about the topological watershed?}
+\subsection{The topological watershed}
+An alternative approach, known as the topological watershed, has
+recently been developed \cite{}. The topological watershed modifies
+the topology of the surface so that all pixels that are not watershed
+lines become regional minima and watershed lines are modified so that
+they are more suitable for use in measuring saliency of boundaries
+between regions. Algorithms implementing the topological watershed
+also exploit priority queues, but don't appear to be able to avoid the
+need for explicit lower completion or reconstruction by erosion.
+
+I don't understand the implications of the topological watershed yet.
 
 \section{Rainfall model}
 \label{sect:rainfall}
@@ -280,7 +290,10 @@ the mechanism that avoids the to explicitly compute lower slope.
 
 Early implementations used a special ordered queue for 8 bit data,
 which may be where the misconception that a morphological watershed
-can only be applied to 8 bit data types arose. The new ITK watershed
+can only be applied to 8 bit data types arose -- in fact some of the
+early work along these lines was covered by a patent\footnote{I'm told
+that the associated paper is \cite{Meyer91a} and that there may be an
+English version in \cite{Dougherty93a}}. The new ITK watershed
 algorithms use standard c++ containers (maps and standard queues) to
 implement the ordered queue\footnote{One potential problem with
 applying this style of algorithm to non integer data is finding the
@@ -337,6 +350,39 @@ the queue.
 The assumption that the distance between a pixel and all of its
 neighbors is 1 means that the steepest upper neighbors of a pixel are
 simply the unlabelled neighbors. 
+
+
+\section{Finding regional minima}
+The marker based watershed filter can be used as a convention
+watershed algorithm by finding the regional minima and using them as
+markers. Regional minima (and maxima) are often useful, and there are
+a number of different ways of finding them:
+\begin{itemize}
+\item Using reconstruction approaches mentioned earlier - 
+the problem with these is that a value of 1 is subtracted from the
+original to produce the image from which the reconstruction is carried
+out, which makes the approach less useful for floating point
+types. The advantage of this approach is that it can be easily
+extended to find {\em image dynamics}, which are often more stable and
+less subject to noise than regional minima.
+\item The way ITK does it, which is related to the connected 
+component labeller. Finds all flat regions and then figures out which
+are plateaus, minima and maxima by looking at the boundary values.
+\item Flooding transform (not sure where this came from) which 
+sets anything not a regional minima to a specified max value. The
+algorithm assumes that the border is set to the maximum value. Pixels
+are visited in raster order. If a pixel $A$ has a neighbour $B$ and
+$P(A) > p(B)$ (i.e grey level of A is greater than B) then all pixels
+connected to $A$ with value $P(A)$ are set to the maximum value. This
+is a recursive algorithm that finds pixels that cannot be a regional
+minimum (because they have a lower neighbour) and then eliminates any
+connected region that also cannot be a regional minima.
+
+The result would then need to be thresholded and labelled to produce
+markers. This approach is not limited by the pixel type, but does
+require a more random visit order when flooding, which could restrict
+performance on larger images.
+\end{itemize}
 
 \section{Using watersheds in ITK}
 
