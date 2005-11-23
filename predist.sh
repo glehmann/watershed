@@ -3,9 +3,7 @@
 # build article
 (
 cd article
-latex article.tex
-dvips article.dvi -o article.ps
-ps2pdf article.ps
+pdflatex article.tex
 
 mv article.pdf ..
 rm -f article.{aux,dvi,log,ps}
