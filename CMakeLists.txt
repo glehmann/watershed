@@ -117,3 +117,24 @@ ADD_TEST(3x3mFCompare ImageCompare 3x3mF.png ${CMAKE_SOURCE_DIR}/3x3m.png)
 
 ADD_TEST(3x3mf wsm 0 0 ${CMAKE_SOURCE_DIR}/3x3-input.png ${CMAKE_SOURCE_DIR}/3x3-markers.png 3x3mf.png)
 ADD_TEST(3x3mfCompare ImageCompare 3x3mf.png ${CMAKE_SOURCE_DIR}/3x3m.png)
+
+ADD_TEST(Marker wsm 1 0 ${CMAKE_SOURCE_DIR}/threshold.png ${CMAKE_SOURCE_DIR}/threshold-markers.png threshold-markersMf.png)
+ADD_TEST(MarkerCompare ImageCompare threshold-markersMf.png ${CMAKE_SOURCE_DIR}/threshold-markersMf.png)
+
+ADD_TEST(Threshold10 wst 10 ${CMAKE_SOURCE_DIR}/threshold.png threshold10.png)
+ADD_TEST(Threshold10Compare ImageCompare threshold10.png ${CMAKE_SOURCE_DIR}/threshold10.png)
+
+ADD_TEST(Threshold20 wst 20 ${CMAKE_SOURCE_DIR}/threshold.png threshold20.png)
+ADD_TEST(Threshold20Compare ImageCompare threshold20.png ${CMAKE_SOURCE_DIR}/threshold20.png)
+
+ADD_TEST(Threshold30 wst 30 ${CMAKE_SOURCE_DIR}/threshold.png threshold30.png)
+ADD_TEST(Threshold30Compare ImageCompare threshold30.png ${CMAKE_SOURCE_DIR}/threshold30.png)
+
+ADD_TEST(Threshold40 wst 40 ${CMAKE_SOURCE_DIR}/threshold.png threshold40.png)
+ADD_TEST(Threshold40Compare ImageCompare threshold40.png ${CMAKE_SOURCE_DIR}/threshold40.png)
+
+ADD_TEST(Threshold50 wst 50 ${CMAKE_SOURCE_DIR}/threshold.png threshold50.png)
+ADD_TEST(Threshold50Compare ImageCompare threshold50.png ${CMAKE_SOURCE_DIR}/threshold50.png)
+
+
+
