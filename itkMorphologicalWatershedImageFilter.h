@@ -99,6 +99,11 @@ public:
   itkGetConstReferenceMacro(MarkWatershed, bool);
   itkBooleanMacro(MarkWatershed);
 
+  /**
+   */
+  itkSetMacro(Threshold, InputImagePixelType);
+  itkGetMacro(Threshold, InputImagePixelType);
+
 protected:
   MorphologicalWatershedImageFilter();
   ~MorphologicalWatershedImageFilter() {};
@@ -124,6 +129,8 @@ private:
   bool m_FullyConnected;
 
   bool m_MarkWatershed;
+
+  InputImagePixelType m_Threshold;
 
 } ; // end of class
 
