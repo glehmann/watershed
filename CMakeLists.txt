@@ -86,3 +86,14 @@ ADD_TEST(ThickLinesMfCompare ImageCompare thick-lines-Mf.png ${CMAKE_SOURCE_DIR}
 ADD_TEST(ThickLinesmf ws 0 0 ${CMAKE_SOURCE_DIR}/thick-lines.png thick-lines-mf.png)
 ADD_TEST(ThickLinesmfCompare ImageCompare thick-lines-mf.png ${CMAKE_SOURCE_DIR}/thick-lines-mf.png)
 
+ADD_TEST(PlateauMF ws 1 1 ${CMAKE_SOURCE_DIR}/plateau.png plateau-MF.png)
+ADD_TEST(PlateauMFCompare ImageCompare plateau-MF.png ${CMAKE_SOURCE_DIR}/plateau-MF.png)
+
+ADD_TEST(PlateaumF ws 0 1 ${CMAKE_SOURCE_DIR}/plateau.png plateau-mF.png)
+ADD_TEST(PlateaumFCompare ImageCompare plateau-mF.png ${CMAKE_SOURCE_DIR}/plateau-mF.png)
+
+ADD_TEST(PlateauMf ws 1 0 ${CMAKE_SOURCE_DIR}/plateau.png plateau-Mf.png)
+ADD_TEST(PlateauMfCompare ImageCompare plateau-Mf.png ${CMAKE_SOURCE_DIR}/plateau-Mf.png)
+
+ADD_TEST(Plateaumf ws 0 0 ${CMAKE_SOURCE_DIR}/plateau.png plateau-mf.png)
+ADD_TEST(PlateaumfCompare ImageCompare plateau-mf.png ${CMAKE_SOURCE_DIR}/plateau-mf.png)
