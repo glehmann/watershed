@@ -57,6 +57,8 @@ int main(int, char * argv[])
   typedef itk::MorphologicalWatershedImageFilter< IType, IType > FilterType;
   FilterType::Pointer filter = FilterType::New();
   filter->SetInput( reader->GetOutput() );
+  filter->SetMarkWatershed( false );
+  filter->SetFullyConnected( false );
 
   typedef ProgressCallback< FilterType > ProgressType;
   ProgressType::Pointer progress = ProgressType::New();
