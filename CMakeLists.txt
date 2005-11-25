@@ -62,3 +62,15 @@ ADD_TEST(ButtonHoleMfCompare ImageCompare button-hole-Mf.png ${CMAKE_SOURCE_DIR}
 ADD_TEST(ButtonHolemf ws 0 0 ${CMAKE_SOURCE_DIR}/button-hole.png button-hole-mf.png)
 ADD_TEST(ButtonHolemfCompare ImageCompare button-hole-mf.png ${CMAKE_SOURCE_DIR}/button-hole-mf.png)
 
+ADD_TEST(PassValueMF ws 1 1 ${CMAKE_SOURCE_DIR}/pass-values.png pass-values-MF.png)
+ADD_TEST(PassValueMFCompare ImageCompare pass-values-MF.png ${CMAKE_SOURCE_DIR}/pass-values-MF.png)
+
+ADD_TEST(PassValuemF ws 0 1 ${CMAKE_SOURCE_DIR}/pass-values.png pass-values-mF.png)
+ADD_TEST(PassValuemFCompare ImageCompare pass-values-mF.png ${CMAKE_SOURCE_DIR}/pass-values-mF.png)
+
+ADD_TEST(PassValueMf ws 1 0 ${CMAKE_SOURCE_DIR}/pass-values.png pass-values-Mf.png)
+ADD_TEST(PassValueMfCompare ImageCompare pass-values-Mf.png ${CMAKE_SOURCE_DIR}/pass-values-Mf.png)
+
+ADD_TEST(PassValuemf ws 0 0 ${CMAKE_SOURCE_DIR}/pass-values.png pass-values-mf.png)
+ADD_TEST(PassValuemfCompare ImageCompare pass-values-mf.png ${CMAKE_SOURCE_DIR}/pass-values-mf.png)
+
