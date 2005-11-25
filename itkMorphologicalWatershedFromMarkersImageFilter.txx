@@ -94,9 +94,7 @@ MorphologicalWatershedFromMarkersImageFilter<TInputImage, TLabelImage>
   
   // mask and marker must have the same size
   if ( this->GetMarkerImage()->GetRequestedRegion().GetSize() != this->GetInput()->GetRequestedRegion().GetSize() )
-    {
-    itkExceptionMacro( << "Marker and input must have the same size." );
-    }
+    { itkExceptionMacro( << "Marker and input must have the same size." ); }
   
   // create a temporary image to store the state of each pixel (processed or not)
   typedef Image< bool, ImageDimension > StatusImageType;
@@ -108,6 +106,80 @@ MorphologicalWatershedFromMarkersImageFilter<TInputImage, TLabelImage>
   typedef typename std::queue< IndexType > QueueType;
   typedef typename std::map< InputImagePixelType, QueueType > MapType;
   MapType fah;
+
+  // create the iterators
+  
+  // iterator for the marker image
+  typedef ConstShapedNeighborhoodIterator<LabelImageType> MarkerIteratorType;
+  typename MarkerIteratorType::RadiusType radius;
+  radius.Fill(1);
+  typename MarkerIteratorType::ConstIterator nmIt;
+  MarkerIteratorType markerIt(radius, this->GetMarkerImage(), this->GetMarkerImage()->GetRequestedRegion());
+  // add a boundary constant to avoid adding pixels on the border in the fah
+  ConstantBoundaryCondition<LabelImageType> lcbc;
+  lcbc.SetConstant( NumericTraits<LabelImagePixelType>::max() );
+  markerIt.OverrideBoundaryCondition(&lcbc);
+
+  // iterator for the status image
+  typedef ShapedNeighborhoodIterator<StatusImageType> StatusIteratorType;
+  typename StatusIteratorType::Iterator nsIt;
+  StatusIteratorType statusIt(radius, statusImage, this->GetOutput()->GetRequestedRegion());
+  ConstantBoundaryCondition< StatusImageType > bcbc;
+  bcbc.SetConstant( true );  // outside pixel are already processed
+  statusIt.OverrideBoundaryCondition(&bcbc);
+
+  // iterator for the input image
+  typedef ConstShapedNeighborhoodIterator<InputImageType> InputIteratorType;
+  InputIteratorType inputIt(radius, this->GetInput(), this->GetInput()->GetRequestedRegion());
+  typename InputIteratorType::ConstIterator niIt;
+  
+  // iterator for the output image
+  typedef ShapedNeighborhoodIterator<LabelImageType> OutputIteratorType;
+  typedef typename OutputIteratorType::OffsetType OffsetType;
+  typename OutputIteratorType::Iterator noIt;
+  OutputIteratorType outputIt(radius, this->GetOutput(), this->GetOutput()->GetRequestedRegion());
+  ConstantBoundaryCondition<LabelImageType> lcbc2;
+  lcbc2.SetConstant( NumericTraits<LabelImagePixelType>::Zero ); // outside pixel are watershed so they won't be use to find real watershed  pixels
+  outputIt.OverrideBoundaryCondition(&lcbc2);
+
+  // activate neighbors 
+  typename MarkerIteratorType::OffsetType offset;
+  unsigned int d;
+  typename MarkerIteratorType::OffsetValueType i;
+  offset.Fill(0);
+  if (!m_FullyConnected)
+    {
+    for (d=0; d < ImageDimension; ++d)
+      {
+      for (i=-1; i<=1; i+=2)
+        {
+        offset[d] = i;
+        markerIt.ActivateOffset(offset); // a neighbor pixel in dimension d
+        statusIt.ActivateOffset(offset);
+        inputIt.ActivateOffset(offset);
+        outputIt.ActivateOffset(offset);
+        }
+      offset[d] = 0;
+      }
+    }
+  else
+    {
+    // activate all pixels excepted center pixel
+    for (d=0; d < markerIt.GetCenterNeighborhoodIndex()*2+1; ++d)
+      {
+        markerIt.ActivateOffset( markerIt.GetOffset(d) );
+        statusIt.ActivateOffset( statusIt.GetOffset(d) );
+        inputIt.ActivateOffset( inputIt.GetOffset(d) );
+        outputIt.ActivateOffset( outputIt.GetOffset(d) );
+      }
+    offset.Fill(0);
+    markerIt.DeactivateOffset(offset);
+    statusIt.DeactivateOffset(offset);
+    inputIt.DeactivateOffset(offset);
+    outputIt.DeactivateOffset(offset);
+    }
+
+  
   
   if( m_MarkWatershed )
     {
@@ -117,64 +189,6 @@ MorphologicalWatershedFromMarkersImageFilter<TInputImage, TLabelImage>
     //  - set markers pixels to already processed status
     //  - copy markers pixels to output image
     //  - init FAH with indexes of background pixels with marker pixel(s) in their neighborhood
-    {
-    // iterator for the marker image
-    typedef ConstShapedNeighborhoodIterator<LabelImageType> MarkerIteratorType;
-    typename MarkerIteratorType::RadiusType radius;
-    radius.Fill(1);
-    typename MarkerIteratorType::ConstIterator nmIt;
-    MarkerIteratorType markerIt(radius, this->GetMarkerImage(), this->GetMarkerImage()->GetRequestedRegion());
-    // iterator for the status image
-    typedef ShapedNeighborhoodIterator<StatusImageType> StatusIteratorType;
-    StatusIteratorType statusIt(radius, statusImage, this->GetMarkerImage()->GetRequestedRegion());
-    typename StatusIteratorType::Iterator nsIt;
-    // iterator for the input image
-    typedef ConstShapedNeighborhoodIterator<InputImageType> InputIteratorType;
-    InputIteratorType inputIt(radius, this->GetInput(), this->GetInput()->GetRequestedRegion());
-    typename InputIteratorType::ConstIterator niIt;
-    
-    // activate neighbors 
-    typename MarkerIteratorType::OffsetType offset;
-    unsigned int d;
-    typename MarkerIteratorType::OffsetValueType i;
-    offset.Fill(0);
-    if (!m_FullyConnected)
-      {
-      for (d=0; d < ImageDimension; ++d)
-        {
-        for (i=-1; i<=1; i+=2)
-          {
-          offset[d] = i;
-          markerIt.ActivateOffset(offset); // a neighbor pixel in dimension d
-          statusIt.ActivateOffset(offset);
-          inputIt.ActivateOffset(offset);
-          }
-        offset[d] = 0;
-        }
-      }
-    else
-      {
-      // activate all pixels excepted center pixel
-      for (d=0; d < markerIt.GetCenterNeighborhoodIndex()*2+1; ++d)
-        {
-          markerIt.ActivateOffset( markerIt.GetOffset(d) );
-          statusIt.ActivateOffset( statusIt.GetOffset(d) );
-          inputIt.ActivateOffset( inputIt.GetOffset(d) );
-        }
-      offset.Fill(0);
-      markerIt.DeactivateOffset(offset);
-      statusIt.DeactivateOffset(offset);
-      inputIt.DeactivateOffset(offset);
-      }
-    // add a boundary constant to avoid adding pixels on the border in the fah
-    ConstantBoundaryCondition<LabelImageType> lcbc;
-    lcbc.SetConstant( NumericTraits<LabelImagePixelType>::max() );
-    markerIt.OverrideBoundaryCondition(&lcbc);
-  
-    // iterator for the output image
-    typedef ImageRegionIterator<LabelImageType> OutputIteratorType;
-    OutputIteratorType outputIt(this->GetOutput(), this->GetOutput()->GetRequestedRegion());
-    
     for ( markerIt.GoToBegin(), statusIt.GoToBegin(), outputIt.GoToBegin(), inputIt.GoToBegin();
       !markerIt.IsAtEnd();
       ++markerIt, ++statusIt, ++outputIt, ++inputIt ) 
@@ -186,7 +200,7 @@ MorphologicalWatershedFromMarkersImageFilter<TInputImage, TLabelImage>
         // mark it as already processed
         statusIt.SetCenterPixel( true );
         // and copy it to the output image
-        outputIt.Set( markerPixel );
+        outputIt.SetCenterPixel( markerPixel );
   
         // search the background pixels in the neighborhood
         for ( nmIt= markerIt.Begin(), nsIt= statusIt.Begin(), niIt= inputIt.Begin();
@@ -206,73 +220,13 @@ MorphologicalWatershedFromMarkersImageFilter<TInputImage, TLabelImage>
         }
       else
         {
-        outputIt.Set( wsLabel );
+        outputIt.SetCenterPixel( wsLabel );
         }
       progress.CompletedPixel();
       }
     // end of init stage
-    }
     
     // flooding
-    {
-    // iterator for the output image
-    typedef ShapedNeighborhoodIterator<LabelImageType> OutputIteratorType;
-    typedef typename OutputIteratorType::OffsetType OffsetType;
-    typename OutputIteratorType::RadiusType radius;
-    radius.Fill(1);
-    typename OutputIteratorType::Iterator noIt;
-    OutputIteratorType outputIt(radius, this->GetOutput(), this->GetOutput()->GetRequestedRegion());
-    ConstantBoundaryCondition<LabelImageType> lcbc;
-    lcbc.SetConstant( NumericTraits<LabelImagePixelType>::Zero ); // outside pixel are watershed so they won't be use to find real watershed  pixels
-    outputIt.OverrideBoundaryCondition(&lcbc);
-  
-    // iterator for the status image
-    typedef ShapedNeighborhoodIterator<StatusImageType> StatusIteratorType;
-    typename StatusIteratorType::Iterator nsIt;
-    StatusIteratorType statusIt(radius, statusImage, this->GetOutput()->GetRequestedRegion());
-    ConstantBoundaryCondition< StatusImageType > bcbc;
-    bcbc.SetConstant( true );  // outside pixel are already processed
-    statusIt.OverrideBoundaryCondition(&bcbc);
-  
-    // iterator for the intput image
-    typedef ConstShapedNeighborhoodIterator<InputImageType> InputIteratorType;
-    typename InputIteratorType::ConstIterator niIt;
-    InputIteratorType inputIt(radius, this->GetInput(), this->GetInput()->GetRequestedRegion());
-  
-    // activate neighbors 
-    typename OutputIteratorType::OffsetType offset;
-    unsigned int d;
-    typename OutputIteratorType::OffsetValueType i;
-    offset.Fill(0);
-    if (!m_FullyConnected)
-      {
-      for (d=0; d < ImageDimension; ++d)
-        {
-        for (i=-1; i<=1; i+=2)
-          {
-          offset[d] = i;
-          outputIt.ActivateOffset(offset); // a neighbor pixel in dimension d
-          statusIt.ActivateOffset(offset);
-          inputIt.ActivateOffset(offset);
-          }
-        offset[d] = 0;
-        }
-      }
-    else
-      {
-      // activate all pixels excepted center pixel
-      for (d=0; d < outputIt.GetCenterNeighborhoodIndex()*2+1; ++d)
-        {
-          outputIt.ActivateOffset( outputIt.GetOffset(d) );
-          statusIt.ActivateOffset( statusIt.GetOffset(d) );
-          inputIt.ActivateOffset( inputIt.GetOffset(d) );
-        }
-      offset.Fill(0);
-      outputIt.DeactivateOffset(offset);
-      statusIt.DeactivateOffset(offset);
-      inputIt.DeactivateOffset(offset);
-      }
-  
     // init all the iterators
     outputIt.GoToBegin();
     statusIt.GoToBegin();
@@ -334,65 +288,15 @@ MorphologicalWatershedFromMarkersImageFilter<TInputImage, TLabelImage>
         progress.CompletedPixel();
         }
       }
-    } // end of flooding
     }
+
+
   else
     {
     // first stage:
     //  - set markers pixels to already processed status
     //  - copy markers pixels to output image
     //  - init FAH with indexes of pixels with background pixel in their neighborhood
-    {
-    // iterator for the marker image
-    typedef ConstShapedNeighborhoodIterator<LabelImageType> MarkerIteratorType;
-    typename MarkerIteratorType::RadiusType radius;
-    radius.Fill(1);
-    typename MarkerIteratorType::ConstIterator nmIt;
-    MarkerIteratorType markerIt(radius, this->GetMarkerImage(), this->GetMarkerImage()->GetRequestedRegion());
-    // activate neighbors 
-    typename MarkerIteratorType::OffsetType offset;
-    unsigned int d;
-    typename MarkerIteratorType::OffsetValueType i;
-    offset.Fill(0);
-    if (!m_FullyConnected)
-      {
-      for (d=0; d < ImageDimension; ++d)
-        {
-        for (i=-1; i<=1; i+=2)
-          {
-          offset[d] = i;
-          markerIt.ActivateOffset(offset); // a neighbor pixel in dimension d
-          }
-        offset[d] = 0;
-        }
-      }
-    else
-      {
-      // activate all pixels excepted center pixel
-      for (d=0; d < markerIt.GetCenterNeighborhoodIndex()*2+1; ++d)
-        {
-          markerIt.ActivateOffset( markerIt.GetOffset(d) );
-        }
-      offset.Fill(0);
-      markerIt.DeactivateOffset(offset);
-      }
-    // add a boundary constant to avoid adding pixels on the border in the fah
-    ConstantBoundaryCondition<LabelImageType> lcbc;
-    lcbc.SetConstant( NumericTraits<LabelImagePixelType>::max() );
-    markerIt.OverrideBoundaryCondition(&lcbc);
-  
-    // iterator for the status image
-    typedef ImageRegionIterator<StatusImageType> StatusIteratorType;
-    StatusIteratorType statusIt(statusImage, this->GetMarkerImage()->GetRequestedRegion());
-    
-    // iterator for the output image
-    typedef ImageRegionIterator<LabelImageType> OutputIteratorType;
-    OutputIteratorType outputIt(this->GetOutput(), this->GetOutput()->GetRequestedRegion());
-    
-    // iterator for the input image
-    typedef ImageRegionConstIterator<InputImageType> InputIteratorType;
-    InputIteratorType inputIt(this->GetInput(), this->GetInput()->GetRequestedRegion());
-    
     for ( markerIt.GoToBegin(), statusIt.GoToBegin(), outputIt.GoToBegin(), inputIt.GoToBegin();
       !markerIt.IsAtEnd();
       ++markerIt, ++statusIt, ++outputIt, ++inputIt ) 
@@ -402,9 +306,9 @@ MorphologicalWatershedFromMarkersImageFilter<TInputImage, TLabelImage>
         {
         // this pixels belongs to a marker
         // mark it as already processed
-        statusIt.Set( true );
+        statusIt.SetCenterPixel( true );
         // and copy it to the output image
-        outputIt.Set( markerPixel );
+        outputIt.SetCenterPixel( markerPixel );
         // search if it has background pixel in its neighborhood
         bool haveBgNeighbor = false;
         for ( nmIt= markerIt.Begin(); nmIt != markerIt.End() && !haveBgNeighbor; nmIt++ )
@@ -415,7 +319,7 @@ MorphologicalWatershedFromMarkersImageFilter<TInputImage, TLabelImage>
         if ( haveBgNeighbor )
           {
             // there is a background pixel in the neighborhood; add to fah
-            fah[ inputIt.Get() ].push( markerIt.GetIndex() );
+            fah[ inputIt.GetCenterPixel() ].push( markerIt.GetIndex() );
           }
         else
           {
@@ -425,101 +329,17 @@ MorphologicalWatershedFromMarkersImageFilter<TInputImage, TLabelImage>
         }
       else
         {
-        // this pixel does not belong to a marker
-        // mark it as not processed and give it a default output value
-        // the default output value must be the watershed marker because
-        // in some particular cases, some pixels which should be marked as watershed
-        // won't be processed and will have an undefinded value without that.
-        // here is an example where the center pixel won't be processed:
-        // 1 0 2
-        // 0 0 0
-        // 4 0 3
-        //
-        statusIt.Set( false );
-        outputIt.Set( wsLabel );
+        statusIt.SetCenterPixel( false );
+        outputIt.SetCenterPixel( wsLabel );
         }
       progress.CompletedPixel();
       }
     // end of init stage
-    }
     
     // flooding
-    {
-    // iterator for the output image
-    typedef ShapedNeighborhoodIterator<LabelImageType> OutputIteratorType;
-    typedef typename OutputIteratorType::OffsetType OffsetType;
-    typename OutputIteratorType::RadiusType radius;
-    radius.Fill(1);
-    typename OutputIteratorType::Iterator noIt;
-    OutputIteratorType outputIt(radius, this->GetOutput(), this->GetOutput()->GetRequestedRegion());
-    typename OutputIteratorType::Iterator noIt2;
-    OutputIteratorType outputIt2(radius, this->GetOutput(), this->GetOutput()->GetRequestedRegion());
-    ConstantBoundaryCondition<LabelImageType> lcbc;
-    lcbc.SetConstant( NumericTraits<LabelImagePixelType>::Zero ); // outside pixel are watershed so they won't be use to find real watershed  pixels
-    outputIt.OverrideBoundaryCondition(&lcbc);
-    outputIt2.OverrideBoundaryCondition(&lcbc);
-  
-    // iterator for the status image
-    typedef ShapedNeighborhoodIterator<StatusImageType> StatusIteratorType;
-    typename StatusIteratorType::Iterator nsIt;
-    StatusIteratorType statusIt(radius, statusImage, this->GetOutput()->GetRequestedRegion());
-    typename StatusIteratorType::Iterator nsIt2;
-    StatusIteratorType statusIt2(radius, statusImage, this->GetOutput()->GetRequestedRegion());
-    ConstantBoundaryCondition< StatusImageType > bcbc;
-    bcbc.SetConstant( true );  // outside pixel are already processed
-    statusIt.OverrideBoundaryCondition(&bcbc);
-    statusIt2.OverrideBoundaryCondition(&bcbc);
-  
-      // iterator for the intput image
-    typedef ConstShapedNeighborhoodIterator<InputImageType> InputIteratorType;
-    typename InputIteratorType::ConstIterator niIt;
-    InputIteratorType inputIt(radius, this->GetInput(), this->GetInput()->GetRequestedRegion());
-  
-    // activate neighbors 
-    typename OutputIteratorType::OffsetType offset;
-    unsigned int d;
-    typename OutputIteratorType::OffsetValueType i;
-    offset.Fill(0);
-    if (!m_FullyConnected)
-      {
-      for (d=0; d < ImageDimension; ++d)
-        {
-        for (i=-1; i<=1; i+=2)
-          {
-          offset[d] = i;
-          outputIt.ActivateOffset(offset); // a neighbor pixel in dimension d
-          statusIt.ActivateOffset(offset);
-          inputIt.ActivateOffset(offset);
-          outputIt2.ActivateOffset(offset);
-          statusIt2.ActivateOffset(offset);
-          }
-        offset[d] = 0;
-        }
-      }
-    else
-      {
-      // activate all pixels excepted center pixel
-      for (d=0; d < outputIt.GetCenterNeighborhoodIndex()*2+1; ++d)
-        {
-          outputIt.ActivateOffset( outputIt.GetOffset(d) );
-          statusIt.ActivateOffset( statusIt.GetOffset(d) );
-          inputIt.ActivateOffset( inputIt.GetOffset(d) );
-          outputIt2.ActivateOffset( inputIt.GetOffset(d) );
-          statusIt2.ActivateOffset( inputIt.GetOffset(d) );
-        }
-      offset.Fill(0);
-      outputIt.DeactivateOffset(offset);
-      statusIt.DeactivateOffset(offset);
-      inputIt.DeactivateOffset(offset);
-      outputIt2.DeactivateOffset(offset);
-      statusIt2.DeactivateOffset(offset);
-      }
-  
     // init all the iterators
     outputIt.GoToBegin();
-    outputIt2.GoToBegin();
     statusIt.GoToBegin();
-    statusIt2.GoToBegin();
     inputIt.GoToBegin();
       
   
@@ -555,20 +375,15 @@ MorphologicalWatershedFromMarkersImageFilter<TInputImage, TLabelImage>
             // the pixel is not yet processed. It can be labeled with the current label
             noIt.Set( currentMarker );
             if ( niIt.Get() <= currentValue )
-              {
-              currentQueue.push( inputIt.GetIndex() + noIt.GetNeighborhoodOffset() );
-              }
+              { currentQueue.push( inputIt.GetIndex() + noIt.GetNeighborhoodOffset() ); }
             else
-              {
-              fah[ niIt.Get() ].push( inputIt.GetIndex() + noIt.GetNeighborhoodOffset() );
-              }
+              { fah[ niIt.Get() ].push( inputIt.GetIndex() + noIt.GetNeighborhoodOffset() ); }
             nsIt.Set( true );
             progress.CompletedPixel();
             }
           }
         }
       }
-    } // end of flooding
     }
 }
 
