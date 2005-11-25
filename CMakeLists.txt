@@ -42,6 +42,10 @@ SET(CurrentExe "ws")
 ADD_EXECUTABLE(${CurrentExe} ${CurrentExe}.cxx)
 TARGET_LINK_LIBRARIES(${CurrentExe} ${Libraries})
 
+SET(CurrentExe "wsm")
+ADD_EXECUTABLE(${CurrentExe} ${CurrentExe}.cxx)
+TARGET_LINK_LIBRARIES(${CurrentExe} ${Libraries})
+
 #the following line is an example of how to add a test to your project.
 #Testname is the title for this particular test.  ExecutableToRun is the
 #program which will be running this test.  It can either be a part of this
@@ -97,3 +101,15 @@ ADD_TEST(PlateauMfCompare ImageCompare plateau-Mf.png ${CMAKE_SOURCE_DIR}/platea
 
 ADD_TEST(Plateaumf ws 0 0 ${CMAKE_SOURCE_DIR}/plateau.png plateau-mf.png)
 ADD_TEST(PlateaumfCompare ImageCompare plateau-mf.png ${CMAKE_SOURCE_DIR}/plateau-mf.png)
+
+ADD_TEST(3x3MF wsm 1 1 ${CMAKE_SOURCE_DIR}/3x3-input.png ${CMAKE_SOURCE_DIR}/3x3-markers.png 3x3MF.png)
+ADD_TEST(3x3MFCompare ImageCompare 3x3MF.png ${CMAKE_SOURCE_DIR}/3x3-markers.png)
+
+ADD_TEST(3x3Mf wsm 1 0 ${CMAKE_SOURCE_DIR}/3x3-input.png ${CMAKE_SOURCE_DIR}/3x3-markers.png 3x3Mf.png)
+ADD_TEST(3x3MfCompare ImageCompare 3x3Mf.png ${CMAKE_SOURCE_DIR}/3x3-markers.png)
+
+ADD_TEST(3x3mF wsm 0 1 ${CMAKE_SOURCE_DIR}/3x3-input.png ${CMAKE_SOURCE_DIR}/3x3-markers.png 3x3mF.png)
+ADD_TEST(3x3mFCompare ImageCompare 3x3mF.png ${CMAKE_SOURCE_DIR}/3x3m.png)
+
+ADD_TEST(3x3mf wsm 0 0 ${CMAKE_SOURCE_DIR}/3x3-input.png ${CMAKE_SOURCE_DIR}/3x3-markers.png 3x3mf.png)
+ADD_TEST(3x3mfCompare ImageCompare 3x3mf.png ${CMAKE_SOURCE_DIR}/3x3m.png)
