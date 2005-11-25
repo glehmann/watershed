@@ -52,13 +52,13 @@ int main(int, char * argv[])
 
   typedef itk::ImageFileReader< IType > ReaderType;
   ReaderType::Pointer reader = ReaderType::New();
-  reader->SetFileName( argv[1] );
+  reader->SetFileName( argv[3] );
 
   typedef itk::MorphologicalWatershedImageFilter< IType, IType > FilterType;
   FilterType::Pointer filter = FilterType::New();
   filter->SetInput( reader->GetOutput() );
-  filter->SetMarkWatershed( true );
-  filter->SetFullyConnected( false );
+  filter->SetMarkWatershed( atoi( argv[1] ) );
+  filter->SetFullyConnected( atoi( argv[2] ) );
   filter->SetThreshold( 10 );
 
   typedef ProgressCallback< FilterType > ProgressType;
@@ -68,7 +68,7 @@ int main(int, char * argv[])
   typedef itk::ImageFileWriter< IType > WriterType;
   WriterType::Pointer writer = WriterType::New();
   writer->SetInput( filter->GetOutput() );
-  writer->SetFileName( argv[2] );
+  writer->SetFileName( argv[4] );
   writer->Update();
 
   return 0;

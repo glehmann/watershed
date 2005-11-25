@@ -38,8 +38,9 @@ SET(Libraries
 #MyExe will be built using the files MyClass.h and MyClass.cxx, and it will
 #be linked to all the libraries you specified above. 
 #You can build more than one executable per project
-ADD_EXECUTABLE(test test.cxx) 
-TARGET_LINK_LIBRARIES(test ${Libraries})
+SET(CurrentExe "ws")
+ADD_EXECUTABLE(${CurrentExe} ${CurrentExe}.cxx)
+TARGET_LINK_LIBRARIES(${CurrentExe} ${Libraries})
 
 #the following line is an example of how to add a test to your project.
 #Testname is the title for this particular test.  ExecutableToRun is the
@@ -49,5 +50,15 @@ TARGET_LINK_LIBRARIES(test ${Libraries})
 #any tests you can comment out or delete the following line.
 # ADD_TEST(Testname ExecutableToRun arg1 arg2 arg3)
 
-ADD_TEST(Run test ${CMAKE_SOURCE_DIR}/${INPUT_IMAGE} out.png)
-ADD_TEST(CompareImage ImageCompare out.png ${CMAKE_SOURCE_DIR}/test.png)
+ADD_TEST(ButtonHoleMF ws 1 1 ${CMAKE_SOURCE_DIR}/button-hole.png button-hole-MF.png)
+ADD_TEST(ButtonHoleMFCompare ImageCompare button-hole-MF.png ${CMAKE_SOURCE_DIR}/button-hole-MF.png)
+
+ADD_TEST(ButtonHolemF ws 0 1 ${CMAKE_SOURCE_DIR}/button-hole.png button-hole-mF.png)
+ADD_TEST(ButtonHolemFCompare ImageCompare button-hole-mF.png ${CMAKE_SOURCE_DIR}/button-hole-mF.png)
+
+ADD_TEST(ButtonHoleMf ws 1 0 ${CMAKE_SOURCE_DIR}/button-hole.png button-hole-Mf.png)
+ADD_TEST(ButtonHoleMfCompare ImageCompare button-hole-Mf.png ${CMAKE_SOURCE_DIR}/button-hole-Mf.png)
+
+ADD_TEST(ButtonHolemf ws 0 0 ${CMAKE_SOURCE_DIR}/button-hole.png button-hole-mf.png)
+ADD_TEST(ButtonHolemfCompare ImageCompare button-hole-mf.png ${CMAKE_SOURCE_DIR}/button-hole-mf.png)
+
