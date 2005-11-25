@@ -1,0 +1,91 @@
+Input:
+- grayscale image I
+- marker image M
+Output:
+- marker image O
+Internal vars:
+- p, p', p''' are pixel positions
+- S store the process status of all pixels
+- pq is the priority queue
+Functions:
+- N(p) returns the list of neighbors of the pixel p
+- push(pq, val, elt)
+- pop(pq)
+- init()
+- isempty(pq)
+Some constants:
+- BACKGROUND, used in input image I
+- WATERSHED, used in output image O
+- PROCESSED and UNPROCESSED used in temporary status structure S
+
+# initialization stage
+init(S)
+init(O)
+init(pq)
+for each p in M do
+  if M(p) != BACKGROUND do
+    # copy the marker pixels in the output image
+    O(p) <- M(p)
+    # mark p as already processed
+    S(p) <- PROCESSED
+    
+    # and fill the priority queue with the markers
+    # pixel with a least an non-marked pixel.
+    for p' in N(p) do
+      if M(p') == BACKGROUND do
+        pq.push(I(p), p)
+        break
+      end if
+    end for
+  else
+    S(p) <- UNPROCESSED
+  end if
+end for
+  
+# flooding stage without watershed lines
+while(not pq.isempty())
+  p <- pq.pop()
+  for p' in N(p) do
+    if S(p') = UNPROCESSED do
+      O(p') <- M(p)
+      S(p') <- PROCESSED
+      # here is the important part which makes the automatic minima imposition
+      if I(p') <= I(p) do
+        pq.push(I(p), p')
+      else
+        pq.push(I(p'), p')
+      end inf
+    end if
+  end for
+end while
+
+
+# flooding stage with watershed lines
+while(not pq.isempty())
+  p <- pq.pop()
+  for p' in N(p) do
+    if S(p') == UNPROCESSED do
+      iswatershed <- false
+      for p'' in N(p') do
+        if S(p'') = PROCESSED and O(p'') != O(p) and O(p) != WATERSHED do
+          iswatershed <- true
+          break
+        end if
+      end for
+      if iswatershed do
+        O(p') <- WATERSHED
+        # watershed pixels w
+      else
+        O(p') <- M(p)
+        if I(p') <= I(p) do
+          pq.push(I(p), p')
+        else
+          pq.push(I(p'), p')
+        end inf
+      end if
+      S(p') <- PROCESSED
+    end if
+  end for
+end while
+
+
