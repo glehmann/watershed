@@ -276,9 +276,7 @@ MorphologicalWatershedFromMarkersImageFilter<TInputImage, TLabelImage>
         // to the pixel, else keep it as is (watershed line)
         LabelImagePixelType marker = wsLabel;
         bool collision = false;
-        for (noIt = outputIt.Begin(), niIt = inputIt.Begin(), nsIt = statusIt.Begin();
-          noIt != outputIt.End();
-          noIt++, niIt++, nsIt++)
+        for (noIt = outputIt.Begin(); noIt != outputIt.End(); noIt++)
           {
           LabelImagePixelType o = noIt.Get();
           if( o != wsLabel && !collision )
@@ -288,21 +286,27 @@ MorphologicalWatershedFromMarkersImageFilter<TInputImage, TLabelImage>
             else
               { marker = o; }
             }
-          if ( !nsIt.Get() )
-            {
-            // the pixel is not yet processed. add it to the fah
-            if ( niIt.Get() <= currentValue )
-              { currentQueue.push( inputIt.GetIndex() + noIt.GetNeighborhoodOffset() ); }
-            else
-              { fah[ niIt.Get() ].push( inputIt.GetIndex() + noIt.GetNeighborhoodOffset() ); }
-            // mark it as already in the fah
-            nsIt.Set( true );
-            }
           }
         if( !collision )
           {
           // set the marker value
           outputIt.SetCenterPixel( marker );
+          // and propagate to the neighbors
+          for (niIt = inputIt.Begin(), nsIt = statusIt.Begin();
+            niIt != inputIt.End();
+            niIt++, nsIt++)
+            {
+            if ( !nsIt.Get() )
+              {
+              // the pixel is not yet processed. add it to the fah
+              if ( niIt.Get() <= currentValue )
+                { currentQueue.push( inputIt.GetIndex() + niIt.GetNeighborhoodOffset() ); }
+              else
+                { fah[ niIt.Get() ].push( inputIt.GetIndex() + niIt.GetNeighborhoodOffset() ); }
+              // mark it as already in the fah
+              nsIt.Set( true );
+              }
+            }
           }
         // one more pixel in the flooding stage
         progress.CompletedPixel();
