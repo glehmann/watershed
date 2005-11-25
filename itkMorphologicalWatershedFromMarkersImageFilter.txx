@@ -82,35 +82,36 @@ void
 MorphologicalWatershedFromMarkersImageFilter<TInputImage, TLabelImage>
 ::GenerateData()
 {
+  // the label used to find background in the marker image
+  static const LabelImagePixelType bgLabel = NumericTraits< LabelImagePixelType >::Zero;
+  // the label used to mark the watershed line in the output image
+  static const LabelImagePixelType wsLabel = NumericTraits< LabelImagePixelType >::Zero;
+
+  this->AllocateOutputs();
+  // Set up the progress reporter
+  // we can't found the exact number of pixel to process in the 2nd pass, so we use the maximum number possible.
+  ProgressReporter progress(this, 0, this->GetMarkerImage()->GetRequestedRegion().GetNumberOfPixels()*2);
+  
+  // mask and marker must have the same size
+  if ( this->GetMarkerImage()->GetRequestedRegion().GetSize() != this->GetInput()->GetRequestedRegion().GetSize() )
+    {
+    itkExceptionMacro( << "Marker and input must have the same size." );
+    }
+  
+  // create a temporary image to store the state of each pixel (processed or not)
+  typedef Image< bool, ImageDimension > StatusImageType;
+  typename StatusImageType::Pointer statusImage = StatusImageType::New();
+  statusImage->SetRegions( this->GetMarkerImage()->GetLargestPossibleRegion() );
+  statusImage->Allocate();
+
+  // FAH (in french: File d'Attente Hierarchique)
+  typedef typename std::queue< IndexType > QueueType;
+  typedef typename std::map< InputImagePixelType, QueueType > MapType;
+  MapType fah;
+  
   if( m_MarkWatershed )
     {
-    // the label used to find background in the marker image
-    static const LabelImagePixelType bgLabel = NumericTraits< LabelImagePixelType >::Zero;
-    // the label used to mark the watershed line in the output image
-    static const LabelImagePixelType wsLabel = NumericTraits< LabelImagePixelType >::Zero;
-  
-    this->AllocateOutputs();
-    // Set up the progress reporter
-    // we can't found the exact number of pixel to process in the 2nd pass, so we use the maximum number possible.
-    ProgressReporter progress(this, 0, this->GetMarkerImage()->GetRequestedRegion().GetNumberOfPixels()*2);
-    
-    // mask and marker must have the same size
-    if ( this->GetMarkerImage()->GetRequestedRegion().GetSize() != this->GetInput()->GetRequestedRegion().GetSize() )
-      {
-      itkExceptionMacro( << "Marker and input must have the same size." );
-      }
-    
-    // create a temporary image to store the state of each pixel (processed or not)
-    typedef Image< bool, ImageDimension > StatusImageType;
-    typename StatusImageType::Pointer statusImage = StatusImageType::New();
-    statusImage->SetRegions( this->GetMarkerImage()->GetLargestPossibleRegion() );
-    statusImage->Allocate();
     statusImage->FillBuffer( false );
-  
-    // FAH (in french: File d'Attente Hierarchique)
-    typedef typename std::queue< IndexType > QueueType;
-    typedef typename std::map< InputImagePixelType, QueueType > MapType;
-    MapType fah;
   
     // first stage:
     //  - set markers pixels to already processed status
@@ -337,33 +338,6 @@ MorphologicalWatershedFromMarkersImageFilter<TInputImage, TLabelImage>
     }
   else
     {
-    // the label used to find background in the marker image
-    static const LabelImagePixelType bgLabel = NumericTraits< LabelImagePixelType >::Zero;
-    // the label used to mark the watershed line in the output image
-    static const LabelImagePixelType wsLabel = NumericTraits< LabelImagePixelType >::Zero;
-  
-    this->AllocateOutputs();
-    // Set up the progress reporter
-    // we can't found the exact number of pixel to process in the 2nd pass, so we use the maximum number possible.
-    ProgressReporter progress(this, 0, this->GetMarkerImage()->GetRequestedRegion().GetNumberOfPixels()*2);
-    
-    // mask and marker must have the same size
-    if ( this->GetMarkerImage()->GetRequestedRegion().GetSize() != this->GetInput()->GetRequestedRegion().GetSize() )
-      {
-      itkExceptionMacro( << "Marker and input must have the same size." );
-      }
-    
-    // create a temporary image to store the state of each pixel (processed or not)
-    typedef Image< bool, ImageDimension > StatusImageType;
-    typename StatusImageType::Pointer statusImage = StatusImageType::New();
-    statusImage->SetRegions( this->GetMarkerImage()->GetLargestPossibleRegion() );
-    statusImage->Allocate();
-  
-    // FAH (in french: File d'Attente Hierarchique)
-    typedef typename std::queue< IndexType > QueueType;
-    typedef typename std::map< InputImagePixelType, QueueType > MapType;
-    MapType fah;
-  
     // first stage:
     //  - set markers pixels to already processed status
     //  - copy markers pixels to output image
