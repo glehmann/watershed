@@ -389,6 +389,13 @@ performance on larger images.
 \section{Timing and performance}
 streaming and threading.
 
+Preventing boundary checks - not really the itk way, but if a user is
+willing to throw away the image border by treating it as a watershed
+line then there is no need to test for boundary conditions. There
+isn't even any need to use the face calculator approach because border
+pixels will be initially tagged as processed, and therefore we can be
+certain their neighbors are never checked.
+
 \section{Discussion}
 There is a level of erroneous folklore surrounding the watershed
 transform and it is hoped that this report helps to clear the air.
