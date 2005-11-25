@@ -59,6 +59,7 @@ int main(int, char * argv[])
   filter->SetInput( reader->GetOutput() );
   filter->SetMarkWatershed( true );
   filter->SetFullyConnected( false );
+  filter->SetThreshold( 10 );
 
   typedef ProgressCallback< FilterType > ProgressType;
   ProgressType::Pointer progress = ProgressType::New();
