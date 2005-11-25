@@ -74,3 +74,15 @@ ADD_TEST(PassValueMfCompare ImageCompare pass-values-Mf.png ${CMAKE_SOURCE_DIR}/
 ADD_TEST(PassValuemf ws 0 0 ${CMAKE_SOURCE_DIR}/pass-values.png pass-values-mf.png)
 ADD_TEST(PassValuemfCompare ImageCompare pass-values-mf.png ${CMAKE_SOURCE_DIR}/pass-values-mf.png)
 
+ADD_TEST(ThickLinesMF ws 1 1 ${CMAKE_SOURCE_DIR}/thick-lines.png thick-lines-MF.png)
+ADD_TEST(ThickLinesMFCompare ImageCompare thick-lines-MF.png ${CMAKE_SOURCE_DIR}/thick-lines-MF.png)
+
+ADD_TEST(ThickLinesmF ws 0 1 ${CMAKE_SOURCE_DIR}/thick-lines.png thick-lines-mF.png)
+ADD_TEST(ThickLinesmFCompare ImageCompare thick-lines-mF.png ${CMAKE_SOURCE_DIR}/thick-lines-mF.png)
+
+ADD_TEST(ThickLinesMf ws 1 0 ${CMAKE_SOURCE_DIR}/thick-lines.png thick-lines-Mf.png)
+ADD_TEST(ThickLinesMfCompare ImageCompare thick-lines-Mf.png ${CMAKE_SOURCE_DIR}/thick-lines-Mf.png)
+
+ADD_TEST(ThickLinesmf ws 0 0 ${CMAKE_SOURCE_DIR}/thick-lines.png thick-lines-mf.png)
+ADD_TEST(ThickLinesmfCompare ImageCompare thick-lines-mf.png ${CMAKE_SOURCE_DIR}/thick-lines-mf.png)
+
