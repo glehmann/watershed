@@ -19,6 +19,7 @@
 
 #include "itkMorphologicalWatershedImageFilter.h"
 #include "itkHConcaveImageFilter.h"
+#include "itkHMinimaImageFilter.h"
 #include "itkConnectedComponentImageFilter.h"
 #include "itkMorphologicalWatershedFromMarkersImageFilter.h"
 #include "itkNumericTraits.h"
@@ -72,10 +73,19 @@ MorphologicalWatershedImageFilter<TInputImage, TOutputImage>
   // Allocate the output
   this->AllocateOutputs();
 
+  // Delegate to a H-Concave filter to find the regional minima
+  // should be replaced by a filter which supports the float type
+  typename HConcaveImageFilter<TInputImage, TOutputImage>::Pointer
+    rmin = HConcaveImageFilter<TInputImage, TOutputImage>::New();
+  rmin->SetInput( this->GetInput() );
+  rmin->SetHeight( 1 );
+  rmin->SetFullyConnected( m_FullyConnected );
+
   // label the components
   typename ConnectedComponentImageFilter< TOutputImage, TOutputImage >::Pointer
     label = ConnectedComponentImageFilter< TOutputImage, TOutputImage >::New();
   label->SetFullyConnected( m_FullyConnected );
+  label->SetInput( rmin->GetOutput() );
 
   // the watershed
   typename MorphologicalWatershedFromMarkersImageFilter< TInputImage, TOutputImage >::Pointer
@@ -86,30 +96,26 @@ MorphologicalWatershedImageFilter<TInputImage, TOutputImage>
   wshed->SetMarkWatershed( m_MarkWatershed );
 
 
-  if( m_Threshold == NumericTraits< InputImagePixelType >::Zero )
+  if( m_Threshold != NumericTraits< InputImagePixelType >::Zero )
     {
-    // Delegate to a H-Concave filter to find the regional minima
-    // should be replaced by a filter which supports the float type
-    typename HConcaveImageFilter<TInputImage, TOutputImage>::Pointer
-      rmin = HConcaveImageFilter<TInputImage, TOutputImage>::New();
-    rmin->SetInput( this->GetInput() );
-    rmin->SetHeight( 1 );
-    rmin->SetFullyConnected( m_FullyConnected );
-    label->SetInput( rmin->GetOutput() );
-    progress->RegisterInternalFilter(rmin,0.35f);
-    progress->RegisterInternalFilter(label,.3f);
-    progress->RegisterInternalFilter(wshed,.35f);
+    // insert a h-minima filter to remove the smallest minima
+    //
+    typename HMinimaImageFilter<TInputImage, TOutputImage>::Pointer
+      hmin = HMinimaImageFilter<TInputImage, TOutputImage>::New();
+    hmin->SetInput( this->GetInput() );
+    hmin->SetHeight( m_Threshold );
+    hmin->SetFullyConnected( m_FullyConnected );
+    // replace the input of the r-min filter
+    rmin->SetInput( hmin->GetOutput() );
+
+    progress->RegisterInternalFilter(hmin,0.25f);
+    progress->RegisterInternalFilter(rmin,0.25f);
+    progress->RegisterInternalFilter(label,.25f);
+    progress->RegisterInternalFilter(wshed,.25f);
     }
   else
     {
-    // Delegate to a H-Concave filter to find the regional minima
-    //
-    typename HConcaveImageFilter<TInputImage, TOutputImage>::Pointer
-      rmin = HConcaveImageFilter<TInputImage, TOutputImage>::New();
-    rmin->SetInput( this->GetInput() );
-    rmin->SetHeight( m_Threshold );
-    rmin->SetFullyConnected( m_FullyConnected );
-    label->SetInput( rmin->GetOutput() );
+    // don't insert the h-minima to save some ressources
     progress->RegisterInternalFilter(rmin,0.35f);
     progress->RegisterInternalFilter(label,.3f);
     progress->RegisterInternalFilter(wshed,.35f);
