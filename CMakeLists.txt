@@ -146,5 +146,11 @@ ADD_TEST(RMinFCompare ImageCompare threshold-rminF.png threshold-rminF-ref.png)
 ADD_TEST(RMinf rmin 0 ${CMAKE_SOURCE_DIR}/threshold.png threshold-rminf.png threshold-rminf-ref.png)
 ADD_TEST(RMinfCompare ImageCompare threshold-rminf.png threshold-rminf-ref.png)
 
+ADD_TEST(RMinBlack rmin 0 ${CMAKE_SOURCE_DIR}/black.png black-rminf.png black-rminf-ref.png)
+ADD_TEST(RMinBlackCompare ImageCompare black-rminf.png black-rminf-ref.png)
+
+ADD_TEST(RMinWhite rmin 0 ${CMAKE_SOURCE_DIR}/white.png white-rminf.png white-rminf-ref.png)
+ADD_TEST(RMinWhiteCompare ImageCompare white-rminf.png white-rminf-ref.png)
+
 
 
