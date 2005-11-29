@@ -27,7 +27,9 @@ RegionalExtremaImageFilter<TInputImage, TOutputImage, TFunction1, TFunction2>
   
   // We need all the input.
   InputImagePointer input = const_cast<InputImageType *>(this->GetInput());
-  
+  if( !input )
+    { return; }
+
   input->SetRequestedRegion( input->GetLargestPossibleRegion() );
 }
 
