@@ -122,6 +122,33 @@ ADD_TEST(PlateauMfCompare ImageCompare plateau-Mf.png ${CMAKE_SOURCE_DIR}/platea
 ADD_TEST(Plateaumf ws 0 0 ${CMAKE_SOURCE_DIR}/plateau.png plateau-mf.png)
 ADD_TEST(PlateaumfCompare ImageCompare plateau-mf.png ${CMAKE_SOURCE_DIR}/plateau-mf.png)
 
+
+ADD_TEST(BlackMF ws 1 1 ${CMAKE_SOURCE_DIR}/black.png black-MF.png)
+ADD_TEST(BlackMFCompare ImageCompare black-MF.png ${CMAKE_SOURCE_DIR}/white.png)
+
+ADD_TEST(BlackmF ws 0 1 ${CMAKE_SOURCE_DIR}/black.png black-mF.png)
+ADD_TEST(BlackmFCompare ImageCompare black-mF.png ${CMAKE_SOURCE_DIR}/white.png)
+
+ADD_TEST(BlackMf ws 1 0 ${CMAKE_SOURCE_DIR}/black.png black-Mf.png)
+ADD_TEST(BlackMfCompare ImageCompare black-Mf.png ${CMAKE_SOURCE_DIR}/white.png)
+
+ADD_TEST(Blackmf ws 0 0 ${CMAKE_SOURCE_DIR}/black.png black-mf.png)
+ADD_TEST(BlackmfCompare ImageCompare black-mf.png ${CMAKE_SOURCE_DIR}/white.png)
+
+
+ADD_TEST(WhiteMF ws 1 1 ${CMAKE_SOURCE_DIR}/white.png white-MF.png)
+ADD_TEST(WhiteMFCompare ImageCompare white-MF.png ${CMAKE_SOURCE_DIR}/white.png)
+
+ADD_TEST(WhitemF ws 0 1 ${CMAKE_SOURCE_DIR}/white.png white-mF.png)
+ADD_TEST(WhitemFCompare ImageCompare white-mF.png ${CMAKE_SOURCE_DIR}/white.png)
+
+ADD_TEST(WhiteMf ws 1 0 ${CMAKE_SOURCE_DIR}/white.png white-Mf.png)
+ADD_TEST(WhiteMfCompare ImageCompare white-Mf.png ${CMAKE_SOURCE_DIR}/white.png)
+
+ADD_TEST(Whitemf ws 0 0 ${CMAKE_SOURCE_DIR}/white.png white-mf.png)
+ADD_TEST(WhitemfCompare ImageCompare white-mf.png ${CMAKE_SOURCE_DIR}/white.png)
+
+
 ADD_TEST(3x3MF wsm 1 1 ${CMAKE_SOURCE_DIR}/3x3-input.png ${CMAKE_SOURCE_DIR}/3x3-markers.png 3x3MF.png)
 ADD_TEST(3x3MFCompare ImageCompare 3x3MF.png ${CMAKE_SOURCE_DIR}/3x3-markers.png)
 
