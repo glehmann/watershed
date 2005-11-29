@@ -124,6 +124,7 @@ private:
   bool                m_FullyConnected;
 
   typedef typename OutputImageType::IndexType OutIndexType;
+  typedef typename InputImageType::IndexType InIndexType;
   typedef ConstShapedNeighborhoodIterator<InputImageType> CNInputIterator;
   typedef ShapedNeighborhoodIterator<OutputImageType> NOutputIterator;
   typedef std::stack<OutIndexType> IndexStack;

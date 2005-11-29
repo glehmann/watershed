@@ -53,7 +53,7 @@ RegionalExtremaImageFilter<TInputImage, TOutputImage, TFunction1, TFunction2>
   typedef ImageRegionIterator<TOutputImage> OutputIterator;
 
   InputIterator inIt( this->GetInput(), 
-		      this->GetInput()->GetRequestedRegion() );  
+		      this->GetOutput()->GetRequestedRegion() );  
   OutputIterator outIt( this->GetOutput(), 
 			this->GetOutput()->GetRequestedRegion() );
   inIt = inIt.Begin();
@@ -76,7 +76,7 @@ RegionalExtremaImageFilter<TInputImage, TOutputImage, TFunction1, TFunction2>
 			 this->GetOutput()->GetRequestedRegion() );
 
   CNInputIterator inNIt(kernelRadius, 
-		       this->GetOutput(), 
+		       this->GetInput(), 
 		       this->GetOutput()->GetRequestedRegion() );
   
 
@@ -204,7 +204,6 @@ RegionalExtremaImageFilter<TInputImage, TOutputImage, TFunction1, TFunction2>
     idx = IS.top();
     IS.pop();
     OIt.SetLocation(idx);
-
     for (LIt = IndexList.begin(); LIt != IndexList.end(); ++LIt)
       {
       NVal = OIt.GetPixel(*LIt);
