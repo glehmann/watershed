@@ -18,7 +18,7 @@
 #define __itkMorphologicalWatershedImageFilter_txx
 
 #include "itkMorphologicalWatershedImageFilter.h"
-#include "itkHConcaveImageFilter.h"
+#include "itkRegionalMinimaImageFilter.h"
 #include "itkHMinimaImageFilter.h"
 #include "itkConnectedComponentImageFilter.h"
 #include "itkMorphologicalWatershedFromMarkersImageFilter.h"
@@ -73,13 +73,13 @@ MorphologicalWatershedImageFilter<TInputImage, TOutputImage>
   // Allocate the output
   this->AllocateOutputs();
 
-  // Delegate to a H-Concave filter to find the regional minima
-  // should be replaced by a filter which supports the float type
-  typename HConcaveImageFilter<TInputImage, TOutputImage>::Pointer
-    rmin = HConcaveImageFilter<TInputImage, TOutputImage>::New();
+  // Delegate to a R-Min filter to find the regional minima
+  typename RegionalMinimaImageFilter<TInputImage, TOutputImage>::Pointer
+    rmin = RegionalMinimaImageFilter<TInputImage, TOutputImage>::New();
   rmin->SetInput( this->GetInput() );
-  rmin->SetHeight( 1 );
   rmin->SetFullyConnected( m_FullyConnected );
+  rmin->SetBackgroundValue( NumericTraits< InputImagePixelType >::Zero );
+  rmin->SetForegroundValue( NumericTraits< InputImagePixelType >::max() );
 
   // label the components
   typename ConnectedComponentImageFilter< TOutputImage, TOutputImage >::Pointer
