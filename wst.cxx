@@ -2,7 +2,8 @@
 #include "itkImageFileWriter.h"
 #include "itkCommand.h"
 #include "itkNumericTraits.h"
-#include <itkRescaleIntensityImageFilter.h>
+#include <itkIntensityWindowingImageFilter.h>
+#include <itkMinimumMaximumImageCalculator.h>
 
 #include "itkMorphologicalWatershedImageFilter.h"
 
@@ -67,10 +68,19 @@ int main(int, char * argv[])
   ProgressType::Pointer progress = ProgressType::New();
   progress->SetFilter( filter );
 
+  filter->Update();
+
   // rescale the output to have a better display
-  typedef itk::RescaleIntensityImageFilter< IType, IType > RescaleType;
+  typedef itk::MinimumMaximumImageCalculator< IType > MaxCalculatorType;
+  MaxCalculatorType::Pointer max = MaxCalculatorType::New();
+  max->SetImage( filter->GetOutput() );
+  max->Compute();
+
+  typedef itk::IntensityWindowingImageFilter< IType, IType > RescaleType;
   RescaleType::Pointer rescale = RescaleType::New();
   rescale->SetInput( filter->GetOutput() );
+  rescale->SetWindowMinimum( itk::NumericTraits< PType >::Zero );
+  rescale->SetWindowMaximum( max->GetMaximum() );
   rescale->SetOutputMaximum( itk::NumericTraits< PType >::max() );
   rescale->SetOutputMinimum( itk::NumericTraits< PType >::Zero );
 
