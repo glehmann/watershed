@@ -163,7 +163,7 @@ RegionalExtremaImageFilter<TInputImage, TOutputImage, TFunction1, TFunction2>
       OutputImagePixelType V = outIt.Get();
       if (compareOut(V, m_MarkerValue)) 
         {
-        inNIt.SetLocation(outIt.GetIndex());
+        inNIt += outIt.GetIndex() - inNIt.GetIndex();
         // Optimization should be possible - Cent should be same as V?
         //InputImagePixelType Cent = inNIt.GetCenterPixel(); 
   
@@ -182,7 +182,7 @@ RegionalExtremaImageFilter<TInputImage, TOutputImage, TFunction1, TFunction2>
             // because one of its neighbors is smaller.
             // Set all pixels in the output image that are connected to
             // the centre pixel and have the same value to m_MarkerValue
-            outNIt.SetLocation(outIt.GetIndex());
+            outNIt += outIt.GetIndex() - outNIt.GetIndex();
             //setConnectedPixels(outNIt, V, IS, IndexList);
 
             OutputImagePixelType NVal;
@@ -200,7 +200,7 @@ RegionalExtremaImageFilter<TInputImage, TOutputImage, TFunction1, TFunction2>
               {
               idx = IS.top();
               IS.pop();
-              outNIt.SetLocation(idx);
+              outNIt += idx - outNIt.GetIndex();
               for (LIt = IndexList.begin(); LIt != IndexList.end(); ++LIt)
                 {
                 NVal = outNIt.GetPixel(*LIt);
