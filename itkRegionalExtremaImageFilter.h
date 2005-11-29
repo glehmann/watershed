@@ -133,12 +133,6 @@ private:
   typedef std::stack<OutIndexType> IndexStack;
   //typedef NOutputIterator::IndexListType OIndexListType;
 
-  void setConnectedPixels(NOutputIterator &OIt, 
-			  OutputImagePixelType Val,
-			  IndexStack &IS,
-			  const typename NOutputIterator::IndexListType IndexList);
-			  
-
 } ; // end of class
 
 } // end namespace itk

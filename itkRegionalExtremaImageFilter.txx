@@ -183,7 +183,36 @@ RegionalExtremaImageFilter<TInputImage, TOutputImage, TFunction1, TFunction2>
             // Set all pixels in the output image that are connected to
             // the centre pixel and have the same value to m_MarkerValue
             outNIt.SetLocation(outIt.GetIndex());
-            setConnectedPixels(outNIt, V, IS, IndexList);
+            //setConnectedPixels(outNIt, V, IS, IndexList);
+
+            OutputImagePixelType NVal;
+            //IndexStack IS;
+            OutIndexType idx;
+            IS.push(outNIt.GetIndex());
+            outNIt.SetCenterPixel(m_MarkerValue);
+          
+            // Might consider passing this in as well
+            //typename NOutputIterator::IndexListType IndexList;
+            //IndexList = OIt.GetActiveIndexList();
+            typename NOutputIterator::IndexListType::const_iterator LIt;
+          
+            while (!IS.empty())
+              {
+              idx = IS.top();
+              IS.pop();
+              outNIt.SetLocation(idx);
+              for (LIt = IndexList.begin(); LIt != IndexList.end(); ++LIt)
+                {
+                NVal = outNIt.GetPixel(*LIt);
+                if (NVal == V)
+                  {
+                  // still in a flat zone
+                  IS.push(outNIt.GetIndex(*LIt));
+                  outNIt.SetPixel(*LIt, m_MarkerValue);
+                  }
+                }
+              }
+
             break;
             }
           }
@@ -194,49 +223,7 @@ RegionalExtremaImageFilter<TInputImage, TOutputImage, TFunction1, TFunction2>
     }
  
 }
-template<class TInputImage, class TOutputImage, class TFunction1, class TFunction2>
-void 
-RegionalExtremaImageFilter<TInputImage, TOutputImage, TFunction1, TFunction2>
-::setConnectedPixels(NOutputIterator &OIt, OutputImagePixelType Val,
-		     IndexStack &IS,
-		     const typename NOutputIterator::IndexListType IndexList)
-{
-  // We can obviously look up Val inside this function. It is only
-  // being passed as an optimization.
 
-  // This flood fills connected pixels. We'll do this using a <stack>
-  // Might consider passing the stack as an argument too.
-
-
-  OutputImagePixelType NVal;
-  //IndexStack IS;
-  OutIndexType idx;
-  IS.push(OIt.GetIndex());
-  OIt.SetCenterPixel(m_MarkerValue);
-  
-  // Might consider passing this in as well
-  //typename NOutputIterator::IndexListType IndexList;
-  //IndexList = OIt.GetActiveIndexList();
-  typename NOutputIterator::IndexListType::const_iterator LIt;
-
-  while (!IS.empty())
-    {
-    idx = IS.top();
-    IS.pop();
-    OIt.SetLocation(idx);
-    for (LIt = IndexList.begin(); LIt != IndexList.end(); ++LIt)
-      {
-      NVal = OIt.GetPixel(*LIt);
-      if (NVal == Val)
-	{
-	// still in a flat zone
-	IS.push(OIt.GetIndex(*LIt));
-	OIt.SetPixel(*LIt, m_MarkerValue);
-	}
-      }
-    }
-
-}
 
 template<class TInputImage, class TOutputImage, class TFunction1, class TFunction2>
 void
