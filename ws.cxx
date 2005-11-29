@@ -1,6 +1,8 @@
 #include "itkImageFileReader.h"
 #include "itkImageFileWriter.h"
 #include "itkCommand.h"
+#include "itkNumericTraits.h"
+#include <itkRescaleIntensityImageFilter.h>
 
 #include "itkMorphologicalWatershedImageFilter.h"
 
@@ -64,9 +66,16 @@ int main(int, char * argv[])
   ProgressType::Pointer progress = ProgressType::New();
   progress->SetFilter( filter );
 
+  // rescale the output to have a better display
+  typedef itk::RescaleIntensityImageFilter< IType, IType > RescaleType;
+  RescaleType::Pointer rescale = RescaleType::New();
+  rescale->SetInput( filter->GetOutput() );
+  rescale->SetOutputMaximum( itk::NumericTraits< PType >::max() );
+  rescale->SetOutputMinimum( itk::NumericTraits< PType >::Zero );
+
   typedef itk::ImageFileWriter< IType > WriterType;
   WriterType::Pointer writer = WriterType::New();
-  writer->SetInput( filter->GetOutput() );
+  writer->SetInput( rescale->GetOutput() );
   writer->SetFileName( argv[4] );
   writer->Update();
 
