@@ -1,5 +1,5 @@
-#ifndef __itkRegionalMaximaImageFilter_h
-#define __itkRegionalMaximaImageFilter_h
+#ifndef __itkValuedRegionalMaximaImageFilter_h
+#define __itkValuedRegionalMaximaImageFilter_h
 
 #include "itkRegionalExtremaImageFilter.h"
 #include "itkNumericTraits.h"
@@ -23,14 +23,14 @@ public:
 
 
 template <class TInputImage, class TOutputImage>
-class ITK_EXPORT RegionalMaximaImageFilter :
+class ITK_EXPORT ValuedRegionalMaximaImageFilter :
     public
     RegionalExtremaImageFilter<TInputImage, TOutputImage,
 			       Function::GreaterThan<typename TInputImage::PixelType>,
 			       Function::GreaterThan<typename TOutputImage::PixelType>  >
 {
 public:
-  typedef RegionalMaximaImageFilter Self;
+  typedef ValuedRegionalMaximaImageFilter Self;
   typedef RegionalExtremaImageFilter<TInputImage, TOutputImage,
 				     Function::GreaterThan<typename TInputImage::PixelType>,
 				     Function::GreaterThan<typename TOutputImage::PixelType> > Superclass;
@@ -43,19 +43,19 @@ public:
 
 
 protected:
-  RegionalMaximaImageFilter() 
+  ValuedRegionalMaximaImageFilter() 
   {
     SetMarkerValue(NumericTraits<typename TOutputImage::PixelType>::min());
   }
-  virtual ~RegionalMaximaImageFilter() {}
+  virtual ~ValuedRegionalMaximaImageFilter() {}
 
 private:
-  RegionalMaximaImageFilter(const Self&); //purposely not implemented
+  ValuedRegionalMaximaImageFilter(const Self&); //purposely not implemented
   void operator=(const Self&); //purposely not implemented
 
 
 
-}; // end RegionalMaximaImageFilter
+}; // end ValuedRegionalMaximaImageFilter
 
 } //end namespace itk
 #endif

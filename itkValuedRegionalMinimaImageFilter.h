@@ -1,5 +1,5 @@
-#ifndef __itkRegionalMinimaImageFilter_h
-#define __itkRegionalMinimaImageFilter_h
+#ifndef __itkValuedRegionalMinimaImageFilter_h
+#define __itkValuedRegionalMinimaImageFilter_h
 
 #include "itkRegionalExtremaImageFilter.h"
 #include "itkNumericTraits.h"
@@ -23,7 +23,7 @@ public:
 
 
 template <class TInputImage, class TOutputImage>
-class ITK_EXPORT RegionalMinimaImageFilter :
+class ITK_EXPORT ValuedRegionalMinimaImageFilter :
     public
     RegionalExtremaImageFilter<TInputImage, TOutputImage,
 			       Function::LessThan<typename TInputImage::PixelType>,
@@ -31,7 +31,7 @@ class ITK_EXPORT RegionalMinimaImageFilter :
     >
 {
 public:
-  typedef RegionalMinimaImageFilter Self;
+  typedef ValuedRegionalMinimaImageFilter Self;
   typedef RegionalExtremaImageFilter<TInputImage, TOutputImage,
 				     Function::LessThan<typename TInputImage::PixelType>,
 				     Function::LessThan<typename TOutputImage::PixelType>  > Superclass;
@@ -44,19 +44,19 @@ public:
 
 
 protected:
-  RegionalMinimaImageFilter() 
+  ValuedRegionalMinimaImageFilter() 
   {
     SetMarkerValue(NumericTraits<typename TOutputImage::PixelType>::max());
   }
-  virtual ~RegionalMinimaImageFilter() {}
+  virtual ~ValuedRegionalMinimaImageFilter() {}
 
 private:
-  RegionalMinimaImageFilter(const Self&); //purposely not implemented
+  ValuedRegionalMinimaImageFilter(const Self&); //purposely not implemented
   void operator=(const Self&); //purposely not implemented
 
 
 
-}; // end RegionalMinimaImageFilter
+}; // end ValuedRegionalMinimaImageFilter
 
 } //end namespace itk
 #endif

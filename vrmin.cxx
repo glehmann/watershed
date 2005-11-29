@@ -1,5 +1,5 @@
 // a test routine for regional extrema using flooding
-#include "itkRegionalMinimaImageFilter.h"
+#include "itkValuedRegionalMinimaImageFilter.h"
 #include "itkHConcaveImageFilter.h"
 #include "itkMaximumImageFilter.h"
 #include "itkInvertIntensityImageFilter.h"
@@ -63,7 +63,7 @@ int main(int, char * argv[])
   ReaderType::Pointer reader = ReaderType::New();
   reader->SetFileName( argv[2] );
 
-  typedef itk::RegionalMinimaImageFilter< IType, IType > FilterType;
+  typedef itk::ValuedRegionalMinimaImageFilter< IType, IType > FilterType;
   FilterType::Pointer filter = FilterType::New();
   filter->SetInput( reader->GetOutput() );
   filter->SetFullyConnected( atoi(argv[1]) );
