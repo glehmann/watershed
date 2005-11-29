@@ -13,6 +13,8 @@ RegionalExtremaImageFilter<TInputImage, TOutputImage, TFunction1, TFunction2>
 ::RegionalExtremaImageFilter()
 {
   m_FullyConnected = false;
+  // not really useful, just to always have the same value before the filter has run
+  m_Flat = false;
 }
 
 template <class TInputImage, class TOutputImage, class TFunction1, class TFunction2>
@@ -59,119 +61,129 @@ RegionalExtremaImageFilter<TInputImage, TOutputImage, TFunction1, TFunction2>
   inIt = inIt.Begin();
   outIt = outIt.Begin();
 
+  InputImagePixelType firstValue = inIt.Get();
+  this->m_Flat = true;
+
   while ( !outIt.IsAtEnd() )
     {
-    outIt.Set( static_cast<OutputImagePixelType>( inIt.Get() ) );
+    InputImagePixelType currentValue = inIt.Get();
+    outIt.Set( static_cast<OutputImagePixelType>( currentValue ) );
+    if( currentValue != firstValue )
+      { this->m_Flat = false; }
     ++inIt;
     ++outIt;
     }
 
-  // Now for the real work!
-  // More iterators - use shaped ones so that we can set connectivity
-
-  ISizeType kernelRadius;
-  kernelRadius.Fill(1);
-  NOutputIterator outNIt(kernelRadius, 
-			 this->GetOutput(), 
-			 this->GetOutput()->GetRequestedRegion() );
-
-  CNInputIterator inNIt(kernelRadius, 
-		       this->GetInput(), 
-		       this->GetOutput()->GetRequestedRegion() );
+  // if the image is flat, there is no need to do the work:
+  // the image will be unchanged
+  if( !this->m_Flat )
+    {
+    // Now for the real work!
+    // More iterators - use shaped ones so that we can set connectivity
   
-
-  typename CNInputIterator::OffsetType offsetIn;
-  typename NOutputIterator::OffsetType offsetOut;
-
-  if (!m_FullyConnected)
-    {
-    // only activate the neighbors that are face connected
-    // to the current pixel. do not include the center pixel
-    offsetIn.Fill(0);
-    offsetOut.Fill(0);
-    for (unsigned int d=0; d < InputImageType::ImageDimension; ++d)
-      {
-      offsetIn[d] = -1;
-      offsetOut[d] = -1;
-      inNIt.ActivateOffset(offsetIn);
-      outNIt.ActivateOffset(offsetOut);
-      offsetIn[d] = 1;
-      offsetOut[d] = 1;
-      inNIt.ActivateOffset(offsetIn);
-      outNIt.ActivateOffset(offsetOut);
-      offsetIn[d] = 0;
-      offsetOut[d] = 0;
-      }
-    }
-  else
-    {
-    // activate all neighbors that are face+edge+vertex
-    // connected to the current pixel. do not include the center pixel
-    unsigned int centerIndex = inNIt.GetCenterNeighborhoodIndex();
-    for (unsigned int d=0; d < centerIndex*2 + 1; d++)
-      {
-      offsetIn = inNIt.GetOffset(d);
-      inNIt.ActivateOffset(offsetIn);
-      offsetOut = outNIt.GetOffset(d);
-      outNIt.ActivateOffset(offsetOut);
-      }
-    offsetIn.Fill(0);
-    offsetOut.Fill(0);
-    inNIt.DeactivateOffset(offsetIn);
-    outNIt.DeactivateOffset(offsetOut);
-    }
-
-  ConstantBoundaryCondition<OutputImageType> iBC;
-  iBC.SetConstant(m_MarkerValue);
-  inNIt.OverrideBoundaryCondition(&iBC);
-
-  ConstantBoundaryCondition<OutputImageType> oBC;
-  oBC.SetConstant(m_MarkerValue);
-  outNIt.OverrideBoundaryCondition(&oBC);
-
-  TFunction1 compareIn;
-  TFunction2 compareOut;
-
-  outIt = outIt.Begin();
-
-  // set up the stack and neighbor list
-  IndexStack IS;
-  typename NOutputIterator::IndexListType IndexList;
-  IndexList = outNIt.GetActiveIndexList();
-
-  while ( !outIt.IsAtEnd() )
-    {
-    OutputImagePixelType V = outIt.Get();
-    if (compareOut(V, m_MarkerValue)) 
-      {
-      inNIt.SetLocation(outIt.GetIndex());
-      // Optimization should be possible - Cent should be same as V?
-      //InputImagePixelType Cent = inNIt.GetCenterPixel(); 
-
-      InputImagePixelType Cent = static_cast<InputImagePixelType>(V);
-
-      //if (static_cast<OutputImagePixelType>(Cent) != V)
-      //std::cout << "Not equal" << std::endl;
-
-      typename CNInputIterator::ConstIterator sIt;
-      for (sIt = inNIt.Begin(); !sIt.IsAtEnd(); ++sIt)
-	{
-	InputImagePixelType Adjacent = sIt.Get();
-	if (compareIn(Adjacent, Cent))
-	  {
-	  // The centre pixel cannot be part of a regional minima
-	  // because one of its neighbors is smaller.
-	  // Set all pixels in the output image that are connected to
-	  // the centre pixel and have the same value to m_MarkerValue
-	  outNIt.SetLocation(outIt.GetIndex());
-	  setConnectedPixels(outNIt, V, IS, IndexList);
-	  break;
-	  }
-	}
-      }
-    ++outIt;
-    }
+    ISizeType kernelRadius;
+    kernelRadius.Fill(1);
+    NOutputIterator outNIt(kernelRadius, 
+                          this->GetOutput(), 
+                          this->GetOutput()->GetRequestedRegion() );
   
+    CNInputIterator inNIt(kernelRadius, 
+                        this->GetInput(), 
+                        this->GetOutput()->GetRequestedRegion() );
+    
+  
+    typename CNInputIterator::OffsetType offsetIn;
+    typename NOutputIterator::OffsetType offsetOut;
+  
+    if (!m_FullyConnected)
+      {
+      // only activate the neighbors that are face connected
+      // to the current pixel. do not include the center pixel
+      offsetIn.Fill(0);
+      offsetOut.Fill(0);
+      for (unsigned int d=0; d < InputImageType::ImageDimension; ++d)
+        {
+        offsetIn[d] = -1;
+        offsetOut[d] = -1;
+        inNIt.ActivateOffset(offsetIn);
+        outNIt.ActivateOffset(offsetOut);
+        offsetIn[d] = 1;
+        offsetOut[d] = 1;
+        inNIt.ActivateOffset(offsetIn);
+        outNIt.ActivateOffset(offsetOut);
+        offsetIn[d] = 0;
+        offsetOut[d] = 0;
+        }
+      }
+    else
+      {
+      // activate all neighbors that are face+edge+vertex
+      // connected to the current pixel. do not include the center pixel
+      unsigned int centerIndex = inNIt.GetCenterNeighborhoodIndex();
+      for (unsigned int d=0; d < centerIndex*2 + 1; d++)
+        {
+        offsetIn = inNIt.GetOffset(d);
+        inNIt.ActivateOffset(offsetIn);
+        offsetOut = outNIt.GetOffset(d);
+        outNIt.ActivateOffset(offsetOut);
+        }
+      offsetIn.Fill(0);
+      offsetOut.Fill(0);
+      inNIt.DeactivateOffset(offsetIn);
+      outNIt.DeactivateOffset(offsetOut);
+      }
+  
+    ConstantBoundaryCondition<OutputImageType> iBC;
+    iBC.SetConstant(m_MarkerValue);
+    inNIt.OverrideBoundaryCondition(&iBC);
+  
+    ConstantBoundaryCondition<OutputImageType> oBC;
+    oBC.SetConstant(m_MarkerValue);
+    outNIt.OverrideBoundaryCondition(&oBC);
+  
+    TFunction1 compareIn;
+    TFunction2 compareOut;
+  
+    outIt = outIt.Begin();
+  
+    // set up the stack and neighbor list
+    IndexStack IS;
+    typename NOutputIterator::IndexListType IndexList;
+    IndexList = outNIt.GetActiveIndexList();
+  
+    while ( !outIt.IsAtEnd() )
+      {
+      OutputImagePixelType V = outIt.Get();
+      if (compareOut(V, m_MarkerValue)) 
+        {
+        inNIt.SetLocation(outIt.GetIndex());
+        // Optimization should be possible - Cent should be same as V?
+        //InputImagePixelType Cent = inNIt.GetCenterPixel(); 
+  
+        InputImagePixelType Cent = static_cast<InputImagePixelType>(V);
+  
+        //if (static_cast<OutputImagePixelType>(Cent) != V)
+        //std::cout << "Not equal" << std::endl;
+  
+        typename CNInputIterator::ConstIterator sIt;
+        for (sIt = inNIt.Begin(); !sIt.IsAtEnd(); ++sIt)
+          {
+          InputImagePixelType Adjacent = sIt.Get();
+          if (compareIn(Adjacent, Cent))
+            {
+            // The centre pixel cannot be part of a regional minima
+            // because one of its neighbors is smaller.
+            // Set all pixels in the output image that are connected to
+            // the centre pixel and have the same value to m_MarkerValue
+            outNIt.SetLocation(outIt.GetIndex());
+            setConnectedPixels(outNIt, V, IS, IndexList);
+            break;
+            }
+          }
+        }
+      ++outIt;
+      }
+    }
  
 }
 template<class TInputImage, class TOutputImage, class TFunction1, class TFunction2>
@@ -226,6 +238,7 @@ RegionalExtremaImageFilter<TInputImage, TOutputImage, TFunction1, TFunction2>
   Superclass::PrintSelf(os, indent);
 
   os << indent << "FullyConnected: "  << m_FullyConnected << std::endl;
+  os << indent << "Flat: "  << m_Flat << std::endl;
 }
   
 } // end namespace itk

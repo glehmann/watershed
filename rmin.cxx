@@ -73,6 +73,9 @@ int main(int, char * argv[])
   writer2->SetFileName( argv[4] );
   writer2->Update();
 
+  // to verify if the image is flat or not
+  filter->Print( std::cout );
+
   return 0;
 }
 

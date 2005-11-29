@@ -101,6 +101,8 @@ public:
   itkSetMacro(MarkerValue, typename TInputImage::PixelType);
   itkGetConstReferenceMacro(MarkerValue, typename TInputImage::PixelType);
 
+  itkGetMacro(Flat, bool);
+
 protected:
   RegionalExtremaImageFilter();
   ~RegionalExtremaImageFilter() {};
@@ -122,6 +124,7 @@ private:
   void operator=(const Self&); //purposely not implemented
   typename TInputImage::PixelType m_MarkerValue;
   bool                m_FullyConnected;
+  bool  m_Flat;
 
   typedef typename OutputImageType::IndexType OutIndexType;
   typedef typename InputImageType::IndexType InIndexType;
