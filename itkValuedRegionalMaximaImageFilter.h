@@ -6,34 +6,18 @@
 
 namespace itk {
 
-namespace Function {
-template <class TInput>
-class GreaterThan
-{
-public:
-  GreaterThan(){}
-  ~GreaterThan(){}
-
-  inline bool operator()(const TInput &A, TInput &B)
-  {
-    return (A>B);
-  }
-};
-} // end namespace Function
-
-
 template <class TInputImage, class TOutputImage>
 class ITK_EXPORT ValuedRegionalMaximaImageFilter :
     public
     RegionalExtremaImageFilter<TInputImage, TOutputImage,
-			       Function::GreaterThan<typename TInputImage::PixelType>,
-			       Function::GreaterThan<typename TOutputImage::PixelType>  >
+			       std::greater<typename TInputImage::PixelType>,
+			       std::greater<typename TOutputImage::PixelType>  >
 {
 public:
   typedef ValuedRegionalMaximaImageFilter Self;
   typedef RegionalExtremaImageFilter<TInputImage, TOutputImage,
-				     Function::GreaterThan<typename TInputImage::PixelType>,
-				     Function::GreaterThan<typename TOutputImage::PixelType> > Superclass;
+				     std::greater<typename TInputImage::PixelType>,
+				     std::greater<typename TOutputImage::PixelType> > Superclass;
 
   typedef SmartPointer<Self>   Pointer;
   typedef SmartPointer<const Self>  ConstPointer;
