@@ -62,9 +62,9 @@ SET(CurrentExe "rmin")
 ADD_EXECUTABLE(${CurrentExe} ${CurrentExe}.cxx)
 TARGET_LINK_LIBRARIES(${CurrentExe} ${Libraries})
 
-# SET(CurrentExe "rmax")
-# ADD_EXECUTABLE(${CurrentExe} ${CurrentExe}.cxx)
-# TARGET_LINK_LIBRARIES(${CurrentExe} ${Libraries})
+SET(CurrentExe "rmax")
+ADD_EXECUTABLE(${CurrentExe} ${CurrentExe}.cxx)
+TARGET_LINK_LIBRARIES(${CurrentExe} ${Libraries})
 
 #the following line is an example of how to add a test to your project.
 #Testname is the title for this particular test.  ExecutableToRun is the
@@ -175,6 +175,18 @@ ADD_TEST(RMinBlackCompare ImageCompare black-rminf.png ${CMAKE_SOURCE_DIR}/white
 
 ADD_TEST(RMinWhite rmin 0 ${CMAKE_SOURCE_DIR}/white.png white-rminf.png white-rminf-ref.png)
 ADD_TEST(RMinWhiteCompare ImageCompare white-rminf.png ${CMAKE_SOURCE_DIR}/white.png)
+
+ADD_TEST(RMaxF rmax 1 ${CMAKE_SOURCE_DIR}/threshold.png threshold-rmaxF.png threshold-rmaxF-ref.png)
+ADD_TEST(RMaxFCompare ImageCompare threshold-rmaxF.png threshold-rmaxF-ref.png)
+
+ADD_TEST(RMaxf rmax 0 ${CMAKE_SOURCE_DIR}/threshold.png threshold-rmaxf.png threshold-rmaxf-ref.png)
+ADD_TEST(RMaxfCompare ImageCompare threshold-rmaxf.png threshold-rmaxf-ref.png)
+
+ADD_TEST(RMaxBlack rmax 0 ${CMAKE_SOURCE_DIR}/black.png black-rmaxf.png black-rmaxf-ref.png)
+ADD_TEST(RMaxBlackCompare ImageCompare black-rmaxf.png ${CMAKE_SOURCE_DIR}/white.png)
+
+ADD_TEST(RMaxWhite rmax 0 ${CMAKE_SOURCE_DIR}/white.png white-rmaxf.png white-rmaxf-ref.png)
+ADD_TEST(RMaxWhiteCompare ImageCompare white-rmaxf.png ${CMAKE_SOURCE_DIR}/white.png)
 
 
 
