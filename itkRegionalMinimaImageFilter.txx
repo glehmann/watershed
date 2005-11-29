@@ -22,6 +22,8 @@
 #include "itkProgressAccumulator.h"
 #include "itkNumericTraits.h"
 #include "itkBinaryThresholdImageFilter.h"
+#include "itkProgressReporter.h"
+#include "itkImageRegionIterator.h"
 
 namespace itk {
 
@@ -82,7 +84,13 @@ RegionalMinimaImageFilter<TInputImage, TOutputImage>
 
   if( rmin->GetFlat() )
     {
-    this->GetOutput()->FillBuffer( m_ForegroundValue );
+    ProgressReporter progress2(this, 0, this->GetOutput()->GetRequestedRegion().GetNumberOfPixels(), 33, 0.67, 0.33);
+    ImageRegionIterator< TOutputImage > outIt(this->GetOutput(), this->GetOutput()->GetRequestedRegion() );
+    for( outIt.Begin(); !outIt.IsAtEnd(); ++outIt )
+      {
+      outIt.Set( m_ForegroundValue );
+      progress2.CompletedPixel();
+      }
     }
   else
     {
@@ -99,7 +107,6 @@ RegionalMinimaImageFilter<TInputImage, TOutputImage>
     th->Update();
     this->GraftOutput( th->GetOutput() );
     }
-
 
 }
 
