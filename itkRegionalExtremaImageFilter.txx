@@ -5,6 +5,7 @@
 #include "itkImageRegionIterator.h"
 #include "itkNumericTraits.h"
 #include "itkRegionalExtremaImageFilter.h"
+#include "itkProgressReporter.h"
 
 namespace itk {
 
@@ -52,6 +53,9 @@ RegionalExtremaImageFilter<TInputImage, TOutputImage, TFunction1, TFunction2>
   // Allocate the output
   this->AllocateOutputs();
 
+  // 2 phases
+  ProgressReporter progress(this, 0, this->GetOutput()->GetRequestedRegion().GetNumberOfPixels()*2);
+
   // copy input to output - isn't there a better way?
   typedef ImageRegionConstIterator<TInputImage> InputIterator;
   typedef ImageRegionIterator<TOutputImage> OutputIterator;
@@ -74,6 +78,7 @@ RegionalExtremaImageFilter<TInputImage, TOutputImage, TFunction1, TFunction2>
       { this->m_Flat = false; }
     ++inIt;
     ++outIt;
+    progress.CompletedPixel();
     }
 
   // if the image is flat, there is no need to do the work:
@@ -184,6 +189,7 @@ RegionalExtremaImageFilter<TInputImage, TOutputImage, TFunction1, TFunction2>
           }
         }
       ++outIt;
+      progress.CompletedPixel();
       }
     }
  
