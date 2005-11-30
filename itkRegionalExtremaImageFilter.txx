@@ -6,6 +6,7 @@
 #include "itkNumericTraits.h"
 #include "itkRegionalExtremaImageFilter.h"
 #include "itkProgressReporter.h"
+#include "itkConnectedComponentAlgorithm.h"
 
 namespace itk {
 
@@ -93,52 +94,12 @@ RegionalExtremaImageFilter<TInputImage, TOutputImage, TFunction1, TFunction2>
     NOutputIterator outNIt(kernelRadius, 
                           this->GetOutput(), 
                           this->GetOutput()->GetRequestedRegion() );
-  
+    setConnectivity( &outNIt, m_FullyConnected );
+
     CNInputIterator inNIt(kernelRadius, 
                         this->GetInput(), 
                         this->GetOutput()->GetRequestedRegion() );
-    
-  
-    typename CNInputIterator::OffsetType offsetIn;
-    typename NOutputIterator::OffsetType offsetOut;
-  
-    if (!m_FullyConnected)
-      {
-      // only activate the neighbors that are face connected
-      // to the current pixel. do not include the center pixel
-      offsetIn.Fill(0);
-      offsetOut.Fill(0);
-      for (unsigned int d=0; d < InputImageType::ImageDimension; ++d)
-        {
-        offsetIn[d] = -1;
-        offsetOut[d] = -1;
-        inNIt.ActivateOffset(offsetIn);
-        outNIt.ActivateOffset(offsetOut);
-        offsetIn[d] = 1;
-        offsetOut[d] = 1;
-        inNIt.ActivateOffset(offsetIn);
-        outNIt.ActivateOffset(offsetOut);
-        offsetIn[d] = 0;
-        offsetOut[d] = 0;
-        }
-      }
-    else
-      {
-      // activate all neighbors that are face+edge+vertex
-      // connected to the current pixel. do not include the center pixel
-      unsigned int centerIndex = inNIt.GetCenterNeighborhoodIndex();
-      for (unsigned int d=0; d < centerIndex*2 + 1; d++)
-        {
-        offsetIn = inNIt.GetOffset(d);
-        inNIt.ActivateOffset(offsetIn);
-        offsetOut = outNIt.GetOffset(d);
-        outNIt.ActivateOffset(offsetOut);
-        }
-      offsetIn.Fill(0);
-      offsetOut.Fill(0);
-      inNIt.DeactivateOffset(offsetIn);
-      outNIt.DeactivateOffset(offsetOut);
-      }
+    setConnectivity( &inNIt, m_FullyConnected );
   
     ConstantBoundaryCondition<OutputImageType> iBC;
     iBC.SetConstant(m_MarkerValue);
