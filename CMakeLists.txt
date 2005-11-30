@@ -42,6 +42,10 @@ SET(CurrentExe "ws")
 ADD_EXECUTABLE(${CurrentExe} ${CurrentExe}.cxx)
 TARGET_LINK_LIBRARIES(${CurrentExe} ${Libraries})
 
+SET(CurrentExe "ws3")
+ADD_EXECUTABLE(${CurrentExe} ${CurrentExe}.cxx)
+TARGET_LINK_LIBRARIES(${CurrentExe} ${Libraries})
+
 SET(CurrentExe "wsm")
 ADD_EXECUTABLE(${CurrentExe} ${CurrentExe}.cxx)
 TARGET_LINK_LIBRARIES(${CurrentExe} ${Libraries})
@@ -246,3 +250,8 @@ ADD_TEST(RMax3Df rmax3D 0 ${CMAKE_SOURCE_DIR}/ESCells.img ESCells-rmaxf.tif ESCe
 ADD_TEST(RMax3DfCompare ImageCompare ESCells-rmaxf.tif ESCells-rmaxf-ref.tif)
 
 
+ADD_TEST(ESCellsMf30 ws3 1 0 30 ${CMAKE_SOURCE_DIR}/ESCells.img ESCellsMf30.tif)
+ADD_TEST(ESCellsMf30Compare ImageCompare ESCellsMf30.tif ${CMAKE_SOURCE_DIR}/ESCellsMf30.tif)
+
+ADD_TEST(ESCellsmf30 ws3 0 0 30 ${CMAKE_SOURCE_DIR}/ESCells.img ESCellsmf30.tif)
+ADD_TEST(ESCellsmf30Compare ImageCompare ESCellsmf30.tif ${CMAKE_SOURCE_DIR}/ESCellsmf30.tif)
