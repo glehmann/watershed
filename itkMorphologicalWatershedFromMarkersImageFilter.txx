@@ -28,6 +28,7 @@
 #include "itkConstShapedNeighborhoodIterator.h"
 #include "itkConstantBoundaryCondition.h"
 #include "itkSize.h"
+#include "itkConnectedComponentAlgorithm.h"
 
 namespace itk {
 
@@ -128,6 +129,7 @@ MorphologicalWatershedFromMarkersImageFilter<TInputImage, TLabelImage>
   ConstantBoundaryCondition<LabelImageType> lcbc;
   lcbc.SetConstant( NumericTraits<LabelImagePixelType>::max() );
   markerIt.OverrideBoundaryCondition(&lcbc);
+  setConnectivity( &markerIt, m_FullyConnected );
 
   // iterator for the status image
   typedef ShapedNeighborhoodIterator<StatusImageType> StatusIteratorType;
@@ -136,11 +138,13 @@ MorphologicalWatershedFromMarkersImageFilter<TInputImage, TLabelImage>
   ConstantBoundaryCondition< StatusImageType > bcbc;
   bcbc.SetConstant( true );  // outside pixel are already processed
   statusIt.OverrideBoundaryCondition(&bcbc);
+  setConnectivity( &statusIt, m_FullyConnected );
 
   // iterator for the input image
   typedef ConstShapedNeighborhoodIterator<InputImageType> InputIteratorType;
   InputIteratorType inputIt(radius, this->GetInput(), this->GetInput()->GetRequestedRegion());
   typename InputIteratorType::ConstIterator niIt;
+  setConnectivity( &inputIt, m_FullyConnected );
   
   // iterator for the output image
   typedef ShapedNeighborhoodIterator<LabelImageType> OutputIteratorType;
@@ -150,45 +154,8 @@ MorphologicalWatershedFromMarkersImageFilter<TInputImage, TLabelImage>
   ConstantBoundaryCondition<LabelImageType> lcbc2;
   lcbc2.SetConstant( NumericTraits<LabelImagePixelType>::Zero ); // outside pixel are watershed so they won't be use to find real watershed  pixels
   outputIt.OverrideBoundaryCondition(&lcbc2);
+  setConnectivity( &outputIt, m_FullyConnected );
 
-  // activate iterators neighbors 
-  typename MarkerIteratorType::OffsetType offset;
-  unsigned int d;
-  typename MarkerIteratorType::OffsetValueType i;
-  offset.Fill(0);
-  if (!m_FullyConnected)
-    {
-    for (d=0; d < ImageDimension; ++d)
-      {
-      for (i=-1; i<=1; i+=2)
-        {
-        offset[d] = i;
-        markerIt.ActivateOffset(offset); // a neighbor pixel in dimension d
-        statusIt.ActivateOffset(offset);
-        inputIt.ActivateOffset(offset);
-        outputIt.ActivateOffset(offset);
-        }
-      offset[d] = 0;
-      }
-    }
-  else
-    {
-    // activate all pixels excepted center pixel
-    for (d=0; d < markerIt.GetCenterNeighborhoodIndex()*2+1; ++d)
-      {
-        markerIt.ActivateOffset( markerIt.GetOffset(d) );
-        statusIt.ActivateOffset( statusIt.GetOffset(d) );
-        inputIt.ActivateOffset( inputIt.GetOffset(d) );
-        outputIt.ActivateOffset( outputIt.GetOffset(d) );
-      }
-    offset.Fill(0);
-    markerIt.DeactivateOffset(offset);
-    statusIt.DeactivateOffset(offset);
-    inputIt.DeactivateOffset(offset);
-    outputIt.DeactivateOffset(offset);
-    }
-
-  
   //---------------------------------------------------------------------------
   // Meyer's algorithm
   //---------------------------------------------------------------------------
