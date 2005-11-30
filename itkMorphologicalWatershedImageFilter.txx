@@ -111,17 +111,17 @@ MorphologicalWatershedImageFilter<TInputImage, TOutputImage>
     // replace the input of the r-min filter
     rmin->SetInput( hmin->GetOutput() );
 
-    progress->RegisterInternalFilter(hmin,0.25f);
-    progress->RegisterInternalFilter(rmin,0.25f);
-    progress->RegisterInternalFilter(label,.25f);
-    progress->RegisterInternalFilter(wshed,.25f);
+    progress->RegisterInternalFilter(hmin,0.4f);
+    progress->RegisterInternalFilter(rmin,0.1f);
+    progress->RegisterInternalFilter(label,.2f);
+    progress->RegisterInternalFilter(wshed,.3f);
    }
   else
     {
     // don't insert the h-minima to save some ressources
-    progress->RegisterInternalFilter(rmin,0.35f);
-    progress->RegisterInternalFilter(label,.3f);
-    progress->RegisterInternalFilter(wshed,.35f);
+    progress->RegisterInternalFilter(rmin,0.167f);
+    progress->RegisterInternalFilter(label,.333f);
+    progress->RegisterInternalFilter(wshed,.5f);
     }
 
 
