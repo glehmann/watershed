@@ -1,0 +1,46 @@
+\documentclass{llncs}
+\usepackage{graphicx}
+
+\begin{document}
+\title{Finding regional extrema - methods and performance}
+\author{Richard Beare{$^1$} \and Gaetan Lehmann{$^2$}}
+\institute{Department of Medicine, Moansh University, Australia
+\and Biologie du Developpement et de la Reproduction, INRA de Jouy-en-Josas (France)}
+\maketitle
+
+\begin{abstract}
+Finding regional extrema of images is an important step in a number of
+important morphological algorithms, such as some versions of the
+watershed transform. Regional extrema may also be important cues of
+other tasks, such as splitting objects based on distance transform
+information. This report provides an overview of the methods available
+in ITK and compares the performance with a new filter.
+\end{abstract}
+
+\section{Introduction}
+There are two classes of regional extrema - regional maxima and
+regional minima. Regional maxima are flat zones that are connected to
+pixels of lower value while regional minima are flat zones that are
+connected to pixels of higher value.
+
+perhaps mention ordering and how it doesn't really apply to vector pixels.
+
+\section{Filters in ITK}
+Watershed -- labelling algorithm.
+
+Reconstruction - relationship with image dynamics.
+
+\section{Comparison of operations}
+Labelling scheme will produce a labelled image, which might be
+preferrable if the next step is some sort of shape statistics
+analysis, or a marker based procedure.
+
+Reconstruction method uses a ``substract 1'' step, which isn't well
+defined for all pixel types. However it does allow the option of
+placing a significance level on a regional extrema via dynamics.
+
+Flooding method is pixel type independent. It produces an output where
+all non extrema pixels are set to the opposite extreme.
+
+\end{document}
+
