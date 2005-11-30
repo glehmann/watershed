@@ -72,6 +72,10 @@ MorphologicalWatershedImageFilter<TInputImage, TOutputImage>
 
   // Allocate the output
   this->AllocateOutputs();
+  
+  // h-minima filter to remove the smallest minima
+  typedef HMinimaImageFilter<TInputImage, TOutputImage> HMinimaType;
+  typename HMinimaType::Pointer hmin;
 
   // Delegate to a R-Min filter to find the regional minima
   typename RegionalMinimaImageFilter<TInputImage, TOutputImage>::Pointer
@@ -100,8 +104,7 @@ MorphologicalWatershedImageFilter<TInputImage, TOutputImage>
     {
     // insert a h-minima filter to remove the smallest minima
     //
-    typename HMinimaImageFilter<TInputImage, TOutputImage>::Pointer
-      hmin = HMinimaImageFilter<TInputImage, TOutputImage>::New();
+    hmin = HMinimaType::New();
     hmin->SetInput( this->GetInput() );
     hmin->SetHeight( m_Threshold );
     hmin->SetFullyConnected( m_FullyConnected );
@@ -112,7 +115,7 @@ MorphologicalWatershedImageFilter<TInputImage, TOutputImage>
     progress->RegisterInternalFilter(rmin,0.25f);
     progress->RegisterInternalFilter(label,.25f);
     progress->RegisterInternalFilter(wshed,.25f);
-    }
+   }
   else
     {
     // don't insert the h-minima to save some ressources
