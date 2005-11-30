@@ -78,22 +78,22 @@ MorphologicalWatershedImageFilter<TInputImage, TOutputImage>
   typename HMinimaType::Pointer hmin;
 
   // Delegate to a R-Min filter to find the regional minima
-  typename RegionalMinimaImageFilter<TInputImage, TOutputImage>::Pointer
-    rmin = RegionalMinimaImageFilter<TInputImage, TOutputImage>::New();
+  typedef RegionalMinimaImageFilter<TInputImage, TOutputImage> RMinType;
+  typename RMinType::Pointer rmin = RMinType::New();
   rmin->SetInput( this->GetInput() );
   rmin->SetFullyConnected( m_FullyConnected );
   rmin->SetBackgroundValue( NumericTraits< InputImagePixelType >::Zero );
   rmin->SetForegroundValue( NumericTraits< InputImagePixelType >::max() );
 
   // label the components
-  typename ConnectedComponentImageFilter< TOutputImage, TOutputImage >::Pointer
-    label = ConnectedComponentImageFilter< TOutputImage, TOutputImage >::New();
+  typedef ConnectedComponentImageFilter< TOutputImage, TOutputImage > ConnectedCompType;
+  typename ConnectedCompType::Pointer label = ConnectedCompType::New();
   label->SetFullyConnected( m_FullyConnected );
   label->SetInput( rmin->GetOutput() );
 
   // the watershed
-  typename MorphologicalWatershedFromMarkersImageFilter< TInputImage, TOutputImage >::Pointer
-    wshed = MorphologicalWatershedFromMarkersImageFilter< TInputImage, TOutputImage >::New();
+  typedef MorphologicalWatershedFromMarkersImageFilter< TInputImage, TOutputImage > WatershedType;
+  typename WatershedType::Pointer wshed = WatershedType::New();
   wshed->SetInput( this->GetInput() );
   wshed->SetMarkerImage( label->GetOutput() );
   wshed->SetFullyConnected( m_FullyConnected );
