@@ -140,9 +140,6 @@ MorphologicalWatershedFromMarkersImageFilter<TInputImage, TLabelImage>
   statusIt.OverrideBoundaryCondition(&bcbc);
   setConnectivity( &statusIt, m_FullyConnected );
 
-  typedef ImageRegionIterator<StatusImageType> StatusIteratorType2;
-  StatusIteratorType2 statusIt2( statusImage, this->GetOutput()->GetRequestedRegion() );
-  
   // iterator for the input image
   typedef ConstShapedNeighborhoodIterator<InputImageType> InputIteratorType;
   InputIteratorType inputIt(radius, this->GetInput(), this->GetInput()->GetRequestedRegion());
@@ -158,10 +155,6 @@ MorphologicalWatershedFromMarkersImageFilter<TInputImage, TLabelImage>
   lcbc2.SetConstant( NumericTraits<LabelImagePixelType>::Zero ); // outside pixel are watershed so they won't be use to find real watershed  pixels
   outputIt.OverrideBoundaryCondition(&lcbc2);
   setConnectivity( &outputIt, m_FullyConnected );
-
-  typedef ImageRegionIterator<LabelImageType> OutputIteratorType2;
-  OutputIteratorType2 outputIt2( this->GetOutput(), this->GetOutput()->GetRequestedRegion() );
-  
 
   //---------------------------------------------------------------------------
   // Meyer's algorithm
@@ -190,7 +183,7 @@ MorphologicalWatershedFromMarkersImageFilter<TInputImage, TLabelImage>
         // mark it as already processed
         statusIt.SetCenterPixel( true );
         // copy it to the output image
-        outputIt2.Set( markerPixel );
+        outputIt.SetCenterPixel( markerPixel );
         // and increase progress because this pixel will not be used in the flooding stage.
         progress.CompletedPixel();
   
@@ -213,7 +206,7 @@ MorphologicalWatershedFromMarkersImageFilter<TInputImage, TLabelImage>
         {
         // Some pixels may be never processed so, by default, non marked pixels
         // must be marked as watershed
-        outputIt2.Set( wsLabel );
+        outputIt.SetCenterPixel( wsLabel );
         }
       // one more pixel done in the init stage
       progress.CompletedPixel();
@@ -307,9 +300,9 @@ MorphologicalWatershedFromMarkersImageFilter<TInputImage, TLabelImage>
         {
         // this pixels belongs to a marker
         // mark it as already processed
-        statusIt2.Set( true );
+        statusIt.SetCenterPixel( true );
         // and copy it to the output image
-        outputIt2.Set( markerPixel );
+        outputIt.SetCenterPixel( markerPixel );
         // search if it has background pixel in its neighborhood
         bool haveBgNeighbor = false;
         for ( nmIt= markerIt.Begin(); nmIt != markerIt.End() && !haveBgNeighbor; nmIt++ )
@@ -330,8 +323,8 @@ MorphologicalWatershedFromMarkersImageFilter<TInputImage, TLabelImage>
         }
       else
         {
-        statusIt2.Set( false );
-        outputIt2.Set( wsLabel );
+        statusIt.SetCenterPixel( false );
+        outputIt.SetCenterPixel( wsLabel );
         }
       progress.CompletedPixel();
       }
