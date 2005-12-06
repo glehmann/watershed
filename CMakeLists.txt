@@ -152,6 +152,19 @@ ADD_TEST(3x3mf wsm 0 0 ${CMAKE_SOURCE_DIR}/Images/3x3-input.png ${CMAKE_SOURCE_D
 ADD_TEST(3x3mfCompare ImageCompare 3x3mf.png ${CMAKE_SOURCE_DIR}/Images/3x3m.png)
 
 
+ADD_TEST(Cthead1MF wsm 1 1 ${CMAKE_SOURCE_DIR}/Images/cthead1.png ${CMAKE_SOURCE_DIR}/Images/cthead1-markers.png cthead1MF.png)
+ADD_TEST(Cthead1MFCompare ImageCompare cthead1MF.png ${CMAKE_SOURCE_DIR}/Images/cthead1MF.png)
+
+ADD_TEST(Cthead1Mf wsm 1 0 ${CMAKE_SOURCE_DIR}/Images/cthead1.png ${CMAKE_SOURCE_DIR}/Images/cthead1-markers.png cthead1Mf.png)
+ADD_TEST(Cthead1MfCompare ImageCompare cthead1Mf.png ${CMAKE_SOURCE_DIR}/Images/cthead1Mf.png)
+
+ADD_TEST(Cthead1mF wsm 0 1 ${CMAKE_SOURCE_DIR}/Images/cthead1.png ${CMAKE_SOURCE_DIR}/Images/cthead1-markers.png cthead1mF.png)
+ADD_TEST(Cthead1mFCompare ImageCompare cthead1mF.png ${CMAKE_SOURCE_DIR}/Images/cthead1mF.png)
+
+ADD_TEST(Cthead1mf wsm 0 0 ${CMAKE_SOURCE_DIR}/Images/cthead1.png ${CMAKE_SOURCE_DIR}/Images/cthead1-markers.png cthead1mf.png)
+ADD_TEST(Cthead1mfCompare ImageCompare cthead1mf.png ${CMAKE_SOURCE_DIR}/Images/cthead1mf.png)
+
+
 ADD_TEST(Marker wsm 1 0 ${CMAKE_SOURCE_DIR}/Images/threshold.png ${CMAKE_SOURCE_DIR}/Images/threshold-markers.png threshold-markersMf.png)
 ADD_TEST(MarkerCompare ImageCompare threshold-markersMf.png ${CMAKE_SOURCE_DIR}/Images/threshold-markersMf.png)
 
