@@ -1,9 +1,6 @@
 #Change PROJECT_NAME to the name of your project
 PROJECT(watershed)
 
-# set the name of the input image used to run the test
-SET(INPUT_IMAGE "")
-
 #include some macros from another file...
 INCLUDE(IJMacros.txt)
 
@@ -51,30 +48,6 @@ ADD_EXECUTABLE(${CurrentExe} ${CurrentExe}.cxx)
 TARGET_LINK_LIBRARIES(${CurrentExe} ${Libraries})
 
 SET(CurrentExe "wst")
-ADD_EXECUTABLE(${CurrentExe} ${CurrentExe}.cxx)
-TARGET_LINK_LIBRARIES(${CurrentExe} ${Libraries})
-
-SET(CurrentExe "vrmin")
-ADD_EXECUTABLE(${CurrentExe} ${CurrentExe}.cxx)
-TARGET_LINK_LIBRARIES(${CurrentExe} ${Libraries})
-
-SET(CurrentExe "vrmax")
-ADD_EXECUTABLE(${CurrentExe} ${CurrentExe}.cxx)
-TARGET_LINK_LIBRARIES(${CurrentExe} ${Libraries})
-
-SET(CurrentExe "rmin")
-ADD_EXECUTABLE(${CurrentExe} ${CurrentExe}.cxx)
-TARGET_LINK_LIBRARIES(${CurrentExe} ${Libraries})
-
-SET(CurrentExe "rmin3D")
-ADD_EXECUTABLE(${CurrentExe} ${CurrentExe}.cxx)
-TARGET_LINK_LIBRARIES(${CurrentExe} ${Libraries})
-
-SET(CurrentExe "rmax")
-ADD_EXECUTABLE(${CurrentExe} ${CurrentExe}.cxx)
-TARGET_LINK_LIBRARIES(${CurrentExe} ${Libraries})
-
-SET(CurrentExe "rmax3D")
 ADD_EXECUTABLE(${CurrentExe} ${CurrentExe}.cxx)
 TARGET_LINK_LIBRARIES(${CurrentExe} ${Libraries})
 
@@ -196,58 +169,6 @@ ADD_TEST(Threshold40Compare ImageCompare threshold40.png ${CMAKE_SOURCE_DIR}/thr
 
 ADD_TEST(Threshold50 wst 50 ${CMAKE_SOURCE_DIR}/threshold.png threshold50.png)
 ADD_TEST(Threshold50Compare ImageCompare threshold50.png ${CMAKE_SOURCE_DIR}/threshold50.png)
-
-
-ADD_TEST(VRMinF vrmin 1 ${CMAKE_SOURCE_DIR}/threshold.png threshold-vrminF.png threshold-vrminF-ref.png)
-ADD_TEST(VRMinFCompare ImageCompare threshold-vrminF.png threshold-vrminF-ref.png)
-
-ADD_TEST(VRMinf vrmin 0 ${CMAKE_SOURCE_DIR}/threshold.png threshold-vrminf.png threshold-vrminf-ref.png)
-ADD_TEST(VRMinfCompare ImageCompare threshold-vrminf.png threshold-vrminf-ref.png)
-
-
-ADD_TEST(VRMaxF vrmax 1 ${CMAKE_SOURCE_DIR}/threshold.png threshold-vrmaxF.png threshold-vrmaxF-ref.png)
-ADD_TEST(VRMaxFCompare ImageCompare threshold-vrmaxF.png threshold-vrmaxF-ref.png)
-
-ADD_TEST(VRMaxf vrmax 0 ${CMAKE_SOURCE_DIR}/threshold.png threshold-vrmaxf.png threshold-vrmaxf-ref.png)
-ADD_TEST(VRMaxfCompare ImageCompare threshold-vrmaxf.png threshold-vrmaxf-ref.png)
-
-
-ADD_TEST(RMinF rmin 1 ${CMAKE_SOURCE_DIR}/threshold.png threshold-rminF.png threshold-rminF-ref.png)
-ADD_TEST(RMinFCompare ImageCompare threshold-rminF.png threshold-rminF-ref.png)
-
-ADD_TEST(RMinf rmin 0 ${CMAKE_SOURCE_DIR}/threshold.png threshold-rminf.png threshold-rminf-ref.png)
-ADD_TEST(RMinfCompare ImageCompare threshold-rminf.png threshold-rminf-ref.png)
-
-ADD_TEST(RMinBlack rmin 0 ${CMAKE_SOURCE_DIR}/black.png black-rminf.png black-rminf-ref.png)
-ADD_TEST(RMinBlackCompare ImageCompare black-rminf.png ${CMAKE_SOURCE_DIR}/white.png)
-
-ADD_TEST(RMinWhite rmin 0 ${CMAKE_SOURCE_DIR}/white.png white-rminf.png white-rminf-ref.png)
-ADD_TEST(RMinWhiteCompare ImageCompare white-rminf.png ${CMAKE_SOURCE_DIR}/white.png)
-
-ADD_TEST(RMaxF rmax 1 ${CMAKE_SOURCE_DIR}/threshold.png threshold-rmaxF.png threshold-rmaxF-ref.png)
-ADD_TEST(RMaxFCompare ImageCompare threshold-rmaxF.png threshold-rmaxF-ref.png)
-
-ADD_TEST(RMaxf rmax 0 ${CMAKE_SOURCE_DIR}/threshold.png threshold-rmaxf.png threshold-rmaxf-ref.png)
-ADD_TEST(RMaxfCompare ImageCompare threshold-rmaxf.png threshold-rmaxf-ref.png)
-
-ADD_TEST(RMaxBlack rmax 0 ${CMAKE_SOURCE_DIR}/black.png black-rmaxf.png black-rmaxf-ref.png)
-ADD_TEST(RMaxBlackCompare ImageCompare black-rmaxf.png ${CMAKE_SOURCE_DIR}/white.png)
-
-ADD_TEST(RMaxWhite rmax 0 ${CMAKE_SOURCE_DIR}/white.png white-rmaxf.png white-rmaxf-ref.png)
-ADD_TEST(RMaxWhiteCompare ImageCompare white-rmaxf.png ${CMAKE_SOURCE_DIR}/white.png)
-
-
-# ADD_TEST(RMin3DF rmin3D 1 ${CMAKE_SOURCE_DIR}/ESCells.img ESCells-rminF.tif ESCells-rminF-ref.tif)
-# ADD_TEST(RMin3DFCompare ImageCompare ESCells-rminF.tif ESCells-rminF-ref.tif)
-
-ADD_TEST(RMin3Df rmin3D 0 ${CMAKE_SOURCE_DIR}/ESCells.img ESCells-rminf.tif ESCells-rminf-ref.tif)
-ADD_TEST(RMin3DfCompare ImageCompare ESCells-rminf.tif ESCells-rminf-ref.tif)
-
-# ADD_TEST(RMax3DF rmax3D 1 ${CMAKE_SOURCE_DIR}/ESCells.img ESCells-rmaxF.tif ESCells-rmaxF-ref.tif)
-# ADD_TEST(RMax3DFCompare ImageCompare ESCells-rmaxF.tif ESCells-rmaxF-ref.tif)
-
-ADD_TEST(RMax3Df rmax3D 0 ${CMAKE_SOURCE_DIR}/ESCells.img ESCells-rmaxf.tif ESCells-rmaxf-ref.tif)
-ADD_TEST(RMax3DfCompare ImageCompare ESCells-rmaxf.tif ESCells-rmaxf-ref.tif)
 
 
 ADD_TEST(ESCellsMf30 ws3 1 0 30 ${CMAKE_SOURCE_DIR}/ESCells.img ESCellsMf30.tif)
