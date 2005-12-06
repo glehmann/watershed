@@ -28,6 +28,7 @@ SET(Libraries
   ITKCommon
   ITKBasicFilters
   ITKIO
+  ITKAlgorithms
 )
 
 #the following block of code is an example of how to build an executable in
