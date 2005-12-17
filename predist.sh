@@ -3,11 +3,9 @@
 # build article
 (
 cd article
-pdflatex article.tex
-pdflatex article.tex
-
-mv article.pdf ..
-rm -f article.{aux,dvi,log,ps}
+make
+cp Article.pdf ..
+make clean
 )
 
 rm -f predist.sh
