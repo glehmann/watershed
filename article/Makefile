@@ -4,11 +4,12 @@ NAME = Article
 BIBS=$(wildcard *.bib)
 
 PNGS=$(wildcard *.png)
+JPGS=$(wildcard *.jpg)
 DIAS=$(wildcard *.dia)
 FIGS=$(wildcard *.fig)
 EPSS=$(wildcard *.eps)
 
-OUTPUT_EPS=$(PNGS:png=eps) $(DIAS:dia=eps) $(FIGS:fig=eps) $(EPSS)
+OUTPUT_EPS=$(PNGS:png=eps) $(JPGS:jpg=eps) $(DIAS:dia=eps) $(FIGS:fig=eps) $(EPSS)
 
 all: ps pdf
 
