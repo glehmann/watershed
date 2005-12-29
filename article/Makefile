@@ -1,9 +1,13 @@
 
-NAME = Article
-
 # you should use the title of the article instead
+ARTICLE_TITLE = A Great Article For The Insight Journal
+
 # spaces are not allowed
-PDF_NAME = A_Great_Article_For_The_Insight_Journal
+empty:=
+space:= $(empty) $(empty)
+PDF_NAME:= $(subst $(space),_,$(ARTICLE_TITLE))
+
+NAME = Article
 
 BIBS=$(wildcard *.bib)
 
