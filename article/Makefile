@@ -7,11 +7,11 @@ PDF_NAME = A_Great_Article_For_The_Insight_Journal
 
 BIBS=$(wildcard *.bib)
 
-PNGS=$(wildcard ../image/*.png)
-JPGS=$(wildcard ../images/*.jpg)
-DIAS=$(wildcard ../images/*.dia)
-FIGS=$(wildcard ../images/*.fig)
-EPSS=$(wildcard ../images/*.eps)
+PNGS=$(notdir $(wildcard ../images/*.png))
+JPGS=$(notdir $(wildcard ../images/*.jpg))
+DIAS=$(notdir $(wildcard ../images/*.dia))
+FIGS=$(notdir $(wildcard ../images/*.fig))
+EPSS=$(notdir $(wildcard ../images/*.eps))
 
 OUTPUT_EPS=$(PNGS:png=eps) $(JPGS:jpg=eps) $(DIAS:dia=eps) $(FIGS:fig=eps) $(EPSS)
 
