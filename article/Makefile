@@ -7,11 +7,11 @@ PDF_NAME = A_Great_Article_For_The_Insight_Journal
 
 BIBS=$(wildcard *.bib)
 
-PNGS=$(wildcard *.png)
-JPGS=$(wildcard *.jpg)
-DIAS=$(wildcard *.dia)
-FIGS=$(wildcard *.fig)
-EPSS=$(wildcard *.eps)
+PNGS=$(wildcard ../image/*.png)
+JPGS=$(wildcard ../images/*.jpg)
+DIAS=$(wildcard ../images/*.dia)
+FIGS=$(wildcard ../images/*.fig)
+EPSS=$(wildcard ../images/*.eps)
 
 OUTPUT_EPS=$(PNGS:png=eps) $(JPGS:jpg=eps) $(DIAS:dia=eps) $(FIGS:fig=eps) $(EPSS)
 
@@ -25,16 +25,16 @@ bbl: ${NAME}.bbl
 eps: $(OUTPUT_EPS)
 
 
-%.eps: %.png
+%.eps: ../images/%.png
 	convert $< $@
 
-%.eps: %.jpg
+%.eps: ../images/%.jpg
 	convert $< $@
 
-%.eps: %.dia
+%.eps: ../images/%.dia
 	dia --nosplash -e $@ $<
 
-%.eps: %.fig
+%.eps: ../images/%.fig
 	fig2dev -L eps $< $@
 
 
