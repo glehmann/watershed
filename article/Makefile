@@ -1,6 +1,10 @@
 
 NAME = Article
 
+# you should use the title of the article instead
+# spaces are not allowed
+PDF_NAME = A_Great_Article_For_The_Insight_Journal
+
 BIBS=$(wildcard *.bib)
 
 PNGS=$(wildcard *.png)
@@ -11,11 +15,11 @@ EPSS=$(wildcard *.eps)
 
 OUTPUT_EPS=$(PNGS:png=eps) $(JPGS:jpg=eps) $(DIAS:dia=eps) $(FIGS:fig=eps) $(EPSS)
 
-all: ps pdf
+all: pdf
 
 
 ps: ${NAME}.ps
-pdf: ${NAME}.pdf
+pdf: ${PDF_NAME}.pdf
 dvi: ${NAME}.dvi
 bbl: ${NAME}.bbl
 eps: $(OUTPUT_EPS)
@@ -38,8 +42,8 @@ ${NAME}.ps: ${NAME}.dvi
 	dvips -R0 -o ${NAME}.ps ${NAME}.dvi
 
 
-${NAME}.pdf: ${NAME}.ps
-	ps2pdf ${NAME}.ps
+${PDF_NAME}.pdf: ${NAME}.ps
+	ps2pdf ${NAME}.ps ${PDF_NAME}.pdf
 
 
 ${NAME}.bbl: ${BIBS} ${NAME}.aux
