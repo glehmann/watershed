@@ -47,7 +47,12 @@ ${NAME}.ps: ${NAME}.dvi
 
 
 ${PDF_NAME}.pdf: ${NAME}.ps
-	ps2pdf ${NAME}.ps ${PDF_NAME}.pdf
+	ps2pdf -dMaxSubsetPct=100 -dCompatibilityLevel=1.3 \
+         -dSubsetFonts=true -dEmbedAllFonts=true \
+         -dAutoFilterColorImages=false -dAutoFilterGrayImages=false \
+         -dColorImageFilter=/FlateEncode -dGrayImageFilter=/FlateEncode \
+	 -dMonoImageFilter=/FlateEncode \
+	 ${NAME}.ps ${PDF_NAME}.pdf
 
 
 ${NAME}.bbl: ${BIBS} ${NAME}.aux
