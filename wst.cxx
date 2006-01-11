@@ -6,44 +6,7 @@
 #include <itkMinimumMaximumImageCalculator.h>
 
 #include "itkMorphologicalWatershedImageFilter.h"
-
-template < class TFilter >
-class ProgressCallback : public itk::Command
-{
-public:
-  typedef ProgressCallback   Self;
-  typedef itk::Command  Superclass;
-  typedef itk::SmartPointer<Self>  Pointer;
-  typedef itk::SmartPointer<const Self>  ConstPointer;
-
-  itkTypeMacro( IterationCallback, Superclass );
-  itkNewMacro( Self );
-  
-  /** Type defining the optimizer. */
-  typedef    TFilter     FilterType;
-
-  /** Method to specify the optimizer. */
-  void SetFilter( FilterType * filter )
-    {
-    m_Filter = filter;
-    m_Filter->AddObserver( itk::ProgressEvent(), this );
-    }
-
-  /** Execute method will print data at each iteration */
-  void Execute(itk::Object *caller, const itk::EventObject & event)
-    {
-    Execute( (const itk::Object *)caller, event);
-    }
-    
-  void Execute(const itk::Object *, const itk::EventObject & event)
-    {
-    std::cout << m_Filter->GetNameOfClass() << ": " << m_Filter->GetProgress() << std::endl;
-    }
-
-protected:
-  ProgressCallback() {};
-  itk::WeakPointer<FilterType>   m_Filter;
-};
+#include "itkSimpleFilterWatcher.h"
 
 
 int main(int, char * argv[])
@@ -64,9 +27,7 @@ int main(int, char * argv[])
   filter->SetFullyConnected( false );
   filter->SetThreshold( atoi( argv[1] ) );
 
-  typedef ProgressCallback< FilterType > ProgressType;
-  ProgressType::Pointer progress = ProgressType::New();
-  progress->SetFilter( filter );
+  itk::SimpleFilterWatcher watcher(filter, "filter");
 
   filter->Update();
 
