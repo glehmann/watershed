@@ -22,25 +22,16 @@
 namespace itk {
 
 /** \class RegionalMinimaImageFilter
- * \brief TODO
+ * \brief Produce a binary image where foreground is the regional minima of the input image
  *
- * TODO
+ * Regional minima are flat zones surounded by pixels of greater value.
  *
- * Input image MUST contain only integers. With real values, the minima will not be found
- * as they should and the output of the filter will be wrong.
- * Watershed pixel are labeled 0.
- * TOutputImage should be an integer type.
- * Labels of output image are in no particular order. You can reorder the 
- * labels such that object labels are consecutive and sorted based on object
- * size by passing the output of this filter to a RelabelComponentImageFilter.
- *
- * The morphological watershed transform algorithm is described in
- * Chapter 9.2 of Pierre Soille's book "Morphological Image Analysis:
- * Principles and Applications", Second Edition, Springer, 2003.
- *
+ * If the input image is constant, the entire image can be considered as a minima or not.
+ * The SetFlatIsMinima() method let the user choose which behavior to use.
+ * 
  * \author Gaëtan Lehmann. Biologie du Développement et de la Reproduction, INRA de Jouy-en-Josas, France.
  *
- * \sa WatershedImageFilter, MorphologicalWatershedFromMarkersImageFilter, RelabelComponentImageFilter
+ * \sa ValuedRegionalMinimaImageFilter, HConcaveImageFilter, RegionalMaximaImageFilter
  * \ingroup ImageEnhancement  MathematicalMorphologyImageFilters
  */
 template<class TInputImage, class TOutputImage>
@@ -90,26 +81,27 @@ public:
   itkGetConstReferenceMacro(FullyConnected, bool);
   itkBooleanMacro(FullyConnected);
   
-  /** Set the value in the image to consider as "foreground". Defaults to
-   * maximum value of PixelType. Subclasses may alias this to
-   * DilateValue or ErodeValue.*/
+  /**
+   * Set/Get the value in the output image to consider as "foreground".
+   * Defaults to maximum value of PixelType.
+   */
   itkSetMacro(ForegroundValue, OutputImagePixelType);
-
-  /** Get the value in the image considered as "foreground". Defaults to
-   * maximum value of PixelType. */
   itkGetConstMacro(ForegroundValue, OutputImagePixelType);
 
-  /** Set the value used as "background".  Any pixel value which is
-   * not DilateValue is considered background. BackgroundValue is used
-   * for defining boundary conditions. Defaults to
-   * NumericTraits<PixelType>::NonpositiveMin(). */
+  /**
+   * Set/Get the value used as "background" in the output image.
+   * Defaults to NumericTraits<PixelType>::NonpositiveMin().
+   */
   itkSetMacro(BackgroundValue, OutputImagePixelType);
-
-  /** Get the value used as "background". Any pixel value which is
-   * not DilateValue is considered background. BackgroundValue is used
-   * for defining boundary conditions. Defaults to
-   * NumericTraits<PixelType>::NonpositiveMin(). */
   itkGetConstMacro(BackgroundValue, OutputImagePixelType);
+
+  /**
+   * Set/Get wether a flat image must be considered as a minima or not.
+   * Defaults to true.
+   */
+  itkSetMacro(FlatIsMinima, bool);
+  itkGetConstMacro(FlatIsMinima, bool);
+  itkBooleanMacro(FlatIsMinima);
 
 protected:
   RegionalMinimaImageFilter();
@@ -134,7 +126,7 @@ private:
   void operator=(const Self&); //purposely not implemented
 
   bool m_FullyConnected;
-
+  bool m_FlatIsMinima;
   OutputImagePixelType m_ForegroundValue;
   OutputImagePixelType m_BackgroundValue;
 

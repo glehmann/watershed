@@ -1,5 +1,5 @@
-#ifndef __itkRegionalExtremaImageFilter_h
-#define __itkRegionalExtremaImageFilter_h
+#ifndef __itkValuedRegionalExtremaImageFilter_h
+#define __itkValuedRegionalExtremaImageFilter_h
 
 #include "itkImageToImageFilter.h"
 #include "itkConstShapedNeighborhoodIterator.h"
@@ -9,12 +9,12 @@
 
 namespace itk {
 
-/** \class RegionalExtremaImageFilter 
+/** \class ValuedRegionalExtremaImageFilter 
  * \brief Uses a flooding algorithm to set all voxels that are not a
  * regional extrema to the max or min of the pixel type. 
  *
- * This is the class used by RegionalMinimaImageFilter and
- * RegionalMaximaImageFilter. There is no supression of regional
+ * This is the class used by ValuedRegionalMinimaImageFilter and
+ * ValuedRegionalMaximaImageFilter. There is no supression of regional
  * minima based on dynamics, as available in HMinimaImageFilter. This
  * flooding algorithm is a very simple one, but I'm not sure where it
  * came from - I certainly didn't invent it.
@@ -43,19 +43,18 @@ namespace itk {
  * \author Richard Beare. Department of Medicine, Monash University,
  * Melbourne, Australia.
  *
- * \sa RegionalMinimaImageFilter, RegionalMaximaImageFilter,
- * HMinimaImageFilter
+ * \sa ValuedRegionalMinimaImageFilter, ValuedRegionalMaximaImageFilter, HMinimaImageFilter
  * \ingroup MathematicalMorphologyImageFilters
  */
 
 template<class TInputImage, class TOutputImage, 
 	 class TFunction1, class TFunction2>
-class ITK_EXPORT RegionalExtremaImageFilter : 
+class ITK_EXPORT ValuedRegionalExtremaImageFilter : 
     public ImageToImageFilter<TInputImage, TOutputImage>
 {
 public:
   /** Standard class typedefs. */
-  typedef RegionalExtremaImageFilter Self;
+  typedef ValuedRegionalExtremaImageFilter Self;
   typedef ImageToImageFilter<TInputImage, TOutputImage>
   Superclass;
   typedef SmartPointer<Self>        Pointer;
@@ -84,7 +83,7 @@ public:
   itkNewMacro(Self);  
 
   /** Runtime information support. */
-  itkTypeMacro(RegionalExtremaImageFilter, 
+  itkTypeMacro(ValuedRegionalExtremaImageFilter, 
                ImageToImageFilter);
 
 
@@ -98,29 +97,35 @@ public:
   itkGetConstReferenceMacro(FullyConnected, bool);
   itkBooleanMacro(FullyConnected);
   
+  /**
+   * Set/Get the value used to mark all pixels which are not extrema.
+   */
   itkSetMacro(MarkerValue, typename TInputImage::PixelType);
   itkGetConstReferenceMacro(MarkerValue, typename TInputImage::PixelType);
 
+  /**
+   * Get whether the image is flat or not.
+   */
   itkGetMacro(Flat, bool);
 
 protected:
-  RegionalExtremaImageFilter();
-  ~RegionalExtremaImageFilter() {};
+  ValuedRegionalExtremaImageFilter();
+  ~ValuedRegionalExtremaImageFilter() {};
   void PrintSelf(std::ostream& os, Indent indent) const;
 
-  /** RegionalExtremaImageFilter needs the entire input be
+  /** ValuedRegionalExtremaImageFilter needs the entire input be
    * available. Thus, it needs to provide an implementation of
    * GenerateInputRequestedRegion(). */
   void GenerateInputRequestedRegion() ;
 
-  /** RegionalExtremaImageFilter will produce the entire output. */
+  /** ValuedRegionalExtremaImageFilter will produce the entire output. */
   void EnlargeOutputRequestedRegion(DataObject *itkNotUsed(output));
   
   void GenerateData();
   
 
 private:
-  RegionalExtremaImageFilter(const Self&); //purposely not implemented
+  ValuedRegionalExtremaImageFilter(const Self&); //purposely not implemented
   void operator=(const Self&); //purposely not implemented
   typename TInputImage::PixelType m_MarkerValue;
   bool                m_FullyConnected;
@@ -138,7 +143,7 @@ private:
 } // end namespace itk
   
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkRegionalExtremaImageFilter.txx"
+#include "itkValuedRegionalExtremaImageFilter.txx"
 #endif
 
 

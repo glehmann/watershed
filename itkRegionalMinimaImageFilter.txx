@@ -32,6 +32,7 @@ RegionalMinimaImageFilter<TInputImage, TOutputImage>
 ::RegionalMinimaImageFilter()
 {
   m_FullyConnected = false;
+  m_FlatIsMinima = true;
   m_ForegroundValue = NumericTraits<OutputImagePixelType>::max();
   m_BackgroundValue = NumericTraits<OutputImagePixelType>::NonpositiveMin();
 }
@@ -86,10 +87,21 @@ RegionalMinimaImageFilter<TInputImage, TOutputImage>
     {
     ProgressReporter progress2(this, 0, this->GetOutput()->GetRequestedRegion().GetNumberOfPixels(), 33, 0.67, 0.33);
     ImageRegionIterator< TOutputImage > outIt(this->GetOutput(), this->GetOutput()->GetRequestedRegion() );
-    for( outIt.Begin(); !outIt.IsAtEnd(); ++outIt )
+    if( m_FlatIsMinima )
       {
-      outIt.Set( m_ForegroundValue );
-      progress2.CompletedPixel();
+      for( outIt.Begin(); !outIt.IsAtEnd(); ++outIt )
+        {
+        outIt.Set( m_ForegroundValue );
+        progress2.CompletedPixel();
+        }
+      }
+    else
+      {
+      for( outIt.Begin(); !outIt.IsAtEnd(); ++outIt )
+        {
+        outIt.Set( m_BackgroundValue );
+        progress2.CompletedPixel();
+        }
       }
     }
   else
@@ -119,6 +131,7 @@ RegionalMinimaImageFilter<TInputImage, TOutputImage>
   Superclass::PrintSelf(os, indent);
 
   os << indent << "FullyConnected: "  << m_FullyConnected << std::endl;
+  os << indent << "FlatIsMinima: "  << m_FlatIsMinima << std::endl;
 }
   
 }// end namespace itk

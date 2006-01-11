@@ -1,18 +1,18 @@
-#ifndef __itkRegionalExtremaImageFilter_txx
-#define __itkRegionalExtremaImageFilter_txx
+#ifndef __itkValuedRegionalExtremaImageFilter_txx
+#define __itkValuedRegionalExtremaImageFilter_txx
 
 #include "itkImageRegionConstIterator.h"
 #include "itkImageRegionIterator.h"
 #include "itkNumericTraits.h"
-#include "itkRegionalExtremaImageFilter.h"
+#include "itkValuedRegionalExtremaImageFilter.h"
 #include "itkProgressReporter.h"
 #include "itkConnectedComponentAlgorithm.h"
 
 namespace itk {
 
 template <class TInputImage, class TOutputImage, class TFunction1, class TFunction2> 
-RegionalExtremaImageFilter<TInputImage, TOutputImage, TFunction1, TFunction2>
-::RegionalExtremaImageFilter()
+ValuedRegionalExtremaImageFilter<TInputImage, TOutputImage, TFunction1, TFunction2>
+::ValuedRegionalExtremaImageFilter()
 {
   m_FullyConnected = false;
   // not really useful, just to always have the same value before the filter has run
@@ -21,7 +21,7 @@ RegionalExtremaImageFilter<TInputImage, TOutputImage, TFunction1, TFunction2>
 
 template <class TInputImage, class TOutputImage, class TFunction1, class TFunction2>
 void 
-RegionalExtremaImageFilter<TInputImage, TOutputImage, TFunction1, TFunction2>
+ValuedRegionalExtremaImageFilter<TInputImage, TOutputImage, TFunction1, TFunction2>
 ::GenerateInputRequestedRegion()
 {
   // call the superclass' implementation of this method
@@ -38,7 +38,7 @@ RegionalExtremaImageFilter<TInputImage, TOutputImage, TFunction1, TFunction2>
 
 template <class TInputImage, class TOutputImage, class TFunction1, class TFunction2>
 void 
-RegionalExtremaImageFilter<TInputImage, TOutputImage, TFunction1, TFunction2>
+ValuedRegionalExtremaImageFilter<TInputImage, TOutputImage, TFunction1, TFunction2>
 ::EnlargeOutputRequestedRegion(DataObject *)
 {
   this->GetOutput()
@@ -48,7 +48,7 @@ RegionalExtremaImageFilter<TInputImage, TOutputImage, TFunction1, TFunction2>
 
 template<class TInputImage, class TOutputImage, class TFunction1, class TFunction2>
 void
-RegionalExtremaImageFilter<TInputImage, TOutputImage, TFunction1, TFunction2>
+ValuedRegionalExtremaImageFilter<TInputImage, TOutputImage, TFunction1, TFunction2>
 ::GenerateData()
 {
   // Allocate the output
@@ -188,7 +188,7 @@ RegionalExtremaImageFilter<TInputImage, TOutputImage, TFunction1, TFunction2>
 
 template<class TInputImage, class TOutputImage, class TFunction1, class TFunction2>
 void
-RegionalExtremaImageFilter<TInputImage, TOutputImage, TFunction1, TFunction2>
+ValuedRegionalExtremaImageFilter<TInputImage, TOutputImage, TFunction1, TFunction2>
 ::PrintSelf(std::ostream &os, Indent indent) const
 {
   Superclass::PrintSelf(os, indent);
