@@ -67,7 +67,7 @@ public:
   void SetMarkerImage(TLabelImage *input)
      {
      // Process object is not const-correct so the const casting is required.
-     this->SetNthInput(1, const_cast<TLabelImage *>(input) );
+     this->SetNthInput( 1, const_cast<TLabelImage *>(input) );
      }
 
   /** Get the marker image */
@@ -75,6 +75,18 @@ public:
     {
     return static_cast<LabelImageType*>(const_cast<DataObject *>(this->ProcessObject::GetInput(1)));
     }
+
+   /** Set the input image */
+  void SetInput1(TInputImage *input)
+     {
+     this->SetInput( input );
+     }
+
+   /** Set the marker image */
+  void SetInput2(TLabelImage *input)
+     {
+     this->SetMarkerImage( input );
+     }
 
   /**
    * Set/Get whether the connected components are defined strictly by
