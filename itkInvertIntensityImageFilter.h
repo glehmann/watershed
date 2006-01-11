@@ -80,6 +80,9 @@ public:
   typedef typename TInputImage::PixelType  InputPixelType;
   typedef typename NumericTraits<InputPixelType>::RealType RealType;
 
+  /** Runtime information support. */
+  itkTypeMacro(InvertIntensityImageFilter, UnaryFunctorImageFilter);
+
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
   
