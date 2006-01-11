@@ -50,8 +50,6 @@ int main(int, char * argv[])
   max->SetImage( relabel->GetOutput() );
   max->Compute();
 
-std::cout << max->GetMinimum() << " " << max->GetMaximum() << std::endl;
-
   typedef itk::IntensityWindowingImageFilter< IType, IType2 > RescaleType;
   RescaleType::Pointer rescale = RescaleType::New();
   rescale->SetInput( relabel->GetOutput() );
