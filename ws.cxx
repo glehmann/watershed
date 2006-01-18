@@ -6,13 +6,17 @@
 #include <itkMinimumMaximumImageCalculator.h>
 #include "itkMorphologicalWatershedImageFilter.h"
 #include "itkSimpleFilterWatcher.h"
+#include "itkLabelOverlay.h"
+#include "itkBinaryFunctorImageFilter.h"
+#include "itkBinaryThresholdImageFilter.h"
+
 
 
 int main(int, char * argv[])
 {
   const int dim = 2;
   
-  typedef unsigned char PType;
+  typedef unsigned short PType;
   typedef itk::Image< PType, dim > IType;
 
   typedef itk::ImageFileReader< IType > ReaderType;
@@ -28,6 +32,17 @@ int main(int, char * argv[])
   itk::SimpleFilterWatcher watcher(filter, "filter");
 
   filter->Update();
+
+  // A thresholder to highlight the borders
+  typedef itk::BinaryThresholdImageFilter< IType, IType >  ThresholdFilterType;
+  ThresholdFilterType::Pointer threshfilter = ThresholdFilterType::New();
+
+  threshfilter->SetInput(filter->GetOutput());
+  threshfilter->SetOutsideValue(0);
+  threshfilter->SetInsideValue(1);
+  threshfilter->SetUpperThreshold( 0 );
+  threshfilter->SetLowerThreshold( 0 );
+
 
   // rescale the output to have a better display
   typedef itk::MinimumMaximumImageCalculator< IType > MaxCalculatorType;
@@ -48,6 +63,23 @@ int main(int, char * argv[])
   writer->SetInput( rescale->GetOutput() );
   writer->SetFileName( argv[4] );
   writer->Update();
+
+  typedef itk::RGBPixel<unsigned char> CPType;
+  typedef itk::Image< CPType, dim > CIType;
+
+  // create an overlay image - basically mark the watershed lines
+  typedef LabelOverlay< PType, PType, CPType > LabelOverlayType;
+  typedef itk::BinaryFunctorImageFilter< IType, IType, CIType, LabelOverlayType > ColorMapFilterType;
+  ColorMapFilterType::Pointer colormapper = ColorMapFilterType::New();
+  colormapper->SetInput1( reader->GetOutput() );
+  colormapper->SetInput2( threshfilter->GetOutput() );
+
+  typedef itk::ImageFileWriter< CIType > OVWriterType;
+  OVWriterType::Pointer ovwriter = OVWriterType::New();
+  ovwriter->SetInput( colormapper->GetOutput() );
+  ovwriter->SetFileName( "overlay.tif");
+  ovwriter->Update();
+
 
   return 0;
 }
