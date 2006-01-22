@@ -16,8 +16,9 @@ JPGS=$(notdir $(wildcard ../images/*.jpg))
 DIAS=$(notdir $(wildcard ../images/*.dia))
 FIGS=$(notdir $(wildcard ../images/*.fig))
 EPSS=$(notdir $(wildcard ../images/*.eps))
+TIFS=$(notdir $(wildcard ../images/*.tif))
 
-OUTPUT_EPS=$(PNGS:png=eps) $(JPGS:jpg=eps) $(DIAS:dia=eps) $(FIGS:fig=eps) $(EPSS)
+OUTPUT_EPS=$(PNGS:png=eps) $(JPGS:jpg=eps) $(DIAS:dia=eps) $(FIGS:fig=eps) $(TIFS:tif=eps) $(EPSS)
 
 all: pdf
 
@@ -44,6 +45,9 @@ eps: $(OUTPUT_EPS)
 
 ${NAME}.ps: ${NAME}.dvi
 	dvips -R0 -o ${NAME}.ps ${NAME}.dvi
+
+%.eps: ../images/%.tif
+	convert $< $@
 
 
 ${PDF_NAME}.pdf: ${NAME}.ps
