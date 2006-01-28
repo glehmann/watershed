@@ -1,117 +1,60 @@
 WRAP_CLASS("itk::MorphologicalWatershedFromMarkersImageFilter" POINTER)
-
-  COND_WRAP("${ITKM_ID2}${ITKM_IUL2}" "${ITKT_ID2},${ITKT_IUL2}" "D") # needed for watershed
-  COND_WRAP("${ITKM_ID2}${ITKM_IUS2}" "${ITKT_ID2},${ITKT_IUS2}" "D;US")
-  COND_WRAP("${ITKM_ID2}${ITKM_IUC2}" "${ITKT_ID2},${ITKT_IUC2}" "D;UC")
-  COND_WRAP("${ITKM_ID2}${ITKM_ISL2}" "${ITKT_ID2},${ITKT_ISL2}" "D;SL")
-  COND_WRAP("${ITKM_ID2}${ITKM_ISS2}" "${ITKT_ID2},${ITKT_ISS2}" "D;SS")
-  COND_WRAP("${ITKM_ID2}${ITKM_ISC2}" "${ITKT_ID2},${ITKT_ISC2}" "D;SC")
-  
-  COND_WRAP("${ITKM_IF2}${ITKM_IUL2}" "${ITKT_IF2},${ITKT_IUL2}" "F") # needed for watershed
-  COND_WRAP("${ITKM_IF2}${ITKM_IUS2}" "${ITKT_IF2},${ITKT_IUS2}" "F;US")
-  COND_WRAP("${ITKM_IF2}${ITKM_IUC2}" "${ITKT_IF2},${ITKT_IUC2}" "F;UC")
-  COND_WRAP("${ITKM_IF2}${ITKM_ISL2}" "${ITKT_IF2},${ITKT_ISL2}" "F;SL")
-  COND_WRAP("${ITKM_IF2}${ITKM_ISS2}" "${ITKT_IF2},${ITKT_ISS2}" "F;SS")
-  COND_WRAP("${ITKM_IF2}${ITKM_ISC2}" "${ITKT_IF2},${ITKT_ISC2}" "F;SC")
-  
-  COND_WRAP("${ITKM_IUL2}${ITKM_IUL2}" "${ITKT_IUL2},${ITKT_IUL2}" "UL")
-  COND_WRAP("${ITKM_IUL2}${ITKM_IUS2}" "${ITKT_IUL2},${ITKT_IUS2}" "UL;US")
-  COND_WRAP("${ITKM_IUL2}${ITKM_IUC2}" "${ITKT_IUL2},${ITKT_IUC2}" "UL;UC")
-  COND_WRAP("${ITKM_IUL2}${ITKM_ISL2}" "${ITKT_IUL2},${ITKT_ISL2}" "UL;SL")
-  COND_WRAP("${ITKM_IUL2}${ITKM_ISS2}" "${ITKT_IUL2},${ITKT_ISS2}" "UL;SS")
-  COND_WRAP("${ITKM_IUL2}${ITKM_ISC2}" "${ITKT_IUL2},${ITKT_ISC2}" "UL;SC")
-  
-  COND_WRAP("${ITKM_IUS2}${ITKM_IUL2}" "${ITKT_IUS2},${ITKT_IUL2}" "US") # needed for watershed
-  COND_WRAP("${ITKM_IUS2}${ITKM_IUS2}" "${ITKT_IUS2},${ITKT_IUS2}" "US")
-  COND_WRAP("${ITKM_IUS2}${ITKM_IUC2}" "${ITKT_IUS2},${ITKT_IUC2}" "US;UC")
-  COND_WRAP("${ITKM_IUS2}${ITKM_ISL2}" "${ITKT_IUS2},${ITKT_ISL2}" "US;SL")
-  COND_WRAP("${ITKM_IUS2}${ITKM_ISS2}" "${ITKT_IUS2},${ITKT_ISS2}" "US;SS")
-  COND_WRAP("${ITKM_IUS2}${ITKM_ISC2}" "${ITKT_IUS2},${ITKT_ISC2}" "US;SC")
-  
-  COND_WRAP("${ITKM_IUC2}${ITKM_IUL2}" "${ITKT_IUC2},${ITKT_IUL2}" "UC") # needed for watershed
-  COND_WRAP("${ITKM_IUC2}${ITKM_IUS2}" "${ITKT_IUC2},${ITKT_IUS2}" "UC;US")
-  COND_WRAP("${ITKM_IUC2}${ITKM_IUC2}" "${ITKT_IUC2},${ITKT_IUC2}" "UC")
-  COND_WRAP("${ITKM_IUC2}${ITKM_ISL2}" "${ITKT_IUC2},${ITKT_ISL2}" "UC;SL")
-  COND_WRAP("${ITKM_IUC2}${ITKM_ISS2}" "${ITKT_IUC2},${ITKT_ISS2}" "UC;SS")
-  COND_WRAP("${ITKM_IUC2}${ITKM_ISC2}" "${ITKT_IUC2},${ITKT_ISC2}" "UC;SC")
-  
-  COND_WRAP("${ITKM_ISL2}${ITKM_IUL2}" "${ITKT_ISL2},${ITKT_IUL2}" "SL") # needed for watershed
-  COND_WRAP("${ITKM_ISL2}${ITKM_IUS2}" "${ITKT_ISL2},${ITKT_IUS2}" "SL;US")
-  COND_WRAP("${ITKM_ISL2}${ITKM_IUC2}" "${ITKT_ISL2},${ITKT_IUC2}" "SL;UC")
-  COND_WRAP("${ITKM_ISL2}${ITKM_ISL2}" "${ITKT_ISL2},${ITKT_ISL2}" "SL")
-  COND_WRAP("${ITKM_ISL2}${ITKM_ISS2}" "${ITKT_ISL2},${ITKT_ISS2}" "SL;SS")
-  COND_WRAP("${ITKM_ISL2}${ITKM_ISC2}" "${ITKT_ISL2},${ITKT_ISC2}" "SL;SC")
-  
-  COND_WRAP("${ITKM_ISS2}${ITKM_IUL2}" "${ITKT_ISS2},${ITKT_IUL2}" "SS") # needed for watershed
-  COND_WRAP("${ITKM_ISS2}${ITKM_IUS2}" "${ITKT_ISS2},${ITKT_IUS2}" "SS;US")
-  COND_WRAP("${ITKM_ISS2}${ITKM_IUC2}" "${ITKT_ISS2},${ITKT_IUC2}" "SS;UC")
-  COND_WRAP("${ITKM_ISS2}${ITKM_ISL2}" "${ITKT_ISS2},${ITKT_ISL2}" "SS;SL")
-  COND_WRAP("${ITKM_ISS2}${ITKM_ISS2}" "${ITKT_ISS2},${ITKT_ISS2}" "SS")
-  COND_WRAP("${ITKM_ISS2}${ITKM_ISC2}" "${ITKT_ISS2},${ITKT_ISC2}" "SS;SC")
-  
-  COND_WRAP("${ITKM_ISC2}${ITKM_IUL2}" "${ITKT_ISC2},${ITKT_IUL2}" "SC") # needed for watershed
-  COND_WRAP("${ITKM_ISC2}${ITKM_IUS2}" "${ITKT_ISC2},${ITKT_IUS2}" "SC;US")
-  COND_WRAP("${ITKM_ISC2}${ITKM_IUC2}" "${ITKT_ISC2},${ITKT_IUC2}" "SC;UC")
-  COND_WRAP("${ITKM_ISC2}${ITKM_ISL2}" "${ITKT_ISC2},${ITKT_ISL2}" "SC;SL")
-  COND_WRAP("${ITKM_ISC2}${ITKM_ISS2}" "${ITKT_ISC2},${ITKT_ISS2}" "SC;SS")
-  COND_WRAP("${ITKM_ISC2}${ITKM_ISC2}" "${ITKT_ISC2},${ITKT_ISC2}" "SC")
-  
-  
-  
-  COND_WRAP("${ITKM_ID3}${ITKM_IUL3}" "${ITKT_ID3},${ITKT_IUL3}" "D") # needed for watershed
-  COND_WRAP("${ITKM_ID3}${ITKM_IUS3}" "${ITKT_ID3},${ITKT_IUS3}" "D;US")
-  COND_WRAP("${ITKM_ID3}${ITKM_IUC3}" "${ITKT_ID3},${ITKT_IUC3}" "D;UC")
-  COND_WRAP("${ITKM_ID3}${ITKM_ISL3}" "${ITKT_ID3},${ITKT_ISL3}" "D;SL")
-  COND_WRAP("${ITKM_ID3}${ITKM_ISS3}" "${ITKT_ID3},${ITKT_ISS3}" "D;SS")
-  COND_WRAP("${ITKM_ID3}${ITKM_ISC3}" "${ITKT_ID3},${ITKT_ISC3}" "D;SC")
-  
-  COND_WRAP("${ITKM_IF3}${ITKM_IUL3}" "${ITKT_IF3},${ITKT_IUL3}" "F") # needed for watershed
-  COND_WRAP("${ITKM_IF3}${ITKM_IUS3}" "${ITKT_IF3},${ITKT_IUS3}" "F;US")
-  COND_WRAP("${ITKM_IF3}${ITKM_IUC3}" "${ITKT_IF3},${ITKT_IUC3}" "F;UC")
-  COND_WRAP("${ITKM_IF3}${ITKM_ISL3}" "${ITKT_IF3},${ITKT_ISL3}" "F;SL")
-  COND_WRAP("${ITKM_IF3}${ITKM_ISS3}" "${ITKT_IF3},${ITKT_ISS3}" "F;SS")
-  COND_WRAP("${ITKM_IF3}${ITKM_ISC3}" "${ITKT_IF3},${ITKT_ISC3}" "F;SC")
-  
-  COND_WRAP("${ITKM_IUL3}${ITKM_IUL3}" "${ITKT_IUL3},${ITKT_IUL3}" "UL")
-  COND_WRAP("${ITKM_IUL3}${ITKM_IUS3}" "${ITKT_IUL3},${ITKT_IUS3}" "UL;US")
-  COND_WRAP("${ITKM_IUL3}${ITKM_IUC3}" "${ITKT_IUL3},${ITKT_IUC3}" "UL;UC")
-  COND_WRAP("${ITKM_IUL3}${ITKM_ISL3}" "${ITKT_IUL3},${ITKT_ISL3}" "UL;SL")
-  COND_WRAP("${ITKM_IUL3}${ITKM_ISS3}" "${ITKT_IUL3},${ITKT_ISS3}" "UL;SS")
-  COND_WRAP("${ITKM_IUL3}${ITKM_ISC3}" "${ITKT_IUL3},${ITKT_ISC3}" "UL;SC")
-  
-  COND_WRAP("${ITKM_IUS3}${ITKM_IUL3}" "${ITKT_IUS3},${ITKT_IUL3}" "US") # needed for watershed
-  COND_WRAP("${ITKM_IUS3}${ITKM_IUS3}" "${ITKT_IUS3},${ITKT_IUS3}" "US")
-  COND_WRAP("${ITKM_IUS3}${ITKM_IUC3}" "${ITKT_IUS3},${ITKT_IUC3}" "US;UC")
-  COND_WRAP("${ITKM_IUS3}${ITKM_ISL3}" "${ITKT_IUS3},${ITKT_ISL3}" "US;SL")
-  COND_WRAP("${ITKM_IUS3}${ITKM_ISS3}" "${ITKT_IUS3},${ITKT_ISS3}" "US;SS")
-  COND_WRAP("${ITKM_IUS3}${ITKM_ISC3}" "${ITKT_IUS3},${ITKT_ISC3}" "US;SC")
-  
-  COND_WRAP("${ITKM_IUC3}${ITKM_IUL3}" "${ITKT_IUC3},${ITKT_IUL3}" "UC") # needed for watershed
-  COND_WRAP("${ITKM_IUC3}${ITKM_IUS3}" "${ITKT_IUC3},${ITKT_IUS3}" "UC;US")
-  COND_WRAP("${ITKM_IUC3}${ITKM_IUC3}" "${ITKT_IUC3},${ITKT_IUC3}" "UC")
-  COND_WRAP("${ITKM_IUC3}${ITKM_ISL3}" "${ITKT_IUC3},${ITKT_ISL3}" "UC;SL")
-  COND_WRAP("${ITKM_IUC3}${ITKM_ISS3}" "${ITKT_IUC3},${ITKT_ISS3}" "UC;SS")
-  COND_WRAP("${ITKM_IUC3}${ITKM_ISC3}" "${ITKT_IUC3},${ITKT_ISC3}" "UC;SC")
-  
-  COND_WRAP("${ITKM_ISL3}${ITKM_IUL3}" "${ITKT_ISL3},${ITKT_IUL3}" "SL") # needed for watershed
-  COND_WRAP("${ITKM_ISL3}${ITKM_IUS3}" "${ITKT_ISL3},${ITKT_IUS3}" "SL;US")
-  COND_WRAP("${ITKM_ISL3}${ITKM_IUC3}" "${ITKT_ISL3},${ITKT_IUC3}" "SL;UC")
-  COND_WRAP("${ITKM_ISL3}${ITKM_ISL3}" "${ITKT_ISL3},${ITKT_ISL3}" "SL")
-  COND_WRAP("${ITKM_ISL3}${ITKM_ISS3}" "${ITKT_ISL3},${ITKT_ISS3}" "SL;SS")
-  COND_WRAP("${ITKM_ISL3}${ITKM_ISC3}" "${ITKT_ISL3},${ITKT_ISC3}" "SL;SC")
-  
-  COND_WRAP("${ITKM_ISS3}${ITKM_IUL3}" "${ITKT_ISS3},${ITKT_IUL3}" "SS") # needed for watershed
-  COND_WRAP("${ITKM_ISS3}${ITKM_IUS3}" "${ITKT_ISS3},${ITKT_IUS3}" "SS;US")
-  COND_WRAP("${ITKM_ISS3}${ITKM_IUC3}" "${ITKT_ISS3},${ITKT_IUC3}" "SS;UC")
-  COND_WRAP("${ITKM_ISS3}${ITKM_ISL3}" "${ITKT_ISS3},${ITKT_ISL3}" "SS;SL")
-  COND_WRAP("${ITKM_ISS3}${ITKM_ISS3}" "${ITKT_ISS3},${ITKT_ISS3}" "SS")
-  COND_WRAP("${ITKM_ISS3}${ITKM_ISC3}" "${ITKT_ISS3},${ITKT_ISC3}" "SS;SC")
-  
-  COND_WRAP("${ITKM_ISC3}${ITKM_IUL3}" "${ITKT_ISC3},${ITKT_IUL3}" "SC") # needed for watershed
-  COND_WRAP("${ITKM_ISC3}${ITKM_IUS3}" "${ITKT_ISC3},${ITKT_IUS3}" "SC;US")
-  COND_WRAP("${ITKM_ISC3}${ITKM_IUC3}" "${ITKT_ISC3},${ITKT_IUC3}" "SC;UC")
-  COND_WRAP("${ITKM_ISC3}${ITKM_ISL3}" "${ITKT_ISC3},${ITKT_ISL3}" "SC;SL")
-  COND_WRAP("${ITKM_ISC3}${ITKM_ISS3}" "${ITKT_ISC3},${ITKT_ISS3}" "SC;SS")
-  COND_WRAP("${ITKM_ISC3}${ITKM_ISC3}" "${ITKT_ISC3},${ITKT_ISC3}" "SC")
+  FOREACH(d ${WRAP_DIMS})
+    COND_WRAP("${ITKM_ID${d}}${ITKM_IUL${d}}" "${ITKT_ID${d}},${ITKT_IUL${d}}" "D") # needed for watershed
+    COND_WRAP("${ITKM_ID${d}}${ITKM_IUS${d}}" "${ITKT_ID${d}},${ITKT_IUS${d}}" "D;US")
+    COND_WRAP("${ITKM_ID${d}}${ITKM_IUC${d}}" "${ITKT_ID${d}},${ITKT_IUC${d}}" "D;UC")
+    COND_WRAP("${ITKM_ID${d}}${ITKM_ISL${d}}" "${ITKT_ID${d}},${ITKT_ISL${d}}" "D;SL")
+    COND_WRAP("${ITKM_ID${d}}${ITKM_ISS${d}}" "${ITKT_ID${d}},${ITKT_ISS${d}}" "D;SS")
+    COND_WRAP("${ITKM_ID${d}}${ITKM_ISC${d}}" "${ITKT_ID${d}},${ITKT_ISC${d}}" "D;SC")
+    
+    COND_WRAP("${ITKM_IF${d}}${ITKM_IUL${d}}" "${ITKT_IF${d}},${ITKT_IUL${d}}" "F") # needed for watershed
+    COND_WRAP("${ITKM_IF${d}}${ITKM_IUS${d}}" "${ITKT_IF${d}},${ITKT_IUS${d}}" "F;US")
+    COND_WRAP("${ITKM_IF${d}}${ITKM_IUC${d}}" "${ITKT_IF${d}},${ITKT_IUC${d}}" "F;UC")
+    COND_WRAP("${ITKM_IF${d}}${ITKM_ISL${d}}" "${ITKT_IF${d}},${ITKT_ISL${d}}" "F;SL")
+    COND_WRAP("${ITKM_IF${d}}${ITKM_ISS${d}}" "${ITKT_IF${d}},${ITKT_ISS${d}}" "F;SS")
+    COND_WRAP("${ITKM_IF${d}}${ITKM_ISC${d}}" "${ITKT_IF${d}},${ITKT_ISC${d}}" "F;SC")
+    
+    COND_WRAP("${ITKM_IUL${d}}${ITKM_IUL${d}}" "${ITKT_IUL${d}},${ITKT_IUL${d}}" "UL")
+    COND_WRAP("${ITKM_IUL${d}}${ITKM_IUS${d}}" "${ITKT_IUL${d}},${ITKT_IUS${d}}" "UL;US")
+    COND_WRAP("${ITKM_IUL${d}}${ITKM_IUC${d}}" "${ITKT_IUL${d}},${ITKT_IUC${d}}" "UL;UC")
+    COND_WRAP("${ITKM_IUL${d}}${ITKM_ISL${d}}" "${ITKT_IUL${d}},${ITKT_ISL${d}}" "UL;SL")
+    COND_WRAP("${ITKM_IUL${d}}${ITKM_ISS${d}}" "${ITKT_IUL${d}},${ITKT_ISS${d}}" "UL;SS")
+    COND_WRAP("${ITKM_IUL${d}}${ITKM_ISC${d}}" "${ITKT_IUL${d}},${ITKT_ISC${d}}" "UL;SC")
+    
+    COND_WRAP("${ITKM_IUS${d}}${ITKM_IUL${d}}" "${ITKT_IUS${d}},${ITKT_IUL${d}}" "US") # needed for watershed
+    COND_WRAP("${ITKM_IUS${d}}${ITKM_IUS${d}}" "${ITKT_IUS${d}},${ITKT_IUS${d}}" "US")
+    COND_WRAP("${ITKM_IUS${d}}${ITKM_IUC${d}}" "${ITKT_IUS${d}},${ITKT_IUC${d}}" "US;UC")
+    COND_WRAP("${ITKM_IUS${d}}${ITKM_ISL${d}}" "${ITKT_IUS${d}},${ITKT_ISL${d}}" "US;SL")
+    COND_WRAP("${ITKM_IUS${d}}${ITKM_ISS${d}}" "${ITKT_IUS${d}},${ITKT_ISS${d}}" "US;SS")
+    COND_WRAP("${ITKM_IUS${d}}${ITKM_ISC${d}}" "${ITKT_IUS${d}},${ITKT_ISC${d}}" "US;SC")
+    
+    COND_WRAP("${ITKM_IUC${d}}${ITKM_IUL${d}}" "${ITKT_IUC${d}},${ITKT_IUL${d}}" "UC") # needed for watershed
+    COND_WRAP("${ITKM_IUC${d}}${ITKM_IUS${d}}" "${ITKT_IUC${d}},${ITKT_IUS${d}}" "UC;US")
+    COND_WRAP("${ITKM_IUC${d}}${ITKM_IUC${d}}" "${ITKT_IUC${d}},${ITKT_IUC${d}}" "UC")
+    COND_WRAP("${ITKM_IUC${d}}${ITKM_ISL${d}}" "${ITKT_IUC${d}},${ITKT_ISL${d}}" "UC;SL")
+    COND_WRAP("${ITKM_IUC${d}}${ITKM_ISS${d}}" "${ITKT_IUC${d}},${ITKT_ISS${d}}" "UC;SS")
+    COND_WRAP("${ITKM_IUC${d}}${ITKM_ISC${d}}" "${ITKT_IUC${d}},${ITKT_ISC${d}}" "UC;SC")
+    
+    COND_WRAP("${ITKM_ISL${d}}${ITKM_IUL${d}}" "${ITKT_ISL${d}},${ITKT_IUL${d}}" "SL") # needed for watershed
+    COND_WRAP("${ITKM_ISL${d}}${ITKM_IUS${d}}" "${ITKT_ISL${d}},${ITKT_IUS${d}}" "SL;US")
+    COND_WRAP("${ITKM_ISL${d}}${ITKM_IUC${d}}" "${ITKT_ISL${d}},${ITKT_IUC${d}}" "SL;UC")
+    COND_WRAP("${ITKM_ISL${d}}${ITKM_ISL${d}}" "${ITKT_ISL${d}},${ITKT_ISL${d}}" "SL")
+    COND_WRAP("${ITKM_ISL${d}}${ITKM_ISS${d}}" "${ITKT_ISL${d}},${ITKT_ISS${d}}" "SL;SS")
+    COND_WRAP("${ITKM_ISL${d}}${ITKM_ISC${d}}" "${ITKT_ISL${d}},${ITKT_ISC${d}}" "SL;SC")
+    
+    COND_WRAP("${ITKM_ISS${d}}${ITKM_IUL${d}}" "${ITKT_ISS${d}},${ITKT_IUL${d}}" "SS") # needed for watershed
+    COND_WRAP("${ITKM_ISS${d}}${ITKM_IUS${d}}" "${ITKT_ISS${d}},${ITKT_IUS${d}}" "SS;US")
+    COND_WRAP("${ITKM_ISS${d}}${ITKM_IUC${d}}" "${ITKT_ISS${d}},${ITKT_IUC${d}}" "SS;UC")
+    COND_WRAP("${ITKM_ISS${d}}${ITKM_ISL${d}}" "${ITKT_ISS${d}},${ITKT_ISL${d}}" "SS;SL")
+    COND_WRAP("${ITKM_ISS${d}}${ITKM_ISS${d}}" "${ITKT_ISS${d}},${ITKT_ISS${d}}" "SS")
+    COND_WRAP("${ITKM_ISS${d}}${ITKM_ISC${d}}" "${ITKT_ISS${d}},${ITKT_ISC${d}}" "SS;SC")
+    
+    COND_WRAP("${ITKM_ISC${d}}${ITKM_IUL${d}}" "${ITKT_ISC${d}},${ITKT_IUL${d}}" "SC") # needed for watershed
+    COND_WRAP("${ITKM_ISC${d}}${ITKM_IUS${d}}" "${ITKT_ISC${d}},${ITKT_IUS${d}}" "SC;US")
+    COND_WRAP("${ITKM_ISC${d}}${ITKM_IUC${d}}" "${ITKT_ISC${d}},${ITKT_IUC${d}}" "SC;UC")
+    COND_WRAP("${ITKM_ISC${d}}${ITKM_ISL${d}}" "${ITKT_ISC${d}},${ITKT_ISL${d}}" "SC;SL")
+    COND_WRAP("${ITKM_ISC${d}}${ITKM_ISS${d}}" "${ITKT_ISC${d}},${ITKT_ISS${d}}" "SC;SS")
+    COND_WRAP("${ITKM_ISC${d}}${ITKM_ISC${d}}" "${ITKT_ISC${d}},${ITKT_ISC${d}}" "SC")
+  ENDFOREACH(d)
 
 END_WRAP_CLASS()
