@@ -74,7 +74,7 @@ MorphologicalWatershedImageFilter<TInputImage, TOutputImage>
   this->AllocateOutputs();
   
   // h-minima filter to remove the smallest minima
-  typedef HMinimaImageFilter<TInputImage, TOutputImage> HMinimaType;
+  typedef HMinimaImageFilter<TInputImage, TInputImage> HMinimaType;
   typename HMinimaType::Pointer hmin;
 
   // Delegate to a R-Min filter to find the regional minima
