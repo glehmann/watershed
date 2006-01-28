@@ -31,6 +31,17 @@ SET(Libraries
   ITKAlgorithms
 )
 
+OPTION(BUILD_WRAPPERS "Wrap library" OFF)
+IF(BUILD_WRAPPERS)
+   SUBDIRS(Wrapping)
+ENDIF(BUILD_WRAPPERS)
+
+
+# install devel files
+FOREACH(f itkMorphologicalWatershedFromMarkersImageFilter.h itkMorphologicalWatershedImageFilter.h itkMorphologicalWatershedFromMarkersImageFilter.txx itkMorphologicalWatershedImageFilter.txx)
+  INSTALL_FILES(/include/InsightToolkit/BasicFilters FILES ${CMAKE_CURRENT_SOURCE_DIR}/${f})
+ENDFOREACH(f)
+
 #the following block of code is an example of how to build an executable in
 #cmake.  Unmodified, it will add an executable called "MyExe" to the project.
 #MyExe will be built using the files MyClass.h and MyClass.cxx, and it will
