@@ -26,6 +26,7 @@ namespace itk {
  *
  * TODO
  *
+ * These restrictions on input and output type should no longer apply.
  * Input image MUST contain only integers. With real values, the minima will not be found
  * as they should and the output of the filter will be wrong.
  * Watershed pixel are labeled 0.

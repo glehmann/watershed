@@ -159,6 +159,11 @@ between regions. Algorithms implementing the topological watershed
 also exploit priority queues, but don't appear to be able to avoid the
 need for explicit lower completion or reconstruction by erosion.
 
+The topological watershed appears to have been developed with the aim
+of using measures of border significance for merging criteria. This
+work lead to the discovery that it wasn't possible to compute certain
+measures with the flooding approaches used by many implementations.
+
 I don't understand the implications of the topological watershed yet.
 
 \section{Rainfall model}
@@ -359,26 +364,129 @@ all neighbors in a 4, 6, 8, 18 or 26\footnote{4 and 8 connected
 neighborhoods are used in 2D, 6, 18 and 26 in 3D} and the center of
 the neighborhood are equal -- i.e the various $\sqrt{2}$ terms are
 ignored. The position of the watershed lines can have some dependence
-on raster ordering because of this. In general the approach is very useful and efficient.
+on raster ordering because of this. In general the approach is very
+useful and efficient.
 
-Hill climbing requires a label image which is initialized to the
-indexes of the regional minima at the regional minima and an UNKNOWN
-value elsewhere\footnote{In the ITK implementation a separate image is
-used to track UNKNOWN locations because UNKNOWN values are difficult
-to deal with in a type independent way.}. The priority queue is
-initialised with the borders of the regional minima. Pixels pushed
-onto the queue with priority defined by their grey level and labelled
-as they are pushed. When pixels are popped from the queue their
-neighbors are checked, labelled, and pushed onto the queue if they
-aren't watershed pixels. The lower completion step is carried out
-implicitly by not allowing pixels to be pushed onto the queue with a
-priority lower than the priority of the neighbor which was popped from
-the queue.
+There seem to be at least 3 algorithms that fall into the
+hill-climbing category.
+
+%Hill climbing requires a label image which is initialized to the
+%indexes of the regional minima at the regional minima and an UNKNOWN
+%value elsewhere\footnote{In the ITK implementation a separate image is
+%used to track UNKNOWN locations because UNKNOWN values are difficult
+%to deal with in a type independent way.}. The priority queue is
+%initialised with the borders of the regional minima. Pixels pushed
+%onto the queue with priority defined by their grey level and labelled
+%as they are pushed. When pixels are popped from the queue their
+%neighbors are checked, labelled, and pushed onto the queue if they
+%aren't watershed pixels. The lower completion step is carried out
+%implicitly by not allowing pixels to be pushed onto the queue with a
+%priority lower than the priority of the neighbor which was popped from
+%the queue.
 
 The assumption that the distance between a pixel and all of its
 neighbors is 1 means that the steepest upper neighbors of a pixel are
-simply the unlabelled neighbors. 
+simply the unlabelled neighbors. This applies to all 3 algorithms
+mentioned below.
 
+\subsubsection{Algorithm 1}
+\begin{itemize}
+\item lower complete the image
+\item initialize the queue with all pixels except interior of minima.
+\item while (!empty(queue))
+   \begin{itemize}
+	\item Take the pixel $p$ from the head of the queue
+        \item for all pixels $q$ that are steepest upper neighbors of $p$; do
+        \begin{itemize}
+         \item  if $q$ is unlabeled, then 
+
+propagate label$(p)$ to label$(q)$;
+
+                else if (label$(q) \ne \mbox{WS})$ and  (label$(q) \ne \mbox{label}(p)$ then
+
+                  label($q$) = WS;
+	\end{itemize}
+
+   \end{itemize}
+\end{itemize}
+
+There are at least two reasons why we shouldn't use this
+approach. Firstly, the lower completion step is explicit, which we'd
+like to avoid and secondly ALL non minima pixels are placed on the
+queue, which means that the queue length is almost the same as the
+number of image pixels, increasing the overhead of queue
+management. We shall see that it is only necessary to have the pixels
+on the borders of the regions in the queue.
+
+In addition to these problems there is no provision for implicit
+imposition of minima for a marker based segmentation approach.
+
+\subsubsection{Algorithm 2}
+Using ordered queues.
+\begin{itemize}
+\item initialize the queue with edges of the regional minima. 
+The edges are pixels that are part of a regional minima with
+neighbours that are background.
+\item while (!empty(queue))
+   \begin{itemize}
+	\item Take the pixel $p$ from the head of the queue
+        \item for all pixels $q$ that are steepest upper neighbors of $p$; do
+         \item  if $q$ is unlabeled then 
+
+     		propagate label$(p)$ to label$(q)$;
+	
+		place $q$ in the queue
+
+                else if (label$(q) \ne \mbox{WS})$ and  (label$(q) \ne \mbox{label}(p)$ then
+
+                label($q$) = WS;
+	\end{itemize}
+
+\end{itemize}
+
+The queue only contains the borders of the growing regions.
+
+\subsubsection{Algorithm 3}
+Also using ordered queues.
+\begin{itemize}
+\item initialize the queue with background pixels that have 
+      neighbors that are members of a regional minima. In practice
+      this is done by checking all regional minima pixels to see
+      whether they have background neighbors. The background pixels
+      are placed on the queue and the label of the regional minima
+      associated with them.
+\item while (!empty(queue)
+   \begin{itemize}
+	\item Take the pixel $p$ from the head of the queue
+	
+         if $p$ is unlabelled;
+
+           apply the associated label
+
+         else
+ 
+           check whether $p$ is a watershed pixel. $p$ is a watershed
+           pixel if there is more than one label in the neighborhood.
+
+        \item for all pixels $q$ that are steepest upper neighbors of $p$; do
+	
+	if $q$ is not in the queue;
+
+           place in queue, associated with label($p$)
+        
+           mark as queued
+   \end{itemize}
+\end{itemize}
+
+
+The difference between algorithms 2 and 3 is the order in which
+labelling and queueing happens.
+
+Algorithm 3 requires slightly more comlexity to store label
+information in the queue.
+
+
+{\em a summary of our findings comparing the last 2 algorithms}
 
 \section{Finding regional minima}
 The marker based watershed filter can be used as a convention
