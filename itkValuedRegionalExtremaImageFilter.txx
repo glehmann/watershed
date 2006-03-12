@@ -88,7 +88,9 @@ ValuedRegionalExtremaImageFilter<TInputImage, TOutputImage, TFunction1, TFunctio
     {
     // Now for the real work!
     // More iterators - use shaped ones so that we can set connectivity
-  
+    // Note : all comments refer to finding regional minima, because
+    // it is briefer and clearer than trying to describe both regional
+    // maxima and minima processes at the same time
     ISizeType kernelRadius;
     kernelRadius.Fill(1);
     NOutputIterator outNIt(kernelRadius, 
@@ -113,7 +115,6 @@ ValuedRegionalExtremaImageFilter<TInputImage, TOutputImage, TFunction1, TFunctio
     TFunction2 compareOut;
   
     outIt = outIt.Begin();
-  
     // set up the stack and neighbor list
     IndexStack IS;
     typename NOutputIterator::IndexListType IndexList;
@@ -122,17 +123,16 @@ ValuedRegionalExtremaImageFilter<TInputImage, TOutputImage, TFunction1, TFunctio
     while ( !outIt.IsAtEnd() )
       {
       OutputImagePixelType V = outIt.Get();
+      // if the output pixel value = the marker value then we have
+      // already visited this pixel and don't need to do so again
       if (compareOut(V, m_MarkerValue)) 
         {
+	// reposition the input iterator
         inNIt += outIt.GetIndex() - inNIt.GetIndex();
-        // Optimization should be possible - Cent should be same as V?
-        //InputImagePixelType Cent = inNIt.GetCenterPixel(); 
   
         InputImagePixelType Cent = static_cast<InputImagePixelType>(V);
   
-        //if (static_cast<OutputImagePixelType>(Cent) != V)
-        //std::cout << "Not equal" << std::endl;
-  
+	// check each neighbor of the input pixel
         typename CNInputIterator::ConstIterator sIt;
         for (sIt = inNIt.Begin(); !sIt.IsAtEnd(); ++sIt)
           {
@@ -142,26 +142,36 @@ ValuedRegionalExtremaImageFilter<TInputImage, TOutputImage, TFunction1, TFunctio
             // The centre pixel cannot be part of a regional minima
             // because one of its neighbors is smaller.
             // Set all pixels in the output image that are connected to
-            // the centre pixel and have the same value to m_MarkerValue
+            // the centre pixel and have the same value to
+            // m_MarkerValue
+	    // This is the flood filling step. It is a simple, stack
+	    // based, procedure. The original value (V) of the pixel is
+	    // recorded and the pixel index in the output image
+	    // is set to the marker value. The stack is initialized
+	    // with the pixel index. The flooding procedure pops the
+	    // stack, sets that index to the marker value and places the
+	    // indexes of all neighbors with value V on the stack. The
+	    // process terminates when the stack is empty.
             outNIt += outIt.GetIndex() - outNIt.GetIndex();
             //setConnectedPixels(outNIt, V, IS, IndexList);
 
             OutputImagePixelType NVal;
             //IndexStack IS;
             OutIndexType idx;
+	    // Initialize the stack
             IS.push(outNIt.GetIndex());
             outNIt.SetCenterPixel(m_MarkerValue);
           
-            // Might consider passing this in as well
-            //typename NOutputIterator::IndexListType IndexList;
-            //IndexList = OIt.GetActiveIndexList();
-            typename NOutputIterator::IndexListType::const_iterator LIt;
+	    typename NOutputIterator::IndexListType::const_iterator LIt;
           
             while (!IS.empty())
               {
+	      // Pop the stack
               idx = IS.top();
               IS.pop();
+	      // position the iterator
               outNIt += idx - outNIt.GetIndex();
+	      // check neighbors
               for (LIt = IndexList.begin(); LIt != IndexList.end(); ++LIt)
                 {
                 NVal = outNIt.GetPixel(*LIt);
@@ -169,12 +179,13 @@ ValuedRegionalExtremaImageFilter<TInputImage, TOutputImage, TFunction1, TFunctio
                   {
                   // still in a flat zone
                   IS.push(outNIt.GetIndex(*LIt));
+		  // set the output as the marker value
                   outNIt.SetPixel(*LIt, m_MarkerValue);
                   }
                 }
               }
-
-            break;
+	    // end flooding
+	    break;
             }
           }
         }
