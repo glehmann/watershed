@@ -45,8 +45,8 @@ int checkEquiv(std::string infile1, std::string infile2)
 
   // the map structure we'll use to compare pixel labels
   typedef typename std::map<InputPixelType, InputPixelType> labMapType;
-  labMapType LabMap;
-  typename labMapType::iterator mIt;
+  labMapType LabMap, LabMapRev;
+  typename labMapType::iterator mIt, mItRev;
   bool Equiv=true;
   for (it1.GoToBegin(), it2.GoToBegin(); !it1.IsAtEnd(); ++it1, ++it2)
     {
@@ -69,6 +69,22 @@ int checkEquiv(std::string infile1, std::string infile2)
 	Equiv=false;
 	}
       }
+    mItRev = LabMapRev.find(p2);
+    if (mItRev == LabMapRev.end())
+      {
+      // haven't seen this label yet
+      LabMapRev[p2] = p1;
+      }
+    else
+      {
+      InputPixelType previous = mItRev->second;
+      if (previous != p1)
+	{
+	std::cerr << "Found mismatch: (" << p2 << "," << p1 << ")(" << p2 << "," << previous << ")" << std::endl;
+	Equiv=false;
+	}
+      }
+
     }
 
   if (Equiv)

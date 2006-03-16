@@ -375,6 +375,7 @@ ConnectedComponentImageFilter< TInputImage, TOutputImage >
 
   ImageRegionIterator<OutputImageType> fstart=oit, fend=oit;
   fstart.GoToBegin();
+  fend.GoToEnd();
 
   for (LineIt = MapBegin; LineIt != MapEnd; ++LineIt)
     {
@@ -402,6 +403,12 @@ ConnectedComponentImageFilter< TInputImage, TOutputImage >
       }
     progress.CompletedPixel();
     }
+  // fill the rest of the image with zeros
+  for (; fstart != fend; ++fstart)
+    {
+    fstart.Set(NumericTraits<OutputPixelType>::Zero );
+    }
+
 }
 
 // union find related functions
