@@ -1,4 +1,5 @@
 #include "itkImageFileReader.h"
+#include "itkImageFileWriter.h"
 
 #include "itkRegionalMinimaImageFilter.h"
 #include "itkHMinimaImageFilter.h"
@@ -36,7 +37,12 @@ int main(int, char * argv[])
   minima->SetInput( invert->GetOutput() );
   minima->SetHeight( 30 );
 
-
+//  typedef itk::ImageFileWriter<IType> WriterType;
+//  WriterType::Pointer writer = WriterType::New();
+//  writer->SetInput(minima->GetOutput());
+//  writer->SetFileName("esmod.img");
+//  writer->Update();
+    
 
 
   typedef itk::RegionalMinimaImageFilter< IType, IType > RMinType;

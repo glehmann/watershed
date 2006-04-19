@@ -147,12 +147,12 @@ ConnectedComponentImageFilter< TInputImage, TOutputImage >
       }
     }
   
-  long int totalLabs = CreateConsecutive();
+  unsigned long int totalLabs = CreateConsecutive();
   m_ObjectCount = totalLabs;
   // check for overflow exception here
   if (totalLabs > static_cast<long int>(NumericTraits<OutputPixelType>::max())) 
     {
-    itkExceptionMacro( << "Number of objects greater than maximum of output pixel type");
+    itkExceptionMacro( << "Number of objects greater than maximum of output pixel type " );
     }
   // create the output
   // A more complex version that is intended to minimize the number of
@@ -386,7 +386,7 @@ ConnectedComponentImageFilter< TInputImage, TOutputImage >
 
     for (cIt = LineIt->second.begin();cIt != LineIt->second.end();++cIt)
       {
-      long Ilab = LookupSet( cIt->label);
+      unsigned long Ilab = LookupSet( cIt->label);
       OutputPixelType lab = m_Consecutive[Ilab];
       oit.SetIndex(cIt->where);
       // initialize the non labelled pixels
@@ -415,22 +415,22 @@ ConnectedComponentImageFilter< TInputImage, TOutputImage >
 template< class TInputImage, class TOutputImage >
 void
 ConnectedComponentImageFilter< TInputImage, TOutputImage >
-::InsertSet(const long label)
+::InsertSet(const unsigned long int label)
 {
   m_UnionFind[label]=label;
 }
 
 template< class TInputImage, class TOutputImage >
-long int
+unsigned long int
 ConnectedComponentImageFilter< TInputImage, TOutputImage >
 ::CreateConsecutive()
 {
   m_Consecutive = UnionFindType(m_UnionFind.size());
   m_Consecutive[0] = 0;
-  long int CLab = 0;
-  for (long int I = 1; I < m_UnionFind.size(); I++)
+  unsigned long int CLab = 0;
+  for (unsigned long int I = 1; I < m_UnionFind.size(); I++)
     {
-    long int L = m_UnionFind[I];
+    unsigned long int L = m_UnionFind[I];
     if (L == I) 
       {
       ++CLab;
@@ -441,9 +441,9 @@ ConnectedComponentImageFilter< TInputImage, TOutputImage >
 }
 
 template< class TInputImage, class TOutputImage >
-long int
+unsigned long int
 ConnectedComponentImageFilter< TInputImage, TOutputImage >
-::LookupSet(const long label)
+::LookupSet(const unsigned long int label)
 {
   // recursively set the equivalence if necessary
   if (label != m_UnionFind[label])
@@ -456,10 +456,10 @@ ConnectedComponentImageFilter< TInputImage, TOutputImage >
 template< class TInputImage, class TOutputImage >
 void
 ConnectedComponentImageFilter< TInputImage, TOutputImage >
-::LinkLabels(const long int lab1, const long int lab2)
+::LinkLabels(const unsigned long int lab1, const unsigned long int lab2)
 {
-  long E1 = this->LookupSet(lab1);
-  long E2 = this->LookupSet(lab2);
+  unsigned long E1 = this->LookupSet(lab1);
+  unsigned long E2 = this->LookupSet(lab2);
 
   if (E1 < E2)
     {

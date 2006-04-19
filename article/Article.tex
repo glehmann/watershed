@@ -433,8 +433,6 @@ In addition to these problems there is no provision for implicit
 imposition of minima for a marker based segmentation approach.
 
 \subsubsection{Algorithm 2}
-\label{sect:BeucherAlgorithm}
-
 Using ordered queues.
 
 This algorithm does not mark the watershed lines.
@@ -532,8 +530,6 @@ queue \GETS \emptyset \\
 % \end{itemize}
 
 \subsubsection{Algorithm 3}
-\label{sect:MeyerAlgorithm}
-
 Also using ordered queues.
 
 This algorithm take a grayscale image $I$ and a marker image $M$
@@ -680,11 +676,14 @@ queue \GETS \emptyset \\
 The difference between algorithms 2 and 3 is the order in which
 labelling and queueing happens.
 
-Algorithm 3 requires slightly more comlexity to store label
+Algorithm 3 requires slightly more complexity to store label
 information in the queue.
 
-
 {\em a summary of our findings comparing the last 2 algorithms}
+
+The new work implements algorithms 2 and 3 -- algorithm 2 is used when
+the watershed lines are not marked while algorithm 3 is used when they
+are.
 
 \section{Finding regional minima}
 The marker based watershed filter can be used as a convention
@@ -787,15 +786,24 @@ selected with \verb$SetThreshold()$.
 
 
 \section{Timing and performance}
-
 streaming and threading.
 
-Preventing boundary checks - not really the itk way, but if a user is
+\subsection{Other performance issues/comments}
+\begin{itemize}
+\item Preventing boundary checks - not really the itk way, but if a user is
 willing to throw away the image border by treating it as a watershed
 line then there is no need to test for boundary conditions. There
 isn't even any need to use the face calculator approach because border
 pixels will be initially tagged as processed, and therefore we can be
 certain their neighbors are never checked.
+\item Streaming and threading  - queue based algorithms are generally difficult 
+to thread efficiently and generally need to have all of the input
+available so prevent streaming from working well. The existing ITK
+watershed does provide a multithreaded implementation and similar
+techniques may be possible with the new implementation. Other
+possibilities include using threads to improve performance of queues.
+\end{itemize}
+
 
 \section{Using watersheds in ITK}
 

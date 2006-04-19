@@ -96,7 +96,7 @@ public:
   itkBooleanMacro(FullyConnected);
   
   // only set after completion
-  itkGetConstReferenceMacro(ObjectCount, long);
+  itkGetConstReferenceMacro(ObjectCount, unsigned long);
 
   // Concept checking -- input and output dimensions must be the same
   itkConceptMacro(SameDimension,
@@ -132,7 +132,7 @@ protected:
 private:
 
   bool m_FullyConnected;
-  long m_ObjectCount;
+  unsigned long m_ObjectCount;
   // some additional types
   typedef typename TOutputImage::RegionType::SizeType OutSizeType;
 
@@ -142,7 +142,7 @@ private:
     public:
       long int length;  // run length information - may be a more type safe way of doing this
       typename InputImageType::IndexType where;  // Index of the start of the run
-      long int label; // the initial label of the run
+      unsigned long int label; // the initial label of the run
     };
 
   typedef std::vector<runLength> lineEncoding;
@@ -153,18 +153,18 @@ private:
   typedef std::vector<long> OffsetVec;
 
   // the types to support union-find operations
-  typedef std::vector<long int> UnionFindType;
+  typedef std::vector<unsigned long int> UnionFindType;
   UnionFindType m_UnionFind;
   UnionFindType m_Consecutive;
   // functions to support union-find operations
-  void InitUnion(const long int size) 
+  void InitUnion(const unsigned long int size) 
   {
     m_UnionFind = UnionFindType(size + 1);
   }
-  void InsertSet(const long int label);
-  long int LookupSet(const long int label);
-  void LinkLabels(const long int lab1, const long int lab2);
-  long int CreateConsecutive();
+  void InsertSet(const unsigned long int label);
+  unsigned long int LookupSet(const unsigned long int label);
+  void LinkLabels(const unsigned long int lab1, const unsigned long int lab2);
+  unsigned long int CreateConsecutive();
   //////////////////
   void CompareLines(lineEncoding &current, const lineEncoding &Neighbour);
 

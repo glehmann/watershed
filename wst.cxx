@@ -33,22 +33,22 @@ int main(int arglen, char * argv[])
   filter->Update();
 
   // rescale the output to have a better display
-  typedef itk::MinimumMaximumImageCalculator< IType > MaxCalculatorType;
-  MaxCalculatorType::Pointer max = MaxCalculatorType::New();
-  max->SetImage( filter->GetOutput() );
-  max->Compute();
+  //typedef itk::MinimumMaximumImageCalculator< IType > MaxCalculatorType;
+  //MaxCalculatorType::Pointer max = MaxCalculatorType::New();
+  //max->SetImage( filter->GetOutput() );
+  //max->Compute();
 
-  typedef itk::IntensityWindowingImageFilter< IType, IType > RescaleType;
-  RescaleType::Pointer rescale = RescaleType::New();
-  rescale->SetInput( filter->GetOutput() );
-  rescale->SetWindowMinimum( itk::NumericTraits< PType >::Zero );
-  rescale->SetWindowMaximum( max->GetMaximum() );
-  rescale->SetOutputMaximum( itk::NumericTraits< PType >::max() );
-  rescale->SetOutputMinimum( itk::NumericTraits< PType >::Zero );
+  //typedef itk::IntensityWindowingImageFilter< IType, IType > RescaleType;
+  //RescaleType::Pointer rescale = RescaleType::New();
+  //rescale->SetInput( filter->GetOutput() );
+  //rescale->SetWindowMinimum( itk::NumericTraits< PType >::Zero );
+  //rescale->SetWindowMaximum( max->GetMaximum() );
+  //rescale->SetOutputMaximum( itk::NumericTraits< PType >::max() );
+  //rescale->SetOutputMinimum( itk::NumericTraits< PType >::Zero );
 
   typedef itk::ImageFileWriter< IType > WriterType;
   WriterType::Pointer writer = WriterType::New();
-  writer->SetInput( rescale->GetOutput() );
+  writer->SetInput( filter->GetOutput() );
   writer->SetFileName( argv[3] );
   writer->Update();
 
