@@ -395,6 +395,12 @@ simply the unlabelled neighbors. This applies to all 3 algorithms
 mentioned below.
 
 \subsubsection{Algorithm 1}
+
+{\em Is it really needed to present this algorithm given that there is
+no lower completion ? Isn't it enough to notice somewhere that an
+algorithm exist without lower completion, and which require to put
+all the pixels in the queue ?}
+
 \begin{itemize}
 \item lower complete the image
 \item initialize the queue with all pixels except interior of minima.
@@ -417,7 +423,7 @@ propagate label$(p)$ to label$(q)$;
 
 There are at least two reasons why we shouldn't use this
 approach. Firstly, the lower completion step is explicit, which we'd
-like to avoid and secondly ALL non minima pixels are placed on the
+like to avoid and secondly {\em all} non minima pixels are placed on the
 queue, which means that the queue length is almost the same as the
 number of image pixels, increasing the overhead of queue
 management. We shall see that it is only necessary to have the pixels
@@ -427,6 +433,7 @@ In addition to these problems there is no provision for implicit
 imposition of minima for a marker based segmentation approach.
 
 \subsubsection{Algorithm 2}
+\label{sect:BeucherAlgorithm}
 
 Using ordered queues.
 
@@ -525,6 +532,7 @@ queue \GETS \emptyset \\
 % \end{itemize}
 
 \subsubsection{Algorithm 3}
+\label{sect:MeyerAlgorithm}
 
 Also using ordered queues.
 
@@ -550,7 +558,7 @@ Contrary to the previous algorithm, the label in the output image
 can't be used to determine if the pixel has already been added to
 the queue, and so we need to maintain this status by another way.
 It is the role of $S$ in Figure \ref{MeyerAlgorithm}. We'll discuss
-in ??? how this status can be implemented.
+in \ref{sect:implementation} how this status can be implemented.
 
 This algorithm mark the watershed lines.
 
@@ -710,9 +718,71 @@ require a more random visit order when flooding, which could restrict
 performance on larger images.
 \end{itemize}
 
-\section{Using watersheds in ITK}
+\section{Implementation}
+\label{sect:implementation}
+
+We provide with this article two new classes:
+
+  \subsection{MorphologicalWatershedFromMarkersImageFilter}
+
+\verb$MorphologicalWatershedFromMarkersImageFilter$ implement the
+algorithms \ref{sect:BeucherAlgorithm} and \ref{sect:MeyerAlgorithm}.
+They are accessible respectively when the attribute \verb$MarkWatershed$
+is \verb$false$ or is \verb$true$. The filter is templated over the
+input image type, which can be any scalar type, and the label image type
+which should be an integer. The filter take 2 inputs:
+\begin{itemize}
+  \item a grayscale image which can be set with \verb$SetInput(image)$,
+\verb$SetInput(0, image)$ or \verb$SetInput1(image)$.
+  \item a marker image which can be set with \verb$SetMarkerImage(image)$
+and \verb$SetInput2(image)$. \verb$SetInput(0, image)$ should be avoided
+because it will fail if the input image and the marker image are not of the
+same type. The markers are all the non-zero values in the image.
+\end{itemize}
+
+The algorithm \ref{sect:MeyerAlgorithm} require to keep the status of all
+the pixels: $already added to the queue$ or $not yet added to the queue$.
+This task is often done by using negative values in the output image
+for the pixels not yet added to the queue. In our implementation, we have
+chosen to use a binary image to store this, while labels always take values
+above 0 and watershed lines are marked with value 0. The negative values
+option have several drawbacks:
+\begin{itemize}
+  \item it requires to use a different image type than the label type defined
+by the user in case the user have chosen an unsigned pixel type.
+  \item it requires to use one of the value which can be possibly aready used
+by a label in the marker image, in case of a signed type.
+\end{itemize}
+Those problems can be avoided\footnote{It's not true for the unsigned long
+pixel type} by using a type which contains a larger range of value than the
+type choosed by the user, but then, we must copy the data to an image of
+the type chosen by the user at the end of the algorithm.
+
+We prefered using a separated binary image (of type \verb$itk::Image<bool, dim>$)
+to store this information. This solution avoid the need to copy the image at
+the end, and so should be more efficient in computation time, and require only
+one bit per pixel and so should be more memory efficient as well.
+
+
+  \subsection{MorphologicalWatershedImageFilter}
+
+\verb$MorphologicalWatershedImageFilter$ perform a watershed transformation
+without marker. It encapsulate several filters:
+\begin{itemize}
+  \item \verb$HMinimaImageFilter$
+  \item \verb$RegionalMinimaImageFilter$
+  \item \verb$ConnectedComponentImageFilter$
+  \item \verb$MorphologicalWatershedFromMarkersImageFilter$
+\end{itemize}
+While \verb$RegionalMinimaImageFilter$, \verb$ConnectedComponentImageFilter$,
+and \verb$MorphologicalWatershedFromMarkersImageFilter$ are the usal steps
+of the waterhed usage, the \verb$HMinimaImageFilter$ is a convenient way
+to avoid the classical watershed's over segmentation by allowing the user
+to select the dynamic of the minima.
+
 
 \section{Timing and performance}
+
 streaming and threading.
 
 Preventing boundary checks - not really the itk way, but if a user is
@@ -721,6 +791,8 @@ line then there is no need to test for boundary conditions. There
 isn't even any need to use the face calculator approach because border
 pixels will be initially tagged as processed, and therefore we can be
 certain their neighbors are never checked.
+
+\section{Using watersheds in ITK}
 
 \section{Discussion}
 There is a level of erroneous folklore surrounding the watershed
