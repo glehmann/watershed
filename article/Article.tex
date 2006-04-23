@@ -432,7 +432,10 @@ on the borders of the regions in the queue.
 In addition to these problems there is no provision for implicit
 imposition of minima for a marker based segmentation approach.
 
-\subsubsection{Algorithm 2}
+
+\subsubsection{Algorithm 2 - commonly attributed to Beucher.}
+\label{sect:BeucherAlgorithm}
+
 Using ordered queues.
 
 This algorithm does not mark the watershed lines.
@@ -529,7 +532,9 @@ queue \GETS \emptyset \\
 % 
 % \end{itemize}
 
-\subsubsection{Algorithm 3}
+\subsubsection{Algorithm 3 - commonly attributed to Meyer.}
+\label{sect:MeyerAlgorithm}
+
 Also using ordered queues.
 
 This algorithm take a grayscale image $I$ and a marker image $M$
@@ -786,7 +791,35 @@ selected with \verb$SetThreshold()$.
 
 
 \section{Timing and performance}
-streaming and threading.
+The relative performance of the new filters are shown in
+Table~\ref{tbl:perf}. The timings were obtained using the {\tt
+./perf3D images/ESCells.img}. The times for steps involved in a
+morphological watershed are shown in the first few columns, with the
+time from a combined filter and the itk watershed shown last. It
+should be noted that the itk watershed does not allow connectivity to
+be modified by the user - it always uses face connected mode and
+doesn't have an inbuilt mechanism for boundary selection. The existing
+ITK watershed is therefore somewhat slower than the new implementation
+when used to compute a traditional watershed. The new implementations
+are not easily threadable and therefore may prove to be slower on some
+systems. However, as discussed in earlier sections, the new
+implementation produces more stable results than the rainfall model
+and can be used in a marker based approach.
+
+\begin{table}[htbp]
+\centering
+\begin{tabular}{cccccccc}
+\hline
+FC & MB & Find Min &  Label mins & Watershed from markers & Total & Morph watershed &  itk watershed \\
+\hline
+0  &    0  &     1.948  & 0.522  & 5.752  & 8.222   & 8.218  & 12.596 \\
+0  &    1  &     1.922  & 0.516  & 6.724  & 9.162   & 9.28   & 12.61 \\
+1  &    0  &     4.26   & 0.154  & 13.274 & 17.688  & 18.158 & 12.61 \\
+1  &    1  &     4.284  & 0.15   & 17.23  & 21.664  & 21.76  & 12.606 \\
+\hline
+\end{tabular}
+\caption{Execution times. Note the FC and MB refer to FullyConnected and MarkBoundary.\label{tbl:perf}}
+\end{table}
 
 \subsection{Other performance issues/comments}
 \begin{itemize}
