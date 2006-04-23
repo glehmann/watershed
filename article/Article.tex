@@ -16,6 +16,10 @@ colorlinks,linkcolor={blue},citecolor={blue},urlcolor={blue},
 \usepackage{graphicx}
 \usepackage{listings}
 \usepackage{subfigure}
+\usepackage{pseudocode}
+% \usepackage{algorithm}
+% \usepackage{algorithmic}
+
 
 \title{The watershed transform in ITK - discussion and new developments}
 
@@ -45,6 +49,7 @@ classes.
 
 \tableofcontents
 \section{Introduction}
+
 The watershed transform is a tool for image segmentation that is fast
 and flexible and potentially fairly parameter free. It was originally
 derived from a geophysical model of rain falling on a terrain and a variety
@@ -422,61 +427,246 @@ In addition to these problems there is no provision for implicit
 imposition of minima for a marker based segmentation approach.
 
 \subsubsection{Algorithm 2}
+
 Using ordered queues.
-\begin{itemize}
-\item initialize the queue with edges of the regional minima. 
-The edges are pixels that are part of a regional minima with
-neighbours that are background.
-\item while (!empty(queue))
-   \begin{itemize}
-	\item Take the pixel $p$ from the head of the queue
-        \item for all pixels $q$ that are steepest upper neighbors of $p$; do
-         \item  if $q$ is unlabeled then 
 
-     		propagate label$(p)$ to label$(q)$;
-	
-		place $q$ in the queue
-
-                else if (label$(q) \ne \mbox{WS})$ and  (label$(q) \ne \mbox{label}(p)$ then
-
-                label($q$) = WS;
-	\end{itemize}
-
-\end{itemize}
+This algorithm does not mark the watershed lines.
 
 The queue only contains the borders of the growing regions.
 
+This algorithm take a grayscale image $I$ and a marker image $M$
+which contains a set of markers with different labels. It can be
+splitted in to steps:
+\begin{enumerate}
+  \item copy the marker image $M$ to the output image, and put
+all the marker pixels $p$ with background neighbors in the
+ordered queue, with the priority $I[p]$.
+  \item get a pixel from the ordered queue at the highest
+priority level, and propagate the label of $p$ to all the unlabeled
+neighbors of $p$. The unlabeled neighbors $q$ are added in the
+ordered queue with priority $I[q]$, if $I[q]$ is greater than
+the priority level of $p$, or with the priority of $p$ otherwise.
+\end{enumerate}
+
+The detailed algorithm is shown in Figure \ref{BeucherAlgorithm}.
+
+
+\begin{figure}[htbp]
+\centering
+\small
+\begin{pseudocode}[framebox]{BeucherWatershed}{I,M}
+\COMMENT{initialization stage} \\
+queue \GETS \emptyset \\
+\FOREACH p \in M \DO
+\BEGIN
+  \COMMENT{copy the marker image to the output image}\\
+  O[p] \GETS M[p] \\
+  \COMMENT{put the edges of the marker in the queue}\\
+  \IF M[p] \neq WSLABEL
+  \THEN
+  \BEGIN
+    bgNeighbor \GETS \FALSE \\
+    \FOREACH q \in \CALL{N}{p} \DO 
+    \BEGIN
+      \IF M[q] = WSLABEL
+        \THEN bgNeighbor \GETS \TRUE \\
+    \END\\
+    \IF bgNeighbor \STMTNUM{5em}{algo:Beucher:bgNeighbor}
+      \THEN
+      queue[I[p]] \GETS queue[I[p]] \cup \{p\} \\
+  \END
+\END
+\\
+\\
+\COMMENT{flooding stage} \\
+\WHILE queue \neq \emptyset \DO
+\BEGIN
+  v \GETS \CALL{first}{queue}\\
+  \WHILE queue[v] \neq \emptyset \DO
+  \BEGIN
+    p \GETS \CALL{first}{queue[v]} \\
+    \FOREACH q \in \CALL{N}{p} \DO
+    \BEGIN
+    \IF O[q] = WSLABEL
+    \THEN
+    \BEGIN
+      O[q] \GETS O[p] \\
+      v \GETS \CALL{MAX}{I[q], v} \STMTNUM{5em}{algo:Beucher:max} \\
+      queue[v] \GETS queue[v] \cup \{q\} \\
+    \END
+    \END
+  \END
+\END
+\end{pseudocode}
+\caption{Simple watershed algorithm.\label{BeucherAlgorithm} $FIRST(queue)$ extract the highest priority element from the queue. $N(p)$ return the list of p's neighbors. $MAX(a,b)$ returns the maximum of $a$, and $b$. $WSLABEL$ is the label used to define background and watershed pixels (usally $0$). The lower completion is done by the statement (\ref{algo:Beucher:max}). Determine if a marker pixel before adding it in the queue (\ref{algo:Beucher:bgNeighbor}) is not required, but helps to decrease memory usage in case of large markers.}
+\end{figure}
+
+
+% \begin{itemize}
+% \item initialize the queue with edges of the regional minima. 
+% The edges are pixels that are part of a regional minima with
+% neighbours that are background.
+% 
+% \item while (!empty(queue))
+%    \begin{itemize}
+% 	\item Take the pixel $p$ from the head of the queue
+%         \item for all pixels $q$ that are steepest upper neighbors of $p$; do
+%          \item  if $q$ is unlabeled then 
+% 
+%      		propagate label$(p)$ to label$(q)$;
+% 	
+% 		place $q$ in the queue
+% 
+%                 else if (label$(q) \ne \mbox{WS})$ and  (label$(q) \ne \mbox{label}(p)$ then
+% 
+%                 label($q$) = WS;
+% 	\end{itemize}
+% 
+% \end{itemize}
+
 \subsubsection{Algorithm 3}
+
 Also using ordered queues.
-\begin{itemize}
-\item initialize the queue with background pixels that have 
-      neighbors that are members of a regional minima. In practice
-      this is done by checking all regional minima pixels to see
-      whether they have background neighbors. The background pixels
-      are placed on the queue and the label of the regional minima
-      associated with them.
-\item while (!empty(queue)
-   \begin{itemize}
-	\item Take the pixel $p$ from the head of the queue
-	
-         if $p$ is unlabelled;
 
-           apply the associated label
+This algorithm take a grayscale image $I$ and a marker image $M$
+which contains a set of markers with different labels. It can be
+splitted in to steps:
+\begin{enumerate}
+  \item copy the marker image $M$ to the output image, and put
+all the background pixels $p$ with markers in there neighbors in the
+ordered queue, with the priority $I[p]$, and mark $p$ as already in
+the queue. All the marker pixels are marked as already in the queue.
+  \item get a pixel $p$ from the ordered queue at the highest
+priority level. If the neighborhood contains only the same label
+or watershed pixels, mark $p$ with that label. The neighbors $q$ 
+of $p$ which are not already in the queue are added to the queue 
+with priority $I[q]$, if $I[q]$ is greater than the priority level
+of $p$, or with the priority of $p$ otherwise.
+\end{enumerate}
 
-         else
- 
-           check whether $p$ is a watershed pixel. $p$ is a watershed
-           pixel if there is more than one label in the neighborhood.
+The detailed algorithm is shown in Figure \ref{MeyerAlgorithm}.
 
-        \item for all pixels $q$ that are steepest upper neighbors of $p$; do
-	
-	if $q$ is not in the queue;
+Contrary to the previous algorithm, the label in the output image
+can't be used to determine if the pixel has already been added to
+the queue, and so we need to maintain this status by another way.
+It is the role of $S$ in Figure \ref{MeyerAlgorithm}. We'll discuss
+in ??? how this status can be implemented.
 
-           place in queue, associated with label($p$)
-        
-           mark as queued
-   \end{itemize}
-\end{itemize}
+This algorithm mark the watershed lines.
+
+The queue only contains the borders of the growing regions.
+
+It must be noticed that this algorithm never propagate watershed
+lines, and so produce very thin watershed lines.
+
+\begin{figure}[htbp]
+\centering
+\small
+\begin{pseudocode}[framebox]{MeyerWatershed}{I,M}
+\COMMENT{initialization stage} \\
+\FOREACH p \in M \DO
+  S[p] \GETS \FALSE \\
+queue \GETS \emptyset \\
+\FOREACH p \in M \DO
+\BEGIN
+  \COMMENT{copy the marker image to the output image}\\
+  O[p] \GETS M[p] \\
+  \IF M[p] \neq WSLABEL
+  \THEN
+  \BEGIN
+    S[p] \GETS \TRUE \\
+    \COMMENT{add all the neighbors of $p$ with WSLABEL to the queue}\\
+    \FOREACH q \in \CALL{N}{p} \DO
+    \BEGIN
+      \IF \neg S[q] \AND M[q] = WSLABEL 
+      \THEN
+      \BEGIN
+        S[q] \GETS \TRUE \\
+        queue[I[q]] \GETS queue[I[q]] \cup \{q\} \\
+      \END
+    \END
+  \END
+\END
+\\
+\\
+\COMMENT{flooding stage} \\
+\WHILE queue \neq \emptyset \DO
+\BEGIN
+  v \GETS \CALL{first}{queue}\\
+  \WHILE queue[v] \neq \emptyset \DO
+  \BEGIN
+    p \GETS \CALL{first}{queue[v]} \\
+    \COMMENT{found the label of $p$ and determine if it is a watershed pixel} \\
+    label \GETS WSLABEL \\
+    watershed \GETS \FALSE \\
+    \FOREACH q \in \CALL{N}{p} \DO
+    \BEGIN
+      \IF O[q] \neq WSLABEL \AND \neg watershed
+      \THEN
+        \BEGIN
+        \IF label \neq WSLABEL \AND O[q] \neq label \\
+        \THEN
+          watershed \GETS \TRUE \\
+        \ELSE
+          label \GETS O[q] \\
+        \END
+    \END \\
+    \COMMENT{if $p$ is a watershed pixel, don't propagate this pixel} \\
+    \IF \neg watershed
+    \THEN
+      \BEGIN
+        \COMMENT{assign the label value to the current pixel} \\
+        O[p] \GETS label \\
+        \COMMENT{put all the neighbors of p in the queue} \\
+        \FOREACH q \in \CALL{N}{p} \DO
+        \BEGIN
+          \IF \neg S[q]
+          \THEN
+            \BEGIN
+            S[q] \GETS \TRUE \\
+            h \GETS \CALL{MAX}{I[q], v} \STMTNUM{5em}{algo:Meyer:max} \\
+            queue[h] \GETS queue[h] \cup \{q\} \\
+            \END
+        \END
+      \END
+  \END
+\END
+\end{pseudocode}
+\caption{Watershed algorithm with watershed lines.\label{MeyerAlgorithm} $FIRST(queue)$ extract the highest priority element from the queue. $N(p)$ return the list of p's neighbors. $MAX(a,b)$ returns the maximum of $a$, and $b$. $WSLABEL$ is the label used to define background and watershed pixels (usally $0$). The lower completion is done by the statement (\ref{algo:Meyer:max})}
+\end{figure}
+
+
+
+
+% \begin{itemize}
+% \item initialize the queue with background pixels that have 
+%       neighbors that are members of a regional minima. In practice
+%       this is done by checking all regional minima pixels to see
+%       whether they have background neighbors. The background pixels
+%       are placed on the queue and the label of the regional minima
+%       associated with them.
+% \item while (!empty(queue)
+%    \begin{itemize}
+% 	\item Take the pixel $p$ from the head of the queue
+% 	
+%          if $p$ is unlabelled;
+% 
+%            apply the associated label
+% 
+%          else
+%  
+%            check whether $p$ is a watershed pixel. $p$ is a watershed
+%            pixel if there is more than one label in the neighborhood.
+% 
+%         \item for all pixels $q$ that are steepest upper neighbors of $p$; do
+% 	
+% 	if $q$ is not in the queue;
+% 
+%            place in queue, associated with label($p$)
+%         
+%            mark as queued
+%    \end{itemize}
+% \end{itemize}
 
 
 The difference between algorithms 2 and 3 is the order in which
