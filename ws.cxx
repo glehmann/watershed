@@ -5,11 +5,13 @@
 #include <itkIntensityWindowingImageFilter.h>
 #include <itkMinimumMaximumImageCalculator.h>
 #include "itkMorphologicalWatershedImageFilter.h"
+#include "itkLabelOverlayImageFilter.h"
+
 #include "itkSimpleFilterWatcher.h"
 
 
 
-int main(int, char * argv[])
+int main(int arglen, char * argv[])
 {
   const int dim = 2;
   
@@ -49,6 +51,31 @@ int main(int, char * argv[])
   writer->SetInput( rescale->GetOutput() );
   writer->SetFileName( argv[4] );
   writer->Update();
+
+  if( arglen > 5 )
+    {
+    typedef itk::RGBPixel<unsigned char>   RGBPixelType;
+    typedef itk::Image<RGBPixelType, dim>    RGBImageType;
+    
+    typedef itk::LabelOverlayImageFilter<IType, IType, RGBImageType> OverlayType;
+    OverlayType::Pointer overlay = OverlayType::New();
+    overlay->SetInput( reader->GetOutput() );
+    overlay->SetLabelImage( filter->GetOutput() );
+
+    typedef itk::ImageFileWriter< RGBImageType > RGBWriterType;
+    RGBWriterType::Pointer rgbwriter = RGBWriterType::New();
+    rgbwriter->SetInput( overlay->GetOutput() );
+    rgbwriter->SetFileName( argv[5] );
+    rgbwriter->Update();
+
+    if( arglen > 6 )
+      {
+      overlay->SetOpacity( atof( argv[6] ) );
+      }
+
+    rgbwriter->Update();
+
+    }
 
   return 0;
 }

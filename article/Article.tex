@@ -741,7 +741,7 @@ same type. The markers are all the non-zero values in the image.
 \end{itemize}
 
 The algorithm \ref{sect:MeyerAlgorithm} require to keep the status of all
-the pixels: $already added to the queue$ or $not yet added to the queue$.
+the pixels: {\em already added to the queue} or {\em not yet added to the queue}.
 This task is often done by using negative values in the output image
 for the pixels not yet added to the queue. In our implementation, we have
 chosen to use a binary image to store this, while labels always take values
@@ -763,6 +763,10 @@ to store this information. This solution avoid the need to copy the image at
 the end, and so should be more efficient in computation time, and require only
 one bit per pixel and so should be more memory efficient as well.
 
+The connectivity is defined using the usual ITK way: \verb$SetFullConnected(false)$
+(4-connected in 2D, 6-connected in 3D) or \verb$SetFullConnected(true)$ (8-connected
+in 2D, 26-connected in 3D)\footnote{One should regret to not have the 18-connected
+connectivity in 3D}.
 
   \subsection{MorphologicalWatershedImageFilter}
 
@@ -778,7 +782,8 @@ While \verb$RegionalMinimaImageFilter$, \verb$ConnectedComponentImageFilter$,
 and \verb$MorphologicalWatershedFromMarkersImageFilter$ are the usal steps
 of the waterhed usage, the \verb$HMinimaImageFilter$ is a convenient way
 to avoid the classical watershed's over segmentation by allowing the user
-to select the dynamic of the minima.
+to select the dynamic of the minima. The minimum dynamic of minima can be
+selected with \verb$SetThreshold()$.
 
 
 \section{Timing and performance}
@@ -793,6 +798,72 @@ pixels will be initially tagged as processed, and therefore we can be
 certain their neighbors are never checked.
 
 \section{Using watersheds in ITK}
+
+
+
+\begin{figure}[htbp]
+\begin{center}
+\subfigure[Input image]{\includegraphics[scale=4]{threshold}}
+\subfigure[No minima threshold]{\includegraphics[scale=4]{threshold00-rgb}}
+\subfigure[Minima threshold = 10]{\includegraphics[scale=4]{threshold10-rgb}}
+\subfigure[Minima threshold = 20]{\includegraphics[scale=4]{threshold20-rgb}}
+\subfigure[Minima threshold = 30 and Minima threshold = 40]{\includegraphics[scale=4]{threshold30-rgb}}
+\subfigure[Minima threshold = 50]{\includegraphics[scale=4]{threshold50-rgb}}
+\subfigure[markers]{\includegraphics[scale=4]{threshold-markers}}
+\subfigure[Watershed from markers]{\includegraphics[scale=4]{threshold-markersMf-rgb}}
+\caption{Different results of watershed on an articial image. The labeled image are overlayed to the input image with {\em LabelOverlayImageFilter}. From $(b)$ to $(f)$, an example of reduction of the classical waterhsed oversegmentation by minima dynamic filtering. $(g)$ and $(h)$ show a marker defined by a user, and the result over the input image. All the watersheds were performed with $MarkWatershed = true$ and $FullyConnected = false$.}
+\end{center}
+\end{figure}
+
+
+\begin{figure}[htbp]
+\begin{center}
+\subfigure[]{\includegraphics[scale=10]{pass-values}}
+\subfigure[]{\includegraphics[scale=10]{pass-values-mf-rgb}}
+\subfigure[]{\includegraphics[scale=10]{pass-values-mF-rgb}}
+\subfigure[]{\includegraphics[scale=10]{pass-values-Mf-rgb}}
+\subfigure[]{\includegraphics[scale=10]{pass-values-MF-rgb}}
+\subfigure[]{\includegraphics[scale=10]{pass-values}}
+
+\subfigure[]{\includegraphics[scale=4]{plateau}}
+\subfigure[]{\includegraphics[scale=4]{plateau-mf-rgb}}
+\subfigure[]{\includegraphics[scale=4]{plateau-mF-rgb}}
+\subfigure[]{\includegraphics[scale=4]{plateau-Mf-rgb}}
+\subfigure[]{\includegraphics[scale=4]{plateau-MF-rgb}}
+\subfigure[]{\includegraphics[scale=4]{plateau}}
+
+\subfigure[]{\includegraphics[scale=10]{thick-lines}}
+\subfigure[]{\includegraphics[scale=10]{thick-lines-mf-rgb}}
+\subfigure[]{\includegraphics[scale=10]{thick-lines-mF-rgb}}
+\subfigure[]{\includegraphics[scale=10]{thick-lines-Mf-rgb}}
+\subfigure[]{\includegraphics[scale=10]{thick-lines-MF-rgb}}
+\subfigure[]{\includegraphics[scale=10]{thick-lines}}
+
+\subfigure[]{\includegraphics[scale=6]{button-hole}}
+\subfigure[]{\includegraphics[scale=6]{button-hole-mf-rgb}}
+\subfigure[]{\includegraphics[scale=6]{button-hole-mF-rgb}}
+\subfigure[]{\includegraphics[scale=6]{button-hole-Mf-rgb}}
+\subfigure[]{\includegraphics[scale=6]{button-hole-MF-rgb}}
+\subfigure[]{\includegraphics[scale=6]{button-hole}}
+
+\caption{}
+\end{center}
+\end{figure}
+
+
+\begin{figure}[htbp]
+\begin{center}
+\subfigure[]{\includegraphics[scale=0.7]{cthead1}}
+\subfigure[]{\includegraphics[scale=0.7]{cthead1-markers}}
+\subfigure[]{\includegraphics[scale=0.7]{cthead1mf-rgb}}
+\subfigure[]{\includegraphics[scale=0.7]{cthead1mF-rgb}}
+\subfigure[]{\includegraphics[scale=0.7]{cthead1Mf-rgb}}
+\subfigure[]{\includegraphics[scale=0.7]{cthead1MF-rgb}}
+\caption{}
+\end{center}
+\end{figure}
+
+
 
 \section{Discussion}
 There is a level of erroneous folklore surrounding the watershed

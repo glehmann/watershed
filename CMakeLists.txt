@@ -7,6 +7,7 @@ INCLUDE(IJMacros.txt)
 #The following lines are required to use Dart
 ENABLE_TESTING()
 INCLUDE(Dart)
+FIND_PROGRAM(IMAGE_COMPARE ImageCompare)
 
 #Declare any external dependencies that your project may have here.
 #examples include: ITK, VTK, JPEG, PNG, OpenGL, ZLIB, Perl, Java
@@ -91,53 +92,69 @@ ENDIF(BUILD_TESTING)
 #any tests you can comment out or delete the following line.
 # ADD_TEST(Testname ExecutableToRun arg1 arg2 arg3)
 
-ADD_TEST(ButtonHoleMF ws 1 1 ${CMAKE_SOURCE_DIR}/images/button-hole.png button-hole-MF.png)
+ADD_TEST(ButtonHoleMF ws 1 1 ${CMAKE_SOURCE_DIR}/images/button-hole.png button-hole-MF.png button-hole-MF-rgb.png 1)
 ADD_TEST(ButtonHoleMFCompare testEquiv button-hole-MF.png ${CMAKE_SOURCE_DIR}/images/button-hole-MF.png)
+ADD_TEST(ButtonHoleMFRGBCompare ${IMAGE_COMPARE} button-hole-MF-rgb.png ${CMAKE_SOURCE_DIR}/images/button-hole-MF-rgb.png)
 
-ADD_TEST(ButtonHolemF ws 0 1 ${CMAKE_SOURCE_DIR}/images/button-hole.png button-hole-mF.png)
+ADD_TEST(ButtonHolemF ws 0 1 ${CMAKE_SOURCE_DIR}/images/button-hole.png button-hole-mF.png button-hole-mF-rgb.png 1)
 ADD_TEST(ButtonHolemFCompare testEquiv button-hole-mF.png ${CMAKE_SOURCE_DIR}/images/button-hole-mF.png)
+ADD_TEST(ButtonHolemFRGBCompare ${IMAGE_COMPARE} button-hole-mF-rgb.png ${CMAKE_SOURCE_DIR}/images/button-hole-mF-rgb.png)
 
-ADD_TEST(ButtonHoleMf ws 1 0 ${CMAKE_SOURCE_DIR}/images/button-hole.png button-hole-Mf.png)
+ADD_TEST(ButtonHoleMf ws 1 0 ${CMAKE_SOURCE_DIR}/images/button-hole.png button-hole-Mf.png button-hole-Mf-rgb.png 1)
 ADD_TEST(ButtonHoleMfCompare testEquiv button-hole-Mf.png ${CMAKE_SOURCE_DIR}/images/button-hole-Mf.png)
+ADD_TEST(ButtonHoleMfRGBCompare ${IMAGE_COMPARE} button-hole-Mf-rgb.png ${CMAKE_SOURCE_DIR}/images/button-hole-Mf-rgb.png)
 
-ADD_TEST(ButtonHolemf ws 0 0 ${CMAKE_SOURCE_DIR}/images/button-hole.png button-hole-mf.png)
+ADD_TEST(ButtonHolemf ws 0 0 ${CMAKE_SOURCE_DIR}/images/button-hole.png button-hole-mf.png button-hole-mf-rgb.png 1)
 ADD_TEST(ButtonHolemfCompare testEquiv button-hole-mf.png ${CMAKE_SOURCE_DIR}/images/button-hole-mf.png)
+ADD_TEST(ButtonHolemfRGBCompare ${IMAGE_COMPARE} button-hole-mf-rgb.png ${CMAKE_SOURCE_DIR}/images/button-hole-mf-rgb.png)
 
-ADD_TEST(PassValueMF ws 1 1 ${CMAKE_SOURCE_DIR}/images/pass-values.png pass-values-MF.png)
+ADD_TEST(PassValueMF ws 1 1 ${CMAKE_SOURCE_DIR}/images/pass-values.png pass-values-MF.png pass-values-MF-rgb.png 1)
 ADD_TEST(PassValueMFCompare testEquiv pass-values-MF.png ${CMAKE_SOURCE_DIR}/images/pass-values-MF.png)
+ADD_TEST(PassValueMFRGBCompare ${IMAGE_COMPARE} pass-values-MF-rgb.png ${CMAKE_SOURCE_DIR}/images/pass-values-MF-rgb.png)
 
-ADD_TEST(PassValuemF ws 0 1 ${CMAKE_SOURCE_DIR}/images/pass-values.png pass-values-mF.png)
+ADD_TEST(PassValuemF ws 0 1 ${CMAKE_SOURCE_DIR}/images/pass-values.png pass-values-mF.png pass-values-mF-rgb.png 1)
 ADD_TEST(PassValuemFCompare testEquiv pass-values-mF.png ${CMAKE_SOURCE_DIR}/images/pass-values-mF.png)
+ADD_TEST(PassValuemFRGBCompare ${IMAGE_COMPARE} pass-values-mF-rgb.png ${CMAKE_SOURCE_DIR}/images/pass-values-mF-rgb.png)
 
-ADD_TEST(PassValueMf ws 1 0 ${CMAKE_SOURCE_DIR}/images/pass-values.png pass-values-Mf.png)
+ADD_TEST(PassValueMf ws 1 0 ${CMAKE_SOURCE_DIR}/images/pass-values.png pass-values-Mf.png pass-values-Mf-rgb.png 1)
 ADD_TEST(PassValueMfCompare testEquiv pass-values-Mf.png ${CMAKE_SOURCE_DIR}/images/pass-values-Mf.png)
+ADD_TEST(PassValueMfRGBCompare ${IMAGE_COMPARE} pass-values-Mf-rgb.png ${CMAKE_SOURCE_DIR}/images/pass-values-Mf-rgb.png)
 
-ADD_TEST(PassValuemf ws 0 0 ${CMAKE_SOURCE_DIR}/images/pass-values.png pass-values-mf.png)
+ADD_TEST(PassValuemf ws 0 0 ${CMAKE_SOURCE_DIR}/images/pass-values.png pass-values-mf.png pass-values-mf-rgb.png 1)
 ADD_TEST(PassValuemfCompare testEquiv pass-values-mf.png ${CMAKE_SOURCE_DIR}/images/pass-values-mf.png)
+ADD_TEST(PassValuemfRGBCompare ${IMAGE_COMPARE} pass-values-mf-rgb.png ${CMAKE_SOURCE_DIR}/images/pass-values-mf-rgb.png)
 
-ADD_TEST(ThickLinesMF ws 1 1 ${CMAKE_SOURCE_DIR}/images/thick-lines.png thick-lines-MF.png)
+ADD_TEST(ThickLinesMF ws 1 1 ${CMAKE_SOURCE_DIR}/images/thick-lines.png thick-lines-MF.png thick-lines-MF-rgb.png 1)
 ADD_TEST(ThickLinesMFCompare testEquiv thick-lines-MF.png ${CMAKE_SOURCE_DIR}/images/thick-lines-MF.png)
+ADD_TEST(ThickLinesMFRGBCompare ${IMAGE_COMPARE} thick-lines-MF-rgb.png ${CMAKE_SOURCE_DIR}/images/thick-lines-MF-rgb.png)
 
-ADD_TEST(ThickLinesmF ws 0 1 ${CMAKE_SOURCE_DIR}/images/thick-lines.png thick-lines-mF.png)
+ADD_TEST(ThickLinesmF ws 0 1 ${CMAKE_SOURCE_DIR}/images/thick-lines.png thick-lines-mF.png thick-lines-mF-rgb.png 1)
 ADD_TEST(ThickLinesmFCompare testEquiv thick-lines-mF.png ${CMAKE_SOURCE_DIR}/images/thick-lines-mF.png)
+ADD_TEST(ThickLinesmFRGBCompare ${IMAGE_COMPARE} thick-lines-mF-rgb.png ${CMAKE_SOURCE_DIR}/images/thick-lines-mF-rgb.png)
 
-ADD_TEST(ThickLinesMf ws 1 0 ${CMAKE_SOURCE_DIR}/images/thick-lines.png thick-lines-Mf.png)
+ADD_TEST(ThickLinesMf ws 1 0 ${CMAKE_SOURCE_DIR}/images/thick-lines.png thick-lines-Mf.png thick-lines-Mf-rgb.png 1)
 ADD_TEST(ThickLinesMfCompare testEquiv thick-lines-Mf.png ${CMAKE_SOURCE_DIR}/images/thick-lines-Mf.png)
+ADD_TEST(ThickLinesMfRGBCompare ${IMAGE_COMPARE} thick-lines-Mf-rgb.png ${CMAKE_SOURCE_DIR}/images/thick-lines-Mf-rgb.png)
 
-ADD_TEST(ThickLinesmf ws 0 0 ${CMAKE_SOURCE_DIR}/images/thick-lines.png thick-lines-mf.png)
+ADD_TEST(ThickLinesmf ws 0 0 ${CMAKE_SOURCE_DIR}/images/thick-lines.png thick-lines-mf.png thick-lines-mf-rgb.png 1)
 ADD_TEST(ThickLinesmfCompare testEquiv thick-lines-mf.png ${CMAKE_SOURCE_DIR}/images/thick-lines-mf.png)
+ADD_TEST(ThickLinesmfRGBCompare ${IMAGE_COMPARE} thick-lines-mf-rgb.png ${CMAKE_SOURCE_DIR}/images/thick-lines-mf-rgb.png)
 
-ADD_TEST(PlateauMF ws 1 1 ${CMAKE_SOURCE_DIR}/images/plateau.png plateau-MF.png)
+ADD_TEST(PlateauMF ws 1 1 ${CMAKE_SOURCE_DIR}/images/plateau.png plateau-MF.png plateau-MF-rgb.png 1)
 ADD_TEST(PlateauMFCompare testEquiv plateau-MF.png ${CMAKE_SOURCE_DIR}/images/plateau-MF.png)
+ADD_TEST(PlateauMFRGBCompare ${IMAGE_COMPARE} plateau-MF-rgb.png ${CMAKE_SOURCE_DIR}/images/plateau-MF-rgb.png)
 
-ADD_TEST(PlateaumF ws 0 1 ${CMAKE_SOURCE_DIR}/images/plateau.png plateau-mF.png)
+ADD_TEST(PlateaumF ws 0 1 ${CMAKE_SOURCE_DIR}/images/plateau.png plateau-mF.png plateau-mF-rgb.png 1)
 ADD_TEST(PlateaumFCompare testEquiv plateau-mF.png ${CMAKE_SOURCE_DIR}/images/plateau-mF.png)
+ADD_TEST(PlateaumFRGBCompare ${IMAGE_COMPARE} plateau-mF-rgb.png ${CMAKE_SOURCE_DIR}/images/plateau-mF-rgb.png)
 
-ADD_TEST(PlateauMf ws 1 0 ${CMAKE_SOURCE_DIR}/images/plateau.png plateau-Mf.png)
+ADD_TEST(PlateauMf ws 1 0 ${CMAKE_SOURCE_DIR}/images/plateau.png plateau-Mf.png plateau-Mf-rgb.png 1)
 ADD_TEST(PlateauMfCompare testEquiv plateau-Mf.png ${CMAKE_SOURCE_DIR}/images/plateau-Mf.png)
+ADD_TEST(PlateauMfRGBCompare ${IMAGE_COMPARE} plateau-Mf-rgb.png ${CMAKE_SOURCE_DIR}/images/plateau-Mf-rgb.png)
 
-ADD_TEST(Plateaumf ws 0 0 ${CMAKE_SOURCE_DIR}/images/plateau.png plateau-mf.png)
+ADD_TEST(Plateaumf ws 0 0 ${CMAKE_SOURCE_DIR}/images/plateau.png plateau-mf.png plateau-mf-rgb.png 1)
 ADD_TEST(PlateaumfCompare testEquiv plateau-mf.png ${CMAKE_SOURCE_DIR}/images/plateau-mf.png)
+ADD_TEST(PlateaumfRGBCompare ${IMAGE_COMPARE} plateau-mf-rgb.png ${CMAKE_SOURCE_DIR}/images/plateau-mf-rgb.png)
 
 
 ADD_TEST(BlackMF ws 1 1 ${CMAKE_SOURCE_DIR}/images/black.png black-MF.png)
@@ -179,37 +196,51 @@ ADD_TEST(3x3mf wsm 0 0 ${CMAKE_SOURCE_DIR}/images/3x3-input.png ${CMAKE_SOURCE_D
 ADD_TEST(3x3mfCompare testEquiv 3x3mf.png ${CMAKE_SOURCE_DIR}/images/3x3m.png)
 
 
-ADD_TEST(Cthead1MF wsm 1 1 ${CMAKE_SOURCE_DIR}/images/cthead1.png ${CMAKE_SOURCE_DIR}/images/cthead1-markers.png cthead1MF.png)
+ADD_TEST(Cthead1MF wsm 1 1 ${CMAKE_SOURCE_DIR}/images/cthead1.png ${CMAKE_SOURCE_DIR}/images/cthead1-markers.png cthead1MF.png cthead1MF-rgb.png 0.5)
 ADD_TEST(Cthead1MFCompare testEquiv cthead1MF.png ${CMAKE_SOURCE_DIR}/images/cthead1MF.png)
+ADD_TEST(Cthead1MFRGBCompare ${IMAGE_COMPARE} cthead1MF.png ${CMAKE_SOURCE_DIR}/images/cthead1MF.png)
 
-ADD_TEST(Cthead1Mf wsm 1 0 ${CMAKE_SOURCE_DIR}/images/cthead1.png ${CMAKE_SOURCE_DIR}/images/cthead1-markers.png cthead1Mf.png)
+ADD_TEST(Cthead1Mf wsm 1 0 ${CMAKE_SOURCE_DIR}/images/cthead1.png ${CMAKE_SOURCE_DIR}/images/cthead1-markers.png cthead1Mf.png cthead1Mf-rgb.png 0.5)
 ADD_TEST(Cthead1MfCompare testEquiv cthead1Mf.png ${CMAKE_SOURCE_DIR}/images/cthead1Mf.png)
+ADD_TEST(Cthead1MfRGBCompare ${IMAGE_COMPARE} cthead1Mf.png ${CMAKE_SOURCE_DIR}/images/cthead1Mf.png)
 
-ADD_TEST(Cthead1mF wsm 0 1 ${CMAKE_SOURCE_DIR}/images/cthead1.png ${CMAKE_SOURCE_DIR}/images/cthead1-markers.png cthead1mF.png)
+ADD_TEST(Cthead1mF wsm 0 1 ${CMAKE_SOURCE_DIR}/images/cthead1.png ${CMAKE_SOURCE_DIR}/images/cthead1-markers.png cthead1mF.png cthead1mF-rgb.png 0.5)
 ADD_TEST(Cthead1mFCompare testEquiv cthead1mF.png ${CMAKE_SOURCE_DIR}/images/cthead1mF.png)
+ADD_TEST(Cthead1mFRGBCompare ${IMAGE_COMPARE} cthead1mF.png ${CMAKE_SOURCE_DIR}/images/cthead1mF.png)
 
-ADD_TEST(Cthead1mf wsm 0 0 ${CMAKE_SOURCE_DIR}/images/cthead1.png ${CMAKE_SOURCE_DIR}/images/cthead1-markers.png cthead1mf.png)
+ADD_TEST(Cthead1mf wsm 0 0 ${CMAKE_SOURCE_DIR}/images/cthead1.png ${CMAKE_SOURCE_DIR}/images/cthead1-markers.png cthead1mf.png cthead1mf-rgb.png 0.5)
 ADD_TEST(Cthead1mfCompare testEquiv cthead1mf.png ${CMAKE_SOURCE_DIR}/images/cthead1mf.png)
+ADD_TEST(Cthead1mfRGBCompare ${IMAGE_COMPARE} cthead1mf.png ${CMAKE_SOURCE_DIR}/images/cthead1mf.png)
 
 
-ADD_TEST(Marker wsm 1 0 ${CMAKE_SOURCE_DIR}/images/threshold.png ${CMAKE_SOURCE_DIR}/images/threshold-markers.png threshold-markersMf.png)
+ADD_TEST(Marker wsm 1 0 ${CMAKE_SOURCE_DIR}/images/threshold.png ${CMAKE_SOURCE_DIR}/images/threshold-markers.png threshold-markersMf.png threshold-markersMf-rgb.png 0.5)
 ADD_TEST(MarkerCompare testEquiv threshold-markersMf.png ${CMAKE_SOURCE_DIR}/images/threshold-markersMf.png)
+ADD_TEST(MarkerRGBCompare ${IMAGE_COMPARE} threshold-markersMf-rgb.png ${CMAKE_SOURCE_DIR}/images/threshold-markersMf-rgb.png)
 
 
-ADD_TEST(Threshold10 wst 10 ${CMAKE_SOURCE_DIR}/images/threshold.png threshold10.png)
+ADD_TEST(Threshold0 wst 0 ${CMAKE_SOURCE_DIR}/images/threshold.png threshold00.png threshold00-rgb.png 0.5)
+ADD_TEST(Threshold0Compare testEquiv threshold00.png ${CMAKE_SOURCE_DIR}/images/threshold00.png)
+ADD_TEST(Threshold0RGBCompare ${IMAGE_COMPARE} threshold00-rgb.png ${CMAKE_SOURCE_DIR}/images/threshold00-rgb.png)
+
+ADD_TEST(Threshold10 wst 10 ${CMAKE_SOURCE_DIR}/images/threshold.png threshold10.png threshold10-rgb.png 0.5)
 ADD_TEST(Threshold10Compare testEquiv threshold10.png ${CMAKE_SOURCE_DIR}/images/threshold10.png)
+ADD_TEST(Threshold10RGBCompare ${IMAGE_COMPARE} threshold10-rgb.png ${CMAKE_SOURCE_DIR}/images/threshold10-rgb.png)
 
-ADD_TEST(Threshold20 wst 20 ${CMAKE_SOURCE_DIR}/images/threshold.png threshold20.png)
+ADD_TEST(Threshold20 wst 20 ${CMAKE_SOURCE_DIR}/images/threshold.png threshold20.png threshold20-rgb.png 0.5)
 ADD_TEST(Threshold20Compare testEquiv threshold20.png ${CMAKE_SOURCE_DIR}/images/threshold20.png)
+ADD_TEST(Threshold20RGBCompare ${IMAGE_COMPARE} threshold20-rgb.png ${CMAKE_SOURCE_DIR}/images/threshold20-rgb.png)
 
-ADD_TEST(Threshold30 wst 30 ${CMAKE_SOURCE_DIR}/images/threshold.png threshold30.png)
+ADD_TEST(Threshold30 wst 30 ${CMAKE_SOURCE_DIR}/images/threshold.png threshold30.png threshold30-rgb.png 0.5)
 ADD_TEST(Threshold30Compare testEquiv threshold30.png ${CMAKE_SOURCE_DIR}/images/threshold30.png)
+ADD_TEST(Threshold30RGBCompare ${IMAGE_COMPARE} threshold30-rgb.png ${CMAKE_SOURCE_DIR}/images/threshold30-rgb.png)
 
-ADD_TEST(Threshold40 wst 40 ${CMAKE_SOURCE_DIR}/images/threshold.png threshold40.png)
+ADD_TEST(Threshold40 wst 40 ${CMAKE_SOURCE_DIR}/images/threshold.png threshold40.png threshold40-rgb.png 0.5)
 ADD_TEST(Threshold40Compare testEquiv threshold40.png ${CMAKE_SOURCE_DIR}/images/threshold40.png)
+ADD_TEST(Threshold40RGBCompare ${IMAGE_COMPARE} threshold40-rgb.png ${CMAKE_SOURCE_DIR}/images/threshold40-rgb.png)
 
-ADD_TEST(Threshold50 wst 50 ${CMAKE_SOURCE_DIR}/images/threshold.png threshold50.png)
+ADD_TEST(Threshold50 wst 50 ${CMAKE_SOURCE_DIR}/images/threshold.png threshold50.png threshold50-rgb.png 0.5)
 ADD_TEST(Threshold50Compare testEquiv threshold50.png ${CMAKE_SOURCE_DIR}/images/threshold50.png)
+ADD_TEST(Threshold50RGBCompare ${IMAGE_COMPARE} threshold50-rgb.png ${CMAKE_SOURCE_DIR}/images/threshold50-rgb.png)
 
 
 ADD_TEST(ESCellsMf30 ws3 1 0 30 ${CMAKE_SOURCE_DIR}/images/ESCells.img ESCellsMf30.tif)

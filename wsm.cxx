@@ -1,12 +1,13 @@
 #include "itkImageFileReader.h"
 #include "itkImageFileWriter.h"
 #include "itkCommand.h"
+#include "itkLabelOverlayImageFilter.h"
 
 #include "itkMorphologicalWatershedFromMarkersImageFilter.h"
 #include "itkSimpleFilterWatcher.h"
 
 
-int main(int, char * argv[])
+int main(int arglen, char * argv[])
 {
   const int dim = 2;
   
@@ -34,6 +35,31 @@ int main(int, char * argv[])
   writer->SetInput( filter->GetOutput() );
   writer->SetFileName( argv[5] );
   writer->Update();
+
+  if( arglen > 6 )
+    {
+    typedef itk::RGBPixel<unsigned char>   RGBPixelType;
+    typedef itk::Image<RGBPixelType, dim>    RGBImageType;
+    
+    typedef itk::LabelOverlayImageFilter<IType, IType, RGBImageType> OverlayType;
+    OverlayType::Pointer overlay = OverlayType::New();
+    overlay->SetInput( reader->GetOutput() );
+    overlay->SetLabelImage( filter->GetOutput() );
+
+    typedef itk::ImageFileWriter< RGBImageType > RGBWriterType;
+    RGBWriterType::Pointer rgbwriter = RGBWriterType::New();
+    rgbwriter->SetInput( overlay->GetOutput() );
+    rgbwriter->SetFileName( argv[6] );
+    rgbwriter->Update();
+
+    if( arglen > 7 )
+      {
+      overlay->SetOpacity( atof( argv[7] ) );
+      }
+
+    rgbwriter->Update();
+
+    }
 
   return 0;
 }
