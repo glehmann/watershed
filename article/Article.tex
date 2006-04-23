@@ -811,7 +811,23 @@ certain their neighbors are never checked.
 \subfigure[Minima threshold = 50]{\includegraphics[scale=4]{threshold50-rgb}}
 \subfigure[markers]{\includegraphics[scale=4]{threshold-markers}}
 \subfigure[Watershed from markers]{\includegraphics[scale=4]{threshold-markersMf-rgb}}
-\caption{Different results of watershed on an articial image. The labeled image are overlayed to the input image with {\em LabelOverlayImageFilter}. From $(b)$ to $(f)$, an example of reduction of the classical waterhsed oversegmentation by minima dynamic filtering. $(g)$ and $(h)$ show a marker defined by a user, and the result over the input image. All the watersheds were performed with $MarkWatershed = true$ and $FullyConnected = false$.}
+\caption{Different results of watershed on an articial image. The labeled image are overlayed to the input image with {\em LabelOverlayImageFilter}. From $(b)$ to $(f)$, an example of reduction of the classical watershed over segmentation by minima dynamic filtering. $(g)$ and $(h)$ show a marker defined by a user, and the result over the input image. All the watersheds were performed with $MarkWatershed = true$ and $FullyConnected = false$.}
+\end{center}
+\end{figure}
+
+
+\begin{figure}[htbp]
+\begin{center}
+\subfigure[Input image]{\includegraphics[scale=4]{threshold}}
+\subfigure[No minima threshold]{\includegraphics[scale=4]{threshold00-itk-rgb}}
+\subfigure[Minima threshold = 10]{\includegraphics[scale=4]{threshold10-itk-rgb}}
+% \subfigure[Minima threshold = 20]{\includegraphics[scale=4]{threshold20-itk-rgb}}
+\subfigure[Minima threshold = 40]{\includegraphics[scale=4]{threshold40-itk-rgb}}
+\subfigure[Minima threshold = 63]{\includegraphics[scale=4]{threshold63-itk-rgb}}
+\subfigure[Minima threshold = 65]{\includegraphics[scale=4]{threshold65-itk-rgb}}
+\subfigure[markers]{\includegraphics[scale=4]{threshold-markers}}
+\subfigure[Watershed from markers]{\includegraphics[scale=4]{threshold-markers-itk-rgb}}
+\caption{Different results of watershed on an articial image. The labeled image are overlayed to the input image with {\em LabelOverlayImageFilter}. From $(b)$ to $(f)$, an example of reduction of the classical watershed over segmentation by minima dynamic filtering. $(g)$ and $(h)$ show a marker defined by a user, and the result over the input image..}
 \end{center}
 \end{figure}
 
@@ -823,28 +839,28 @@ certain their neighbors are never checked.
 \subfigure[]{\includegraphics[scale=10]{pass-values-mF-rgb}}
 \subfigure[]{\includegraphics[scale=10]{pass-values-Mf-rgb}}
 \subfigure[]{\includegraphics[scale=10]{pass-values-MF-rgb}}
-\subfigure[]{\includegraphics[scale=10]{pass-values}}
+\subfigure[]{\includegraphics[scale=10]{pass-values-itk-rgb}}
 
 \subfigure[]{\includegraphics[scale=4]{plateau}}
 \subfigure[]{\includegraphics[scale=4]{plateau-mf-rgb}}
 \subfigure[]{\includegraphics[scale=4]{plateau-mF-rgb}}
 \subfigure[]{\includegraphics[scale=4]{plateau-Mf-rgb}}
 \subfigure[]{\includegraphics[scale=4]{plateau-MF-rgb}}
-\subfigure[]{\includegraphics[scale=4]{plateau}}
+\subfigure[]{\includegraphics[scale=4]{plateau-itk-rgb}}
 
 \subfigure[]{\includegraphics[scale=10]{thick-lines}}
 \subfigure[]{\includegraphics[scale=10]{thick-lines-mf-rgb}}
 \subfigure[]{\includegraphics[scale=10]{thick-lines-mF-rgb}}
 \subfigure[]{\includegraphics[scale=10]{thick-lines-Mf-rgb}}
 \subfigure[]{\includegraphics[scale=10]{thick-lines-MF-rgb}}
-\subfigure[]{\includegraphics[scale=10]{thick-lines}}
+\subfigure[]{\includegraphics[scale=10]{thick-lines-itk-rgb}}
 
 \subfigure[]{\includegraphics[scale=6]{button-hole}}
 \subfigure[]{\includegraphics[scale=6]{button-hole-mf-rgb}}
 \subfigure[]{\includegraphics[scale=6]{button-hole-mF-rgb}}
 \subfigure[]{\includegraphics[scale=6]{button-hole-Mf-rgb}}
 \subfigure[]{\includegraphics[scale=6]{button-hole-MF-rgb}}
-\subfigure[]{\includegraphics[scale=6]{button-hole}}
+\subfigure[]{\includegraphics[scale=6]{button-hole-itk-rgb}}
 
 \caption{}
 \end{center}
@@ -853,12 +869,13 @@ certain their neighbors are never checked.
 
 \begin{figure}[htbp]
 \begin{center}
-\subfigure[]{\includegraphics[scale=0.7]{cthead1}}
-\subfigure[]{\includegraphics[scale=0.7]{cthead1-markers}}
-\subfigure[]{\includegraphics[scale=0.7]{cthead1mf-rgb}}
-\subfigure[]{\includegraphics[scale=0.7]{cthead1mF-rgb}}
-\subfigure[]{\includegraphics[scale=0.7]{cthead1Mf-rgb}}
-\subfigure[]{\includegraphics[scale=0.7]{cthead1MF-rgb}}
+\subfigure[]{\includegraphics[scale=0.5]{cthead1}}
+\subfigure[]{\includegraphics[scale=0.5]{cthead1-markers}}
+\subfigure[]{\includegraphics[scale=0.5]{cthead1mf-rgb}}
+\subfigure[]{\includegraphics[scale=0.5]{cthead1mF-rgb}}
+\subfigure[]{\includegraphics[scale=0.5]{cthead1Mf-rgb}}
+\subfigure[]{\includegraphics[scale=0.5]{cthead1MF-rgb}}
+\subfigure[]{\includegraphics[scale=0.5]{cthead1itk-rgb}}
 \caption{}
 \end{center}
 \end{figure}
