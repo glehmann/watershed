@@ -94,9 +94,13 @@ SET(CurrentExe "testEquiv")
 ADD_EXECUTABLE(${CurrentExe} ${CurrentExe}.cxx)
 TARGET_LINK_LIBRARIES(${CurrentExe} ${Libraries})
 
-SET(CurrentExe "lt")
+SET(CurrentExe "color")
 ADD_EXECUTABLE(${CurrentExe} ${CurrentExe}.cxx)
 TARGET_LINK_LIBRARIES(${CurrentExe} ${Libraries})
+
+# SET(CurrentExe "lt")
+# ADD_EXECUTABLE(${CurrentExe} ${CurrentExe}.cxx)
+# TARGET_LINK_LIBRARIES(${CurrentExe} ${Libraries})
 
 ENDIF(BUILD_TESTING)
 
@@ -327,3 +331,16 @@ ADD_TEST(ESCellsMf30Compare testEquiv ESCellsMf30.tif ${CMAKE_SOURCE_DIR}/images
 
 ADD_TEST(ESCellsmf30 ws3 0 0 30 ${CMAKE_SOURCE_DIR}/images/ESCells.img ESCellsmf30.tif)
 ADD_TEST(ESCellsmf30Compare testEquiv ESCellsmf30.tif ${CMAKE_SOURCE_DIR}/images/ESCellsmf30.tif)
+
+
+
+ADD_TEST(ColoredThresholdMarkers color ${CMAKE_SOURCE_DIR}/images/threshold-markers.png threshold-markers-rgb.png 1 0)
+ADD_TEST(ColoredThresholdMarkersCompare ${IMAGE_COMPARE} threshold-markers-rgb.png ${CMAKE_SOURCE_DIR}/images/threshold-markers-rgb.png)
+
+ADD_TEST(ColoredCthead1Markers color ${CMAKE_SOURCE_DIR}/images/cthead1-markers.png cthead1-markers-rgb.png 1 0)
+ADD_TEST(ColoredCthead1MarkersCompare ${IMAGE_COMPARE} cthead1-markers-rgb.png ${CMAKE_SOURCE_DIR}/images/cthead1-markers-rgb.png)
+
+ADD_TEST(ColoredOverSegmentation iws 0 0 ${CMAKE_SOURCE_DIR}/images/cthead1.png dummy.png cthead1-over-segmentation-rgb.png 0.5)
+ADD_TEST(ColoredOverSegmentationCompare ${IMAGE_COMPARE} cthead1-over-segmentation-rgb.png ${CMAKE_SOURCE_DIR}/images/cthead1-over-segmentation-rgb.png)
+
+

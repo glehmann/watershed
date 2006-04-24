@@ -150,6 +150,21 @@ definitions rigorously defined the behavior in the presence of
 plateaus and lead to some new algorithms based on graph theory. Two
 examples of these algorithms are {\em hill-climbing} and {\em image
 integration} and will be discussed in more detail in this report.
+Figure \ref{fig:cthead1-markers} and \ref{fig:difficult-cases} illustrate
+the possible problem with plateaus.
+
+\begin{figure}[htbp]
+\begin{center}
+\subfigure[Input image]{\includegraphics[scale=0.7]{cthead1}}
+\subfigure[User defined labels colored with LabelOverlayImageFilter]{\includegraphics[scale=0.7]{cthead1-markers-rgb}}
+% \subfigure[]{\includegraphics[scale=0.7]{cthead1mf-rgb}}
+% \subfigure[]{\includegraphics[scale=0.7]{cthead1mF-rgb}}
+% \subfigure[]{\includegraphics[scale=0.7]{cthead1Mf-rgb}}
+\subfigure[Morphological watershed]{\includegraphics[scale=0.7]{cthead1MF-rgb}}
+\subfigure[ITK watershed]{\includegraphics[scale=0.7]{cthead1itk-rgb}}
+\caption{Example of plateau problem. The blue marker is clearly extended where it should not with the ITK watershed.\label{fig:cthead1-markers}}
+\end{center}
+\end{figure}
 
 
 Readers interested in more technical detail should refer to \cite{Roerdink2000a,Meijster2004a}.
@@ -211,19 +226,56 @@ problem will be solved. This is rarely useful in practice because
 there are always more regional minima than there are objects, either
 due to noise or natural variations in the object surfaces. Therefore,
 while many watershed lines do lie on significant boundaries, there are
-many that don't. Figure \ref{fig:overseg} illustrates the problem. The ITK
-watershed implementation provides a way of addressing this problem
-using a measure of significance of the boundary and allowing a
-threshold to be applied first to reduce the number of local minima. 
+many that don't. Figure \ref{fig:overseg} illustrates the problem. 
 
-An Obvious alternative that is very similar in practice is to 
-smooth the image so that there are fewer regional minima.
 \begin{figure}
 \begin{center}
+\includegraphics[scale=0.75]{cthead1-over-segmentation-rgb}
 \caption{Classical over segmentation.}
 \label{fig:overseg}
 \end{center}
 \end{figure}
+
+
+The ITK
+watershed implementation provides a way of addressing this problem
+using a measure of significance of the boundary and allowing a
+threshold to be applied first to reduce the number of local minima. 
+
+\begin{figure}[htbp]
+\begin{center}
+\subfigure[Input image]{\includegraphics[scale=3.2]{threshold}}
+\subfigure[No minima threshold]{\includegraphics[scale=3.2]{threshold00-rgb}}
+\subfigure[Minima threshold = 10]{\includegraphics[scale=3.2]{threshold10-rgb}}
+\subfigure[Minima threshold = 20]{\includegraphics[scale=3.2]{threshold20-rgb}}
+\subfigure[Minima threshold = 30 and Minima threshold = 40]{\includegraphics[scale=3.2]{threshold30-rgb}}
+\subfigure[Minima threshold = 50]{\includegraphics[scale=3.2]{threshold50-rgb}}
+\subfigure[markers]{\includegraphics[scale=3.2]{threshold-markers-rgb}}
+\subfigure[Watershed from markers]{\includegraphics[scale=3.2]{threshold-markersMf-rgb}}
+\caption{Different results of morphological watershed on an articial image. The labeled image are overlayed to the input image with {\em LabelOverlayImageFilter}. From $(b)$ to $(f)$, an example of reduction of the classical watershed over segmentation by minima dynamic filtering. $(g)$ and $(h)$ show a marker defined by a user, and the result over the input image. All the watersheds were performed with $MarkWatershed = true$ and $FullyConnected = false$.}
+\end{center}
+\end{figure}
+
+
+\begin{figure}[htbp]
+\begin{center}
+\subfigure[Input image]{\includegraphics[scale=3.2]{threshold}}
+\subfigure[No minima threshold]{\includegraphics[scale=3.2]{threshold00-itk-rgb}}
+\subfigure[Level = 0.1]{\includegraphics[scale=3.2]{threshold10-itk-rgb}}
+% \subfigure[Level = 0.2]{\includegraphics[scale=3.2]{threshold20-itk-rgb}}
+\subfigure[Level = 0.4]{\includegraphics[scale=3.2]{threshold40-itk-rgb}}
+\subfigure[Level = 0.63]{\includegraphics[scale=3.2]{threshold63-itk-rgb}}
+\subfigure[Level = 0.65]{\includegraphics[scale=3.2]{threshold65-itk-rgb}}
+\subfigure[markers]{\includegraphics[scale=3.2]{threshold-markers-rgb}}
+\subfigure[Watershed from markers]{\includegraphics[scale=3.2]{threshold-markers-itk-rgb}}
+\caption{Different results of ITK's watershed on an articial image. The labeled image are overlayed to the input image with {\em LabelOverlayImageFilter}. From $(b)$ to $(f)$, an example of reduction of the classical watershed over segmentation by minima dynamic filtering. $(g)$ and $(h)$ show a marker defined by a user, and the result over the input image.}
+\end{center}
+\end{figure}
+
+
+
+An Obvious alternative that is very similar in practice is to 
+smooth the image so that there are fewer regional minima.
 
 There are some situations where this direct approach can be
 useful. The best known of these is probably binary object splitting,
@@ -690,6 +742,42 @@ The new work implements algorithms 2 and 3 -- algorithm 2 is used when
 the watershed lines are not marked while algorithm 3 is used when they
 are.
 
+\begin{figure}[htbp]
+\begin{center}
+% \subfigure[]{\includegraphics[scale=10]{pass-values}}
+% \subfigure[]{\includegraphics[scale=10]{pass-values-mf-rgb}}
+% \subfigure[]{\includegraphics[scale=10]{pass-values-mF-rgb}}
+% \subfigure[]{\includegraphics[scale=10]{pass-values-Mf-rgb}}
+% \subfigure[]{\includegraphics[scale=10]{pass-values-MF-rgb}}
+% \subfigure[]{\includegraphics[scale=10]{pass-values-itk-rgb}}
+
+\subfigure[Plateau]{\includegraphics[scale=4]{plateau}}
+\subfigure[$F=false$ and $M=false$]{\includegraphics[scale=4]{plateau-mf-rgb}}
+\subfigure[$F=true$ and $M=false$]{\includegraphics[scale=4]{plateau-mF-rgb}}
+\subfigure[$F=false$ and $M=true$]{\includegraphics[scale=4]{plateau-Mf-rgb}}
+\subfigure[$F=true$ and $M=true$]{\includegraphics[scale=4]{plateau-MF-rgb}}
+\subfigure[ITK]{\includegraphics[scale=4]{plateau-itk-rgb}}
+
+\subfigure[Thick line]{\includegraphics[scale=10]{thick-lines}}
+\subfigure[$F=false$ and $M=false$]{\includegraphics[scale=10]{thick-lines-mf-rgb}}
+\subfigure[$F=true$ and $M=false$]{\includegraphics[scale=10]{thick-lines-mF-rgb}}
+\subfigure[$F=false$ and $M=true$]{\includegraphics[scale=10]{thick-lines-Mf-rgb}}
+\subfigure[$F=true$ and $M=true$]{\includegraphics[scale=10]{thick-lines-MF-rgb}}
+\subfigure[ITK]{\includegraphics[scale=10]{thick-lines-itk-rgb}}
+
+\subfigure[Button hole]{\includegraphics[scale=8]{button-hole}}
+\subfigure[$F=false$ and $M=false$]{\includegraphics[scale=8]{button-hole-mf-rgb}}
+\subfigure[$F=true$ and $M=false$]{\includegraphics[scale=8]{button-hole-mF-rgb}}
+\subfigure[$F=false$ and $M=true$]{\includegraphics[scale=8]{button-hole-Mf-rgb}}
+\subfigure[$F=true$ and $M=true$]{\includegraphics[scale=8]{button-hole-MF-rgb}}
+\subfigure[ITK]{\includegraphics[scale=8]{button-hole-itk-rgb}}
+
+\caption{Three difficult test images. The first image, plateau, show that ITK's watershed produce a bad result on this image: only one minima take all the image. This problem is also shown in Figure \ref{fig:cthead1-markers}. The morphological watershed give a better result, but not yet perfect: the separation line should not be curved as is it. The next image, thick line, again show that ITK watershed can produce strange results with a green label which is where we should have the light blue one. Morphological watershed gives good results. The last image, button hole, is a very difficult case for watershed algorithms which mark watershed line: the watershed pixel at the bottom of the image stop the label propagation. There is several possible behavior: produce a large watershed line which cover all the zone (Vincent-Soille algorithm, not shown here), let the label on the top of the image propagate in the zone (Meyer algorithm), split the zone in 2 zones with the 2 labels of the bottom of the image (topological watershed, not shown here).\label{fig:difficult-cases}}
+\end{center}
+\end{figure}
+
+
+
 \section{Finding regional minima}
 The marker based watershed filter can be used as a convention
 watershed algorithm by finding the regional minima and using them as
@@ -840,87 +928,11 @@ possibilities include using threads to improve performance of queues.
 
 \section{Using watersheds in ITK}
 
+\subsection{Pronucleus segmentation in bovine embryo}
 
 
-\begin{figure}[htbp]
-\begin{center}
-\subfigure[Input image]{\includegraphics[scale=3.2]{threshold}}
-\subfigure[No minima threshold]{\includegraphics[scale=3.2]{threshold00-rgb}}
-\subfigure[Minima threshold = 10]{\includegraphics[scale=3.2]{threshold10-rgb}}
-\subfigure[Minima threshold = 20]{\includegraphics[scale=3.2]{threshold20-rgb}}
-\subfigure[Minima threshold = 30 and Minima threshold = 40]{\includegraphics[scale=3.2]{threshold30-rgb}}
-\subfigure[Minima threshold = 50]{\includegraphics[scale=3.2]{threshold50-rgb}}
-\subfigure[markers]{\includegraphics[scale=3.2]{threshold-markers}}
-\subfigure[Watershed from markers]{\includegraphics[scale=3.2]{threshold-markersMf-rgb}}
-\caption{Different results of watershed on an articial image. The labeled image are overlayed to the input image with {\em LabelOverlayImageFilter}. From $(b)$ to $(f)$, an example of reduction of the classical watershed over segmentation by minima dynamic filtering. $(g)$ and $(h)$ show a marker defined by a user, and the result over the input image. All the watersheds were performed with $MarkWatershed = true$ and $FullyConnected = false$.}
-\end{center}
-\end{figure}
 
-
-\begin{figure}[htbp]
-\begin{center}
-\subfigure[Input image]{\includegraphics[scale=3.2]{threshold}}
-\subfigure[No minima threshold]{\includegraphics[scale=3.2]{threshold00-itk-rgb}}
-\subfigure[Level = 0.1]{\includegraphics[scale=3.2]{threshold10-itk-rgb}}
-% \subfigure[Level = 0.2]{\includegraphics[scale=3.2]{threshold20-itk-rgb}}
-\subfigure[Level = 0.4]{\includegraphics[scale=3.2]{threshold40-itk-rgb}}
-\subfigure[Level = 0.63]{\includegraphics[scale=3.2]{threshold63-itk-rgb}}
-\subfigure[Level = 0.65]{\includegraphics[scale=3.2]{threshold65-itk-rgb}}
-\subfigure[markers]{\includegraphics[scale=3.2]{threshold-markers}}
-\subfigure[Watershed from markers]{\includegraphics[scale=3.2]{threshold-markers-itk-rgb}}
-\caption{Different results of watershed on an articial image. The labeled image are overlayed to the input image with {\em LabelOverlayImageFilter}. From $(b)$ to $(f)$, an example of reduction of the classical watershed over segmentation by minima dynamic filtering. $(g)$ and $(h)$ show a marker defined by a user, and the result over the input image..}
-\end{center}
-\end{figure}
-
-
-\begin{figure}[htbp]
-\begin{center}
-\subfigure[]{\includegraphics[scale=10]{pass-values}}
-\subfigure[]{\includegraphics[scale=10]{pass-values-mf-rgb}}
-\subfigure[]{\includegraphics[scale=10]{pass-values-mF-rgb}}
-\subfigure[]{\includegraphics[scale=10]{pass-values-Mf-rgb}}
-\subfigure[]{\includegraphics[scale=10]{pass-values-MF-rgb}}
-\subfigure[]{\includegraphics[scale=10]{pass-values-itk-rgb}}
-
-\subfigure[]{\includegraphics[scale=4]{plateau}}
-\subfigure[]{\includegraphics[scale=4]{plateau-mf-rgb}}
-\subfigure[]{\includegraphics[scale=4]{plateau-mF-rgb}}
-\subfigure[]{\includegraphics[scale=4]{plateau-Mf-rgb}}
-\subfigure[]{\includegraphics[scale=4]{plateau-MF-rgb}}
-\subfigure[]{\includegraphics[scale=4]{plateau-itk-rgb}}
-
-\subfigure[]{\includegraphics[scale=10]{thick-lines}}
-\subfigure[]{\includegraphics[scale=10]{thick-lines-mf-rgb}}
-\subfigure[]{\includegraphics[scale=10]{thick-lines-mF-rgb}}
-\subfigure[]{\includegraphics[scale=10]{thick-lines-Mf-rgb}}
-\subfigure[]{\includegraphics[scale=10]{thick-lines-MF-rgb}}
-\subfigure[]{\includegraphics[scale=10]{thick-lines-itk-rgb}}
-
-\subfigure[]{\includegraphics[scale=6]{button-hole}}
-\subfigure[]{\includegraphics[scale=6]{button-hole-mf-rgb}}
-\subfigure[]{\includegraphics[scale=6]{button-hole-mF-rgb}}
-\subfigure[]{\includegraphics[scale=6]{button-hole-Mf-rgb}}
-\subfigure[]{\includegraphics[scale=6]{button-hole-MF-rgb}}
-\subfigure[]{\includegraphics[scale=6]{button-hole-itk-rgb}}
-
-\caption{}
-\end{center}
-\end{figure}
-
-
-\begin{figure}[htbp]
-\begin{center}
-\subfigure[]{\includegraphics[scale=0.5]{cthead1}}
-\subfigure[]{\includegraphics[scale=0.5]{cthead1-markers}}
-\subfigure[]{\includegraphics[scale=0.5]{cthead1mf-rgb}}
-\subfigure[]{\includegraphics[scale=0.5]{cthead1mF-rgb}}
-\subfigure[]{\includegraphics[scale=0.5]{cthead1Mf-rgb}}
-\subfigure[]{\includegraphics[scale=0.5]{cthead1MF-rgb}}
-\subfigure[]{\includegraphics[scale=0.5]{cthead1itk-rgb}}
-\caption{}
-\end{center}
-\end{figure}
-
+\subsection{???}
 
 
 \section{Discussion}
