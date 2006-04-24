@@ -5,10 +5,11 @@
 #include "itkMinimaImpositionImageFilter.h"
 #include <itkIntensityWindowingImageFilter.h>
 #include <itkMinimumMaximumImageCalculator.h>
+#include <itkImageRegionConstIterator.h>
 
 #include "itkWatershedImageFilter.h"
 #include "itkSimpleFilterWatcher.h"
-
+#include "itkChangeLabelImageFilter.h"
 
 int main(int arglen, char * argv[])
 {
@@ -43,23 +44,25 @@ int main(int arglen, char * argv[])
 
   filter->Update();
 
-  // rescale the output to have a better display
-  typedef itk::MinimumMaximumImageCalculator< LIType > MaxCalculatorType;
-  MaxCalculatorType::Pointer max = MaxCalculatorType::New();
-  max->SetImage( filter->GetOutput() );
-  max->Compute();
-
-  typedef itk::IntensityWindowingImageFilter< LIType, IType > RescaleType;
-  RescaleType::Pointer rescale = RescaleType::New();
-  rescale->SetInput( filter->GetOutput() );
-  rescale->SetWindowMinimum( itk::NumericTraits< PType >::Zero );
-  rescale->SetWindowMaximum( max->GetMaximum() );
-  rescale->SetOutputMaximum( itk::NumericTraits< PType >::max() );
-  rescale->SetOutputMinimum( itk::NumericTraits< PType >::Zero );
+  typedef itk::ChangeLabelImageFilter< LIType, IType > ChangeLabelType;
+  ChangeLabelType::Pointer changeLabel = ChangeLabelType::New();
+  changeLabel->SetInput( filter->GetOutput() );
+  
+  itk::ImageRegionConstIterator< LIType > wit( filter->GetOutput(), filter->GetOutput()->GetLargestPossibleRegion() );
+  itk::ImageRegionConstIterator< IType > mit( reader2->GetOutput(), filter->GetOutput()->GetLargestPossibleRegion() );
+  for ( mit.GoToBegin(), wit.GoToBegin();
+    !mit.IsAtEnd();
+    ++wit, ++mit )
+    {
+    if( mit.Get() != 0 )
+      {
+      changeLabel->SetChange( wit.Get(), mit.Get() );
+      }
+    }
 
   typedef itk::ImageFileWriter< IType > WriterType;
   WriterType::Pointer writer = WriterType::New();
-  writer->SetInput( rescale->GetOutput() );
+  writer->SetInput( changeLabel->GetOutput() );
   writer->SetFileName( argv[5] );
   writer->Update();
 
@@ -68,10 +71,10 @@ int main(int arglen, char * argv[])
     typedef itk::RGBPixel<unsigned char>   RGBPixelType;
     typedef itk::Image<RGBPixelType, dim>    RGBImageType;
     
-    typedef itk::LabelOverlayImageFilter<IType, LIType, RGBImageType> OverlayType;
+    typedef itk::LabelOverlayImageFilter<IType, IType, RGBImageType> OverlayType;
     OverlayType::Pointer overlay = OverlayType::New();
     overlay->SetInput( reader->GetOutput() );
-    overlay->SetLabelImage( filter->GetOutput() );
+    overlay->SetLabelImage( changeLabel->GetOutput() );
 
     typedef itk::ImageFileWriter< RGBImageType > RGBWriterType;
     RGBWriterType::Pointer rgbwriter = RGBWriterType::New();
