@@ -772,7 +772,7 @@ are.
 \subfigure[$F=true$ and $M=true$]{\includegraphics[scale=8]{button-hole-MF-rgb}}
 \subfigure[ITK]{\includegraphics[scale=8]{button-hole-itk-rgb}}
 
-\caption{Three difficult test images. The first image, plateau, show that ITK's watershed produce a bad result on this image: only one minima take all the image. This problem is also shown in Figure \ref{fig:cthead1-markers}. The morphological watershed give a better result, but not yet perfect: the separation line should not be curved as is it. The next image, thick line, again show that ITK watershed can produce strange results with a green label which is where we should have the light blue one. Morphological watershed gives good results. The last image, button hole, is a very difficult case for watershed algorithms which mark watershed line: the watershed pixel at the bottom of the image stop the label propagation. There is several possible behavior: produce a large watershed line which cover all the zone (Vincent-Soille algorithm, not shown here), let the label on the top of the image propagate in the zone (Meyer algorithm), split the zone in 2 zones with the 2 labels of the bottom of the image (topological watershed, not shown here).\label{fig:difficult-cases}}
+\caption{Three difficult test images. The first image, plateau, show that ITK's watershed produce a bad result on this image: only one minima take all the image. This problem is also shown in Figure \ref{fig:cthead1-markers}. The morphological watershed give a better result, but not yet perfect: the separation line should not be curved as it is. This problem is also visible in Figure \ref{fig:embryo-mws}. The next image, thick line, again show that ITK watershed can produce strange results with a green label which is where we should have the light blue one. Morphological watershed gives good results. The last image, button hole, is a very difficult case for watershed algorithms which mark watershed line: the watershed pixel at the bottom of the image stop the label propagation. There is several possible behavior: produce a large watershed line which cover all the zone (Vincent-Soille algorithm, not shown here), let the label on the top of the image propagate in the zone (Meyer algorithm), split the zone in 2 zones with the 2 labels of the bottom of the image (topological watershed, not shown here).\label{fig:difficult-cases}}
 \end{center}
 \end{figure}
 
@@ -930,7 +930,107 @@ possibilities include using threads to improve performance of queues.
 
 \subsection{Pronucleus segmentation in bovine embryo}
 
+In this example, we use the watershed filter to split two nearly round
+objects: the male and female pronucleus in a bovine embryo, around 18
+hours after fecondation.
 
+The program is in python for conciseness\footnote{And also to promote
+python wrappers.}.
+
+\begin{figure}[htbp]
+\begin{center}
+\subfigure[Input]{\includegraphics[scale=0.22]{embryo}}
+\subfigure[median]{\includegraphics[scale=0.22]{embryo-median}}
+\subfigure[threshold]{\includegraphics[scale=0.22]{embryo-th}}
+\subfigure[opening by reconstruction]{\includegraphics[scale=0.22]{embryo-open}}
+\subfigure[fill hole]{\includegraphics[scale=0.22]{embryo-fill}}
+\subfigure[invert]{\includegraphics[scale=0.22]{embryo-invert}}
+\subfigure[distance]{\includegraphics[scale=0.22]{embryo-distance}}
+\subfigure[inverted distance]{\includegraphics[scale=0.22]{embryo-idistance}}
+\subfigure[morphological watershed\label{fig:embryo-mws}]{\includegraphics[scale=0.45]{embryo-overlay}}
+\subfigure[ITK watershed]{\includegraphics[scale=0.45]{embryo-overlay2}}
+
+\caption{The results of the different steps of the segmentation of bovine pronucleus.}
+\end{center}
+\end{figure}
+
+\small \begin{verbatim}
+import itk
+reader = itk.ImageFileReader.IUC2.New(FileName='embryo.png')
+\end{verbatim} \normalsize
+
+We use a median image filter to remove some noise, and threshold the image
+to get a binary image\footnote{The methods to remove the noise and binarize the
+image are volontary kept simple for this example}.
+
+\small \begin{verbatim}
+median = itk.MedianImageFilter.IUC2IUC2.New(reader)
+th = itk.BinaryThresholdImageFilter.IUC2IUC2.New(median, LowerThreshold=40)
+\end{verbatim} \normalsize
+
+The binary image produced by the \verb$ThresholdImageFilter$ contains lot
+of small objects. To remove them, we use an {\em opening by reconstruction}
+which have the advantage to preserve the egdes of the object.
+
+\small \begin{verbatim}
+kernel = itk.strel(2, 30)
+open = itk.OpeningByReconstructionImageFilter.IUC2IUC2.New(th, Kernel=kernel)
+\end{verbatim} \normalsize
+
+There is now only one binary object in the image, but it contains lots of holes
+which will produce an unsable distance map for the watershed. We fill them
+with a {\em hole filling} filter. This algorithm, based on a morphological
+reconstruction, fill the hole in a binary object but preserve the edges of the
+object. In this case, it is important to keep the two cavities between the two
+pronucleus unchanged.
+
+\small \begin{verbatim}
+fill = itk.GrayscaleFillholeImageFilter.IUC2IUC2.New(open)
+\end{verbatim} \normalsize
+
+Then we compute the distance map which will be used by the watershed. The
+binary object must be inverted to compute the distance {\em inside} the
+object, and the distance map must be inverted to used by the watershed.
+
+\small \begin{verbatim}
+invert = itk.InvertIntensityImageFilter.IUC2IUC2.New(fill)
+distance = itk.DanielssonDistanceMapImageFilter.IUC2IUC2.New(invert)
+idistance = itk.InvertIntensityImageFilter.IUC2IUC2.New(distance)
+\end{verbatim} \normalsize
+
+The watershed is then performed to split the two pronucleus. A threshold
+is used to avoid the too small minima in the border of the object and thus
+avoid over segmentation. The label produced by the watershed are then
+displayed on top of the original image.
+
+The watershed extends the labels on the entire image. We use a
+\verb$MaskImageFilter$ to limit the labels to the object. Another commonly
+used method is to use the background as a marker and to perform a watershed
+from markers.
+
+\small \begin{verbatim}
+ws = itk.MorphologicalWatershedImageFilter.IUC2IUC2.New(idistance,
+                                                        MarkWatershed=False,
+                                                        Threshold=10)
+mask = itk.MaskImageFilter.IUC2IUC2IUC2.New(ws, fill)
+overlay = itk.LabelOverlayImageFilter.IUC2IUC2IRGBUC2.New(reader, mask, Opacity=0.5)
+\end{verbatim} \normalsize
+
+The same watershed is done with the ITK watershed filter\footnote{A
+$RelabelComponentImageFilter$ is used here because unsigned long is
+not available in python for the $MaskImageFilter$}.
+
+\small \begin{verbatim}
+ws2 = itk.WatershedImageFilter.IUC2.New(idistance, Level=0.5)
+relabel = itk.RelabelComponentImageFilter.IUL2IUC2.New(ws2)
+mask2 = itk.MaskImageFilter.IUC2IUC2IUC2.New(relabel, fill)
+overlay2 = itk.LabelOverlayImageFilter.IUC2IUC2IRGBUC2.New(reader, mask2, Opacity=0.5)
+\end{verbatim} \normalsize
+
+ITK watershed clearly produce a wrong segmentation in that case.
+The result of the morphological watershed is quite good, even if not perfect:
+there is some curves in the separation line of the two labels. This is the
+result of the distance approximation in the watershed algorithm.
 
 \subsection{???}
 
