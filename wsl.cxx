@@ -26,7 +26,7 @@ int main(int arglen, char * argv[])
   filter->SetInput( reader->GetOutput() );
   filter->SetMarkWatershed( true );
   filter->SetFullyConnected( false );
-  filter->SetThreshold( atoi( argv[1] ) );
+  filter->SetLevel( atoi( argv[1] ) );
 
   itk::SimpleFilterWatcher watcher(filter, "filter");
 

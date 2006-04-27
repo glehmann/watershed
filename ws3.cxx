@@ -34,7 +34,7 @@ int main(int, char * argv[])
   filter->SetInput( invert->GetOutput() );
   filter->SetMarkWatershed( atoi( argv[1] ) );
   filter->SetFullyConnected( atoi( argv[2] ) );
-  filter->SetThreshold( atoi( argv[3] ) );
+  filter->SetLevel( atoi( argv[3] ) );
 
   itk::SimpleFilterWatcher watcher(filter, "filter");
 

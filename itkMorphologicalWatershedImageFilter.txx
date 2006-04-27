@@ -32,7 +32,7 @@ MorphologicalWatershedImageFilter<TInputImage, TOutputImage>
 {
   m_FullyConnected = false;
   m_MarkWatershed = true;
-  m_Threshold = NumericTraits< InputImagePixelType >::Zero;
+  m_Level = NumericTraits< InputImagePixelType >::Zero;
 }
 
 template <class TInputImage, class TOutputImage>
@@ -100,13 +100,13 @@ MorphologicalWatershedImageFilter<TInputImage, TOutputImage>
   wshed->SetMarkWatershed( m_MarkWatershed );
 
 
-  if( m_Threshold != NumericTraits< InputImagePixelType >::Zero )
+  if( m_Level != NumericTraits< InputImagePixelType >::Zero )
     {
     // insert a h-minima filter to remove the smallest minima
     //
     hmin = HMinimaType::New();
     hmin->SetInput( this->GetInput() );
-    hmin->SetHeight( m_Threshold );
+    hmin->SetHeight( m_Level );
     hmin->SetFullyConnected( m_FullyConnected );
     // replace the input of the r-min filter
     rmin->SetInput( hmin->GetOutput() );
@@ -148,6 +148,7 @@ MorphologicalWatershedImageFilter<TInputImage, TOutputImage>
 
   os << indent << "FullyConnected: "  << m_FullyConnected << std::endl;
   os << indent << "MarkWatershed: "  << m_MarkWatershed << std::endl;
+  os << indent << "Level: "  << static_cast<typename NumericTraits<InputImagePixelType>::PrintType>(m_Level) << std::endl;
 }
   
 }// end namespace itk

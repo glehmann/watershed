@@ -102,8 +102,8 @@ public:
 
   /**
    */
-  itkSetMacro(Threshold, InputImagePixelType);
-  itkGetMacro(Threshold, InputImagePixelType);
+  itkSetMacro(Level, InputImagePixelType);
+  itkGetMacro(Level, InputImagePixelType);
 
 protected:
   MorphologicalWatershedImageFilter();
@@ -131,7 +131,7 @@ private:
 
   bool m_MarkWatershed;
 
-  InputImagePixelType m_Threshold;
+  InputImagePixelType m_Level;
 
 } ; // end of class
 

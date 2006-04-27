@@ -244,14 +244,14 @@ threshold to be applied first to reduce the number of local minima.
 
 \begin{figure}[htbp]
 \begin{center}
-\subfigure[Input image]{\includegraphics[scale=3.2]{threshold}}
-\subfigure[No minima threshold]{\includegraphics[scale=3.2]{threshold00-rgb}}
-\subfigure[Minima threshold = 10]{\includegraphics[scale=3.2]{threshold10-rgb}}
-\subfigure[Minima threshold = 20]{\includegraphics[scale=3.2]{threshold20-rgb}}
-\subfigure[Minima threshold = 30 and Minima threshold = 40]{\includegraphics[scale=3.2]{threshold30-rgb}}
-\subfigure[Minima threshold = 50]{\includegraphics[scale=3.2]{threshold50-rgb}}
-\subfigure[markers]{\includegraphics[scale=3.2]{threshold-markers-rgb}}
-\subfigure[Watershed from markers]{\includegraphics[scale=3.2]{threshold-markersMf-rgb}}
+\subfigure[Input image]{\includegraphics[scale=3.2]{level}}
+\subfigure[No minima level]{\includegraphics[scale=3.2]{level00-rgb}}
+\subfigure[Minima level = 10]{\includegraphics[scale=3.2]{level10-rgb}}
+\subfigure[Minima level = 20]{\includegraphics[scale=3.2]{level20-rgb}}
+\subfigure[Minima level = 30 and Minima level = 40]{\includegraphics[scale=3.2]{level30-rgb}}
+\subfigure[Minima level = 50]{\includegraphics[scale=3.2]{level50-rgb}}
+\subfigure[markers]{\includegraphics[scale=3.2]{level-markers-rgb}}
+\subfigure[Watershed from markers]{\includegraphics[scale=3.2]{level-markersMf-rgb}}
 \caption{Different results of morphological watershed on an articial image. The labeled image are overlayed to the input image with {\em LabelOverlayImageFilter}. From $(b)$ to $(f)$, an example of reduction of the classical watershed over segmentation by minima dynamic filtering. $(g)$ and $(h)$ show a marker defined by a user, and the result over the input image. All the watersheds were performed with $MarkWatershed = true$ and $FullyConnected = false$.}
 \end{center}
 \end{figure}
@@ -259,15 +259,15 @@ threshold to be applied first to reduce the number of local minima.
 
 \begin{figure}[htbp]
 \begin{center}
-\subfigure[Input image]{\includegraphics[scale=3.2]{threshold}}
-\subfigure[No minima threshold]{\includegraphics[scale=3.2]{threshold00-itk-rgb}}
-\subfigure[Level = 0.1]{\includegraphics[scale=3.2]{threshold10-itk-rgb}}
-% \subfigure[Level = 0.2]{\includegraphics[scale=3.2]{threshold20-itk-rgb}}
-\subfigure[Level = 0.4]{\includegraphics[scale=3.2]{threshold40-itk-rgb}}
-\subfigure[Level = 0.63]{\includegraphics[scale=3.2]{threshold63-itk-rgb}}
-\subfigure[Level = 0.65]{\includegraphics[scale=3.2]{threshold65-itk-rgb}}
-\subfigure[markers]{\includegraphics[scale=3.2]{threshold-markers-rgb}}
-\subfigure[Watershed from markers]{\includegraphics[scale=3.2]{threshold-markers-itk-rgb}}
+\subfigure[Input image]{\includegraphics[scale=3.2]{level}}
+\subfigure[No minima level]{\includegraphics[scale=3.2]{level00-itk-rgb}}
+\subfigure[Level = 0.1]{\includegraphics[scale=3.2]{level10-itk-rgb}}
+% \subfigure[Level = 0.2]{\includegraphics[scale=3.2]{level20-itk-rgb}}
+\subfigure[Level = 0.4]{\includegraphics[scale=3.2]{level40-itk-rgb}}
+\subfigure[Level = 0.63]{\includegraphics[scale=3.2]{level63-itk-rgb}}
+\subfigure[Level = 0.65]{\includegraphics[scale=3.2]{level65-itk-rgb}}
+\subfigure[markers]{\includegraphics[scale=3.2]{level-markers-rgb}}
+\subfigure[Watershed from markers]{\includegraphics[scale=3.2]{level-markers-itk-rgb}}
 \caption{Different results of ITK's watershed on an articial image. The labeled image are overlayed to the input image with {\em LabelOverlayImageFilter}. From $(b)$ to $(f)$, an example of reduction of the classical watershed over segmentation by minima dynamic filtering. $(g)$ and $(h)$ show a marker defined by a user, and the result over the input image.}
 \end{center}
 \end{figure}
@@ -875,7 +875,7 @@ and \verb$MorphologicalWatershedFromMarkersImageFilter$ are the usal steps
 of the waterhed usage, the \verb$HMinimaImageFilter$ is a convenient way
 to avoid the classical watershed's over segmentation by allowing the user
 to select the dynamic of the minima. The minimum dynamic of minima can be
-selected with \verb$SetThreshold()$.
+selected with \verb$SetLevel()$.
 
 
 \section{Timing and performance}
@@ -931,7 +931,7 @@ possibilities include using threads to improve performance of queues.
 \subsection{Pronucleus segmentation in bovine embryo}
 
 In this example, we use the watershed filter to split two nearly round
-objects: the male and female pronucleus in a bovine embryo, around 18
+objects: the male and female pronucleus in a bovine embryo, around 22
 hours after fecondation.
 
 The program is in python for conciseness\footnote{And also to promote
@@ -998,7 +998,7 @@ distance = itk.DanielssonDistanceMapImageFilter.IUC2IUC2.New(invert)
 idistance = itk.InvertIntensityImageFilter.IUC2IUC2.New(distance)
 \end{verbatim} \normalsize
 
-The watershed is then performed to split the two pronucleus. A threshold
+The watershed is then performed to split the two pronucleus. A level
 is used to avoid the too small minima in the border of the object and thus
 avoid over segmentation. The label produced by the watershed are then
 displayed on top of the original image.
@@ -1011,7 +1011,7 @@ from markers.
 \small \begin{verbatim}
 ws = itk.MorphologicalWatershedImageFilter.IUC2IUC2.New(idistance,
                                                         MarkWatershed=False,
-                                                        Threshold=10)
+                                                        Level=10)
 mask = itk.MaskImageFilter.IUC2IUC2IUC2.New(ws, fill)
 overlay = itk.LabelOverlayImageFilter.IUC2IUC2IRGBUC2.New(reader, mask, Opacity=0.5)
 \end{verbatim} \normalsize

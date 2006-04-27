@@ -74,11 +74,11 @@ SET(CurrentExe "iwsm")
 ADD_EXECUTABLE(${CurrentExe} ${CurrentExe}.cxx)
 TARGET_LINK_LIBRARIES(${CurrentExe} ${Libraries})
 
-SET(CurrentExe "wst")
+SET(CurrentExe "wsl")
 ADD_EXECUTABLE(${CurrentExe} ${CurrentExe}.cxx)
 TARGET_LINK_LIBRARIES(${CurrentExe} ${Libraries})
 
-SET(CurrentExe "iwst")
+SET(CurrentExe "iwsl")
 ADD_EXECUTABLE(${CurrentExe} ${CurrentExe}.cxx)
 TARGET_LINK_LIBRARIES(${CurrentExe} ${Libraries})
 
@@ -97,10 +97,6 @@ TARGET_LINK_LIBRARIES(${CurrentExe} ${Libraries})
 SET(CurrentExe "color")
 ADD_EXECUTABLE(${CurrentExe} ${CurrentExe}.cxx)
 TARGET_LINK_LIBRARIES(${CurrentExe} ${Libraries})
-
-# SET(CurrentExe "lt")
-# ADD_EXECUTABLE(${CurrentExe} ${CurrentExe}.cxx)
-# TARGET_LINK_LIBRARIES(${CurrentExe} ${Libraries})
 
 ENDIF(BUILD_TESTING)
 
@@ -264,65 +260,65 @@ ADD_TEST(Cthead1ITKRGBCompare ${IMAGE_COMPARE} cthead1itk.png ${CMAKE_SOURCE_DIR
 
 
 
-ADD_TEST(Marker wsm 1 0 ${CMAKE_SOURCE_DIR}/images/threshold.png ${CMAKE_SOURCE_DIR}/images/threshold-markers.png threshold-markersMf.png threshold-markersMf-rgb.png 0.5)
-ADD_TEST(MarkerCompare testEquiv threshold-markersMf.png ${CMAKE_SOURCE_DIR}/images/threshold-markersMf.png)
-ADD_TEST(MarkerRGBCompare ${IMAGE_COMPARE} threshold-markersMf-rgb.png ${CMAKE_SOURCE_DIR}/images/threshold-markersMf-rgb.png)
+ADD_TEST(Marker wsm 1 0 ${CMAKE_SOURCE_DIR}/images/level.png ${CMAKE_SOURCE_DIR}/images/level-markers.png level-markersMf.png level-markersMf-rgb.png 0.5)
+ADD_TEST(MarkerCompare testEquiv level-markersMf.png ${CMAKE_SOURCE_DIR}/images/level-markersMf.png)
+ADD_TEST(MarkerRGBCompare ${IMAGE_COMPARE} level-markersMf-rgb.png ${CMAKE_SOURCE_DIR}/images/level-markersMf-rgb.png)
 
-ADD_TEST(MarkerITK iwsm 1 0 ${CMAKE_SOURCE_DIR}/images/threshold.png ${CMAKE_SOURCE_DIR}/images/threshold-markers.png threshold-markers-itk.png threshold-markers-itk-rgb.png 0.5)
-ADD_TEST(MarkerITKCompare testEquiv threshold-markers-itk.png ${CMAKE_SOURCE_DIR}/images/threshold-markers-itk.png)
-ADD_TEST(MarkerITKRGBCompare ${IMAGE_COMPARE} threshold-markers-itk-rgb.png ${CMAKE_SOURCE_DIR}/images/threshold-markers-itk-rgb.png)
-
-
-
-ADD_TEST(Threshold0 wst 0 ${CMAKE_SOURCE_DIR}/images/threshold.png threshold00.png threshold00-rgb.png 0.5)
-ADD_TEST(Threshold0Compare testEquiv threshold00.png ${CMAKE_SOURCE_DIR}/images/threshold00.png)
-ADD_TEST(Threshold0RGBCompare ${IMAGE_COMPARE} threshold00-rgb.png ${CMAKE_SOURCE_DIR}/images/threshold00-rgb.png)
-
-ADD_TEST(Threshold10 wst 10 ${CMAKE_SOURCE_DIR}/images/threshold.png threshold10.png threshold10-rgb.png 0.5)
-ADD_TEST(Threshold10Compare testEquiv threshold10.png ${CMAKE_SOURCE_DIR}/images/threshold10.png)
-ADD_TEST(Threshold10RGBCompare ${IMAGE_COMPARE} threshold10-rgb.png ${CMAKE_SOURCE_DIR}/images/threshold10-rgb.png)
-
-ADD_TEST(Threshold20 wst 20 ${CMAKE_SOURCE_DIR}/images/threshold.png threshold20.png threshold20-rgb.png 0.5)
-ADD_TEST(Threshold20Compare testEquiv threshold20.png ${CMAKE_SOURCE_DIR}/images/threshold20.png)
-ADD_TEST(Threshold20RGBCompare ${IMAGE_COMPARE} threshold20-rgb.png ${CMAKE_SOURCE_DIR}/images/threshold20-rgb.png)
-
-ADD_TEST(Threshold30 wst 30 ${CMAKE_SOURCE_DIR}/images/threshold.png threshold30.png threshold30-rgb.png 0.5)
-ADD_TEST(Threshold30Compare testEquiv threshold30.png ${CMAKE_SOURCE_DIR}/images/threshold30.png)
-ADD_TEST(Threshold30RGBCompare ${IMAGE_COMPARE} threshold30-rgb.png ${CMAKE_SOURCE_DIR}/images/threshold30-rgb.png)
-
-ADD_TEST(Threshold40 wst 40 ${CMAKE_SOURCE_DIR}/images/threshold.png threshold40.png threshold40-rgb.png 0.5)
-ADD_TEST(Threshold40Compare testEquiv threshold40.png ${CMAKE_SOURCE_DIR}/images/threshold40.png)
-ADD_TEST(Threshold40RGBCompare ${IMAGE_COMPARE} threshold40-rgb.png ${CMAKE_SOURCE_DIR}/images/threshold40-rgb.png)
-
-ADD_TEST(Threshold50 wst 50 ${CMAKE_SOURCE_DIR}/images/threshold.png threshold50.png threshold50-rgb.png 0.5)
-ADD_TEST(Threshold50Compare testEquiv threshold50.png ${CMAKE_SOURCE_DIR}/images/threshold50.png)
-ADD_TEST(Threshold50RGBCompare ${IMAGE_COMPARE} threshold50-rgb.png ${CMAKE_SOURCE_DIR}/images/threshold50-rgb.png)
+ADD_TEST(MarkerITK iwsm 1 0 ${CMAKE_SOURCE_DIR}/images/level.png ${CMAKE_SOURCE_DIR}/images/level-markers.png level-markers-itk.png level-markers-itk-rgb.png 0.5)
+ADD_TEST(MarkerITKCompare testEquiv level-markers-itk.png ${CMAKE_SOURCE_DIR}/images/level-markers-itk.png)
+ADD_TEST(MarkerITKRGBCompare ${IMAGE_COMPARE} level-markers-itk-rgb.png ${CMAKE_SOURCE_DIR}/images/level-markers-itk-rgb.png)
 
 
 
-ADD_TEST(ThresholdITK0 iwst 0 ${CMAKE_SOURCE_DIR}/images/threshold.png threshold00-itk.png threshold00-itk-rgb.png 0.5)
-ADD_TEST(ThresholdITK0Compare testEquiv threshold00-itk.png ${CMAKE_SOURCE_DIR}/images/threshold00-itk.png)
-ADD_TEST(ThresholdITK0RGBCompare ${IMAGE_COMPARE} threshold00-itk-rgb.png ${CMAKE_SOURCE_DIR}/images/threshold00-itk-rgb.png)
+ADD_TEST(Level0 wsl 0 ${CMAKE_SOURCE_DIR}/images/level.png level00.png level00-rgb.png 0.5)
+ADD_TEST(Level0Compare testEquiv level00.png ${CMAKE_SOURCE_DIR}/images/level00.png)
+ADD_TEST(Level0RGBCompare ${IMAGE_COMPARE} level00-rgb.png ${CMAKE_SOURCE_DIR}/images/level00-rgb.png)
 
-ADD_TEST(ThresholdITK10 iwst 0.10 ${CMAKE_SOURCE_DIR}/images/threshold.png threshold10-itk.png threshold10-itk-rgb.png 0.5)
-ADD_TEST(ThresholdITK10Compare testEquiv threshold10-itk.png ${CMAKE_SOURCE_DIR}/images/threshold10-itk.png)
-ADD_TEST(ThresholdITK10RGBCompare ${IMAGE_COMPARE} threshold10-itk-rgb.png ${CMAKE_SOURCE_DIR}/images/threshold10-itk-rgb.png)
+ADD_TEST(Level10 wsl 10 ${CMAKE_SOURCE_DIR}/images/level.png level10.png level10-rgb.png 0.5)
+ADD_TEST(Level10Compare testEquiv level10.png ${CMAKE_SOURCE_DIR}/images/level10.png)
+ADD_TEST(Level10RGBCompare ${IMAGE_COMPARE} level10-rgb.png ${CMAKE_SOURCE_DIR}/images/level10-rgb.png)
 
-ADD_TEST(ThresholdITK20 iwst 0.20 ${CMAKE_SOURCE_DIR}/images/threshold.png threshold20-itk.png threshold20-itk-rgb.png 0.5)
-ADD_TEST(ThresholdITK20Compare testEquiv threshold20-itk.png ${CMAKE_SOURCE_DIR}/images/threshold20-itk.png)
-ADD_TEST(ThresholdITK20RGBCompare ${IMAGE_COMPARE} threshold20-itk-rgb.png ${CMAKE_SOURCE_DIR}/images/threshold20-itk-rgb.png)
+ADD_TEST(Level20 wsl 20 ${CMAKE_SOURCE_DIR}/images/level.png level20.png level20-rgb.png 0.5)
+ADD_TEST(Level20Compare testEquiv level20.png ${CMAKE_SOURCE_DIR}/images/level20.png)
+ADD_TEST(Level20RGBCompare ${IMAGE_COMPARE} level20-rgb.png ${CMAKE_SOURCE_DIR}/images/level20-rgb.png)
 
-ADD_TEST(ThresholdITK40 iwst 0.40 ${CMAKE_SOURCE_DIR}/images/threshold.png threshold40-itk.png threshold40-itk-rgb.png 0.5)
-ADD_TEST(ThresholdITK40Compare testEquiv threshold40-itk.png ${CMAKE_SOURCE_DIR}/images/threshold40-itk.png)
-ADD_TEST(ThresholdITK40RGBCompare ${IMAGE_COMPARE} threshold40-itk-rgb.png ${CMAKE_SOURCE_DIR}/images/threshold40-itk-rgb.png)
+ADD_TEST(Level30 wsl 30 ${CMAKE_SOURCE_DIR}/images/level.png level30.png level30-rgb.png 0.5)
+ADD_TEST(Level30Compare testEquiv level30.png ${CMAKE_SOURCE_DIR}/images/level30.png)
+ADD_TEST(Level30RGBCompare ${IMAGE_COMPARE} level30-rgb.png ${CMAKE_SOURCE_DIR}/images/level30-rgb.png)
 
-ADD_TEST(ThresholdITK63 iwst 0.63 ${CMAKE_SOURCE_DIR}/images/threshold.png threshold63-itk.png threshold63-itk-rgb.png 0.5)
-ADD_TEST(ThresholdITK63Compare testEquiv threshold63-itk.png ${CMAKE_SOURCE_DIR}/images/threshold63-itk.png)
-ADD_TEST(ThresholdITK63RGBCompare ${IMAGE_COMPARE} threshold63-itk-rgb.png ${CMAKE_SOURCE_DIR}/images/threshold63-itk-rgb.png)
+ADD_TEST(Level40 wsl 40 ${CMAKE_SOURCE_DIR}/images/level.png level40.png level40-rgb.png 0.5)
+ADD_TEST(Level40Compare testEquiv level40.png ${CMAKE_SOURCE_DIR}/images/level40.png)
+ADD_TEST(Level40RGBCompare ${IMAGE_COMPARE} level40-rgb.png ${CMAKE_SOURCE_DIR}/images/level40-rgb.png)
 
-ADD_TEST(ThresholdITK65 iwst 0.65 ${CMAKE_SOURCE_DIR}/images/threshold.png threshold65-itk.png threshold65-itk-rgb.png 0.5)
-ADD_TEST(ThresholdITK65Compare testEquiv threshold65-itk.png ${CMAKE_SOURCE_DIR}/images/threshold65-itk.png)
-ADD_TEST(ThresholdITK65RGBCompare ${IMAGE_COMPARE} threshold65-itk-rgb.png ${CMAKE_SOURCE_DIR}/images/threshold65-itk-rgb.png)
+ADD_TEST(Level50 wsl 50 ${CMAKE_SOURCE_DIR}/images/level.png level50.png level50-rgb.png 0.5)
+ADD_TEST(Level50Compare testEquiv level50.png ${CMAKE_SOURCE_DIR}/images/level50.png)
+ADD_TEST(Level50RGBCompare ${IMAGE_COMPARE} level50-rgb.png ${CMAKE_SOURCE_DIR}/images/level50-rgb.png)
+
+
+
+ADD_TEST(LevelITK0 iwsl 0 ${CMAKE_SOURCE_DIR}/images/level.png level00-itk.png level00-itk-rgb.png 0.5)
+ADD_TEST(LevelITK0Compare testEquiv level00-itk.png ${CMAKE_SOURCE_DIR}/images/level00-itk.png)
+ADD_TEST(LevelITK0RGBCompare ${IMAGE_COMPARE} level00-itk-rgb.png ${CMAKE_SOURCE_DIR}/images/level00-itk-rgb.png)
+
+ADD_TEST(LevelITK10 iwsl 0.10 ${CMAKE_SOURCE_DIR}/images/level.png level10-itk.png level10-itk-rgb.png 0.5)
+ADD_TEST(LevelITK10Compare testEquiv level10-itk.png ${CMAKE_SOURCE_DIR}/images/level10-itk.png)
+ADD_TEST(LevelITK10RGBCompare ${IMAGE_COMPARE} level10-itk-rgb.png ${CMAKE_SOURCE_DIR}/images/level10-itk-rgb.png)
+
+ADD_TEST(LevelITK20 iwsl 0.20 ${CMAKE_SOURCE_DIR}/images/level.png level20-itk.png level20-itk-rgb.png 0.5)
+ADD_TEST(LevelITK20Compare testEquiv level20-itk.png ${CMAKE_SOURCE_DIR}/images/level20-itk.png)
+ADD_TEST(LevelITK20RGBCompare ${IMAGE_COMPARE} level20-itk-rgb.png ${CMAKE_SOURCE_DIR}/images/level20-itk-rgb.png)
+
+ADD_TEST(LevelITK40 iwsl 0.40 ${CMAKE_SOURCE_DIR}/images/level.png level40-itk.png level40-itk-rgb.png 0.5)
+ADD_TEST(LevelITK40Compare testEquiv level40-itk.png ${CMAKE_SOURCE_DIR}/images/level40-itk.png)
+ADD_TEST(LevelITK40RGBCompare ${IMAGE_COMPARE} level40-itk-rgb.png ${CMAKE_SOURCE_DIR}/images/level40-itk-rgb.png)
+
+ADD_TEST(LevelITK63 iwsl 0.63 ${CMAKE_SOURCE_DIR}/images/level.png level63-itk.png level63-itk-rgb.png 0.5)
+ADD_TEST(LevelITK63Compare testEquiv level63-itk.png ${CMAKE_SOURCE_DIR}/images/level63-itk.png)
+ADD_TEST(LevelITK63RGBCompare ${IMAGE_COMPARE} level63-itk-rgb.png ${CMAKE_SOURCE_DIR}/images/level63-itk-rgb.png)
+
+ADD_TEST(LevelITK65 iwsl 0.65 ${CMAKE_SOURCE_DIR}/images/level.png level65-itk.png level65-itk-rgb.png 0.5)
+ADD_TEST(LevelITK65Compare testEquiv level65-itk.png ${CMAKE_SOURCE_DIR}/images/level65-itk.png)
+ADD_TEST(LevelITK65RGBCompare ${IMAGE_COMPARE} level65-itk-rgb.png ${CMAKE_SOURCE_DIR}/images/level65-itk-rgb.png)
 
 
 
@@ -334,8 +330,8 @@ ADD_TEST(ESCellsmf30Compare testEquiv ESCellsmf30.tif ${CMAKE_SOURCE_DIR}/images
 
 
 
-ADD_TEST(ColoredThresholdMarkers color ${CMAKE_SOURCE_DIR}/images/threshold-markers.png threshold-markers-rgb.png 1 0)
-ADD_TEST(ColoredThresholdMarkersCompare ${IMAGE_COMPARE} threshold-markers-rgb.png ${CMAKE_SOURCE_DIR}/images/threshold-markers-rgb.png)
+ADD_TEST(ColoredLevelMarkers color ${CMAKE_SOURCE_DIR}/images/level-markers.png level-markers-rgb.png 1 0)
+ADD_TEST(ColoredLevelMarkersCompare ${IMAGE_COMPARE} level-markers-rgb.png ${CMAKE_SOURCE_DIR}/images/level-markers-rgb.png)
 
 ADD_TEST(ColoredCthead1Markers color ${CMAKE_SOURCE_DIR}/images/cthead1-markers.png cthead1-markers-rgb.png 1 0)
 ADD_TEST(ColoredCthead1MarkersCompare ${IMAGE_COMPARE} cthead1-markers-rgb.png ${CMAKE_SOURCE_DIR}/images/cthead1-markers-rgb.png)
