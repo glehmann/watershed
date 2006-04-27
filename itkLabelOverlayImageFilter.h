@@ -15,11 +15,15 @@ class LabelOverlay
 {
 public:
 
-  LabelOverlay() {}
+  LabelOverlay() 
+    {
+    m_UseBackground = false;
+    m_BackgroundValue = NumericTraits<TLabel>::Zero;
+    }
 
   inline TRGBPixel operator()(  const TInputPixel & p1,
 				const TLabel & p2)
-  {
+    {
     if( m_UseBackground && p2 == m_BackgroundValue )
       {
       typename TRGBPixel::ValueType p = static_cast< typename TRGBPixel::ValueType >( p1 );
@@ -33,11 +37,12 @@ public:
        {
        rgbPixel[i] = static_cast< typename TRGBPixel::ValueType >( opaque[i] * m_Opacity + p1 * ( 1.0 - m_Opacity ) );
        }
+std::cout << opaque << std::endl;
      return rgbPixel;
-  }
+    }
 
   bool operator != (const LabelOverlay &l) const
-  { return l.m_Opacity == m_Opacity; }
+  { return l.m_Opacity == m_Opacity || m_UseBackground != l.m_UseBackground || m_BackgroundValue != l.m_BackgroundValue; }
 
   ~LabelOverlay() {}
 
@@ -66,9 +71,8 @@ public:
  * can be defined by the user.
  *
  * \author Gaëtan Lehmann. Biologie du Développement et de la Reproduction, INRA de Jouy-en-Josas, France.
- * \author Richard Beare. Department of Medicine, Monash University, Melbourne, Australia.
  *
- * \sa ScalarToRGBPixelFunctor
+ * \sa ScalarToRGBPixelFunctor LabelToRGBImageFilter
  * \ingroup Multithreaded
  *
  */

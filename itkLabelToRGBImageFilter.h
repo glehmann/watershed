@@ -58,10 +58,19 @@ public:
     addColor( 139, 0, 139 );
     addColor( 238, 130, 238 );
     addColor( 139, 0, 0 );
+
+    m_UseBackground = false;
+    m_BackgroundValue = NumericTraits<TLabel>::Zero;
     }
 
   inline TRGBPixel operator()( const TLabel & p)
     {
+    if( m_UseBackground && p == m_BackgroundValue )
+      {
+      TRGBPixel rgbPixel;
+      rgbPixel.Set( p, p, p );
+      return rgbPixel;
+      }
     return m_Colors[ p % m_Colors.size()];
     }
 
@@ -76,30 +85,38 @@ public:
     }
 
   bool operator != (const LabelToRGBFunctor &l) const
-  { return true; }
+    { return m_UseBackground != l.m_UseBackground || m_BackgroundValue != l.m_BackgroundValue; }
+
+  void SetBackgroundValue( TLabel v ) { m_BackgroundValue = v; }
+
+  void SetUseBackground( bool b ) { m_UseBackground = b; }
 
   ~LabelToRGBFunctor() {}
 
   std::vector< TRGBPixel > m_Colors;
+
+  bool m_UseBackground;
+
+  TLabel m_BackgroundValue;
+
 };
 }  // end namespace functor
 
 
 /** \class LabelToRGBImageFilter
- * \brief Apply a colormap to a label image and put it on top of the input image
+ * \brief Apply a colormap to a label image
  *
- * Apply a colormap to a label image and put it on top of the input image. The set of colors
- * is a good selection of distinct colors. The opacity of the label image
- * can be defined by the user.
+ * Apply a colormap to a label image. The set of colors
+ * is a good selection of distinct colors.
  *
  * \author Gaëtan Lehmann. Biologie du Développement et de la Reproduction, INRA de Jouy-en-Josas, France.
  * \author Richard Beare. Department of Medicine, Monash University, Melbourne, Australia.
  *
- * \sa ScalarToRGBPixelFunctor
+ * \sa ScalarToRGBPixelFunctor LabelOverlayImageFilter
  * \ingroup Multithreaded
  *
  */
-template <typename  TInputImage, class TLabelImage, typename  TOutputImage>
+template <class TLabelImage, typename  TOutputImage>
 class ITK_EXPORT LabelToRGBImageFilter :
     public
 UnaryFunctorImageFilter<TLabelImage, TOutputImage, 
@@ -128,18 +145,37 @@ public:
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
   
+  itkSetMacro( BackgroundValue, LabelPixelType );
+  itkGetConstReferenceMacro( BackgroundValue, LabelPixelType );
+
+  itkSetMacro( UseBackground, bool );
+  itkGetConstReferenceMacro( UseBackground, bool );
+  itkBooleanMacro(UseBackground);
+
 protected:
-  LabelToRGBImageFilter() {};
+  LabelToRGBImageFilter();
   virtual ~LabelToRGBImageFilter() {};
 
+  /** Process to execute before entering the multithreaded section */
+  void BeforeThreadedGenerateData(void);
+
+  /** Print internal ivars */
+  void PrintSelf(std::ostream& os, Indent indent) const;
+  
 private:
   LabelToRGBImageFilter(const Self&); //purposely not implemented
   void operator=(const Self&); //purposely not implemented
+  bool m_UseBackground;
+  LabelPixelType m_BackgroundValue;
 };
 
 
   
 } // end namespace itk
+
+#ifndef ITK_MANUAL_INSTANTIATION
+#include "itkLabelToRGBImageFilter.txx"
+#endif
   
 #endif
 

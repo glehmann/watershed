@@ -13,7 +13,7 @@ template <class TInputImage, class TLabelImage, class TOutputImage>
 LabelOverlayImageFilter<TInputImage, TLabelImage, TOutputImage>
 ::LabelOverlayImageFilter()
 {
-  m_Opacity = 0.7;
+  m_Opacity = 0.5;
   m_BackgroundValue = NumericTraits<LabelPixelType>::Zero;
   m_UseBackground = false;
 }
