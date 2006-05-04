@@ -7,20 +7,9 @@
 #include "itkMorphologicalWatershedImageFilter.h"
 #include "itkLabelOverlayImageFilter.h"
 
-//#define MORPHFILT
-
-#define MEDFILT
-
-#ifdef MEDFILT
-#include <itkMedianImageFilter.h>
-#else
-#include <itkRecursiveGaussianImageFilter.h>
-#endif
-
-#ifdef MORPHFILT
 #include "itkGrayscaleDilateImageFilter.h"
 #include "itkGrayscaleErodeImageFilter.h"
-#endif
+
 
 #include "itkBinaryBallStructuringElement.h"
 #include "itkConnectedComponentImageFilter.h"
@@ -35,7 +24,7 @@
 #include <itkImageRegionIterator.h>
 #include <itkNeighborhoodAlgorithm.h>
 
-#define MORPHGRAD
+//#define MORPHGRAD
 
 #ifdef MORPHGRAD
 #include "itkNeighborhood.h"
@@ -61,7 +50,10 @@
 const int dim = 3;
 
 typedef unsigned char PType;
+typedef float FType;
+
 typedef itk::Image< PType, dim > IType;
+typedef itk::Image< PType, dim > FIType;
 typedef itk::Image< PType, dim-1 > SliceType;
 
 typedef unsigned short LType;
@@ -287,40 +279,48 @@ int main(int arglen, char * argv[])
   InSp[2] = 3*InSp[0];
   inputimage->SetSpacing(InSp);
 
-#ifdef MEDFILT
-  typedef itk::MedianImageFilter<IType, IType> SmoothType;
-  SmoothType::Pointer blurZ = SmoothType::New();
-  SmoothType::InputSizeType bSz = blurZ->GetRadius();
-  bSz.Fill(5);
-  bSz[2]=5/3;  
-  blurZ->SetRadius(bSz);
-  blurZ->SetInput(inputimage);
-#else
-  // blur the input
-  float Sigma = 5;
-  typedef itk::RecursiveGaussianImageFilter<IType, IType> SmoothType;
-  SmoothType::Pointer blurX = SmoothType::New();
-  SmoothType::Pointer blurY = SmoothType::New();
-  SmoothType::Pointer blurZ = SmoothType::New();
-  blurX->SetSigma(Sigma);
-  blurY->SetSigma(Sigma);
-  blurZ->SetSigma(Sigma);
-  blurX->SetDirection(0);
-  blurY->SetDirection(1);
-  blurZ->SetDirection(2);
-  
-  blurX->SetInput(inputimage);
-  blurY->SetInput(blurX->GetOutput());
-  blurZ->SetInput(blurY->GetOutput());
-#endif
+  // morphological prefiltering
+  // start with a small opening to remove background speckle
+  typedef itk::BinaryBallStructuringElement< PType, dim > SRType;
+  typedef itk::GrayscaleErodeImageFilter<IType, IType, SRType> ErodeType;
+  typedef itk::GrayscaleDilateImageFilter<IType, IType, SRType> DilateType;
+
+  SRType smallkernel;
+  SRType::RadiusType smallrad = smallkernel.GetRadius();
+  smallrad.Fill(2);
+  smallrad[2]=1;
+  smallkernel.SetRadius(smallrad);
+  smallkernel.CreateStructuringElement();
+  ErodeType::Pointer smallErode = ErodeType::New();
+  DilateType::Pointer smallDilate = DilateType::New();
+  smallErode->SetKernel(smallkernel);
+  smallDilate->SetKernel(smallkernel);
+  smallErode->SetInput(inputimage);
+  smallDilate->SetInput(smallErode->GetOutput());
+
+  // bigger closing
+  SRType bigkernel;
+  SRType::RadiusType bigrad = bigkernel.GetRadius();
+  bigrad.Fill(9);
+  bigrad[2]=3;
+  bigkernel.SetRadius(bigrad);
+  bigkernel.CreateStructuringElement();
+  ErodeType::Pointer bigErode = ErodeType::New();
+  DilateType::Pointer bigDilate = DilateType::New();
+  bigErode->SetKernel(bigkernel);
+  bigDilate->SetKernel(bigkernel);
+  // there are actually 2 dilations in cascade - could merge them
+  bigDilate->SetInput(smallDilate->GetOutput());
+  bigErode->SetInput(bigDilate->GetOutput());
+
   // now threshold
   typedef itk::BinaryThresholdImageFilter<IType, IType> ThreshType;
   ThreshType::Pointer thresh = ThreshType::New();
-  thresh->SetInput(blurZ->GetOutput());
-  thresh->SetUpperThreshold(50);
+  thresh->SetInput(bigErode->GetOutput());
+  thresh->SetUpperThreshold(30);
   thresh->SetOutsideValue(255);
   thresh->SetInsideValue(0);
-
+  thresh->Update();
   // a complex cell splitting procedure. The standard distance
   // transform approach doesn't work when the cells are squashed
   // together.
@@ -339,23 +339,6 @@ int main(int arglen, char * argv[])
 //  typedef itk::ImageFileWriter<LabSliceType> SliceWriterType;
 //  SliceWriterType::Pointer slicewriter = SliceWriterType::New();
 
-#ifdef MORPHFILT
-  typedef itk::BinaryBallStructuringElement< PType, dim - 1 > SRType;
-  typedef itk::GrayscaleErodeImageFilter<SliceType, SliceType, SRType> SliceErodeType;
-  typedef itk::GrayscaleDilateImageFilter<SliceType, SliceType, SRType> SliceDilateType;
-
-  // create a filtering pipeling
-  // set up a closing
-  SliceErodeType::Pointer eroder = SliceErodeType::New();
-  SliceDilateType::Pointer dilater = SliceDilateType::New();
-  SRType kernel;
-  kernel.SetRadius( 15 );
-  kernel.CreateStructuringElement();
-  eroder->SetKernel(kernel);
-  dilater->SetKernel(kernel);
-  dilater->SetInput(slicer->GetOutput());
-  eroder->SetInput(dilater->GetOutput());
-#endif
 
 
   // label and shape statistics
@@ -437,19 +420,19 @@ int main(int arglen, char * argv[])
   kern.SetRadius(1);
   kern.CreateStructuringElement();
   grdMag->SetKernel(kern);
-  grdMag->SetInput(blurZ->GetOutput());
+  grdMag->SetInput(bigErode->GetOutput());
 #else
   typedef itk::Image< itk::CovariantVector< itk::NumericTraits< PType>::RealType, dim >, dim > GradImType;
   typedef itk::GradientRecursiveGaussianImageFilter<IType,GradImType> GradFiltType;
-  typedef itk::GradientToMagnitudeImageFilter<GradImType, IType> GradMagType;
+  typedef itk::GradientToMagnitudeImageFilter<GradImType, FIType> GradMagType;
   GradFiltType::Pointer grd = GradFiltType::New();
   GradMagType::Pointer grdMag = GradMagType::New();
-  grd->SetInput(blurZ->GetOutput());
-  grd->SetSigma(0.5);
+  grd->SetInput(bigErode->GetOutput());
+  grd->SetSigma(5);
   grdMag->SetInput(grd->GetOutput());
 #endif
   
-  typedef itk::MorphologicalWatershedFromMarkersImageFilter<IType, IType> WShedType;
+  typedef itk::MorphologicalWatershedFromMarkersImageFilter<FIType, IType> WShedType;
   WShedType::Pointer wshed = WShedType::New();
   wshed->SetInput(grdMag->GetOutput());
   wshed->SetMarkerImage(marker);
@@ -461,12 +444,12 @@ int main(int arglen, char * argv[])
   writer3d->SetFileName("marker.tif");
   writer3d->Update();
 
-  writer3d->SetInput(blurZ->GetOutput());
-  writer3d->SetFileName("blurred.tif");
+  writer3d->SetInput(bigErode->GetOutput());
+  writer3d->SetFileName("preprocessed.tif");
   writer3d->Update();
 
   writer3d->SetInput(grdMag->GetOutput());
-  writer3d->SetFileName("gradient.tif");
+  writer3d->SetFileName("gradient.img");
   writer3d->Update();
 
   writer3d->SetInput(wshed->GetOutput());
