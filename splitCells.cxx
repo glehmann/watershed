@@ -53,7 +53,7 @@ typedef unsigned char PType;
 typedef float FType;
 
 typedef itk::Image< PType, dim > IType;
-typedef itk::Image< PType, dim > FIType;
+typedef itk::Image< FType, dim > FIType;
 typedef itk::Image< PType, dim-1 > SliceType;
 
 typedef unsigned short LType;
@@ -164,7 +164,7 @@ LVecType findMarker(const SliceLabListType SliceLabList,
 	{
 	Location B = LVec[j];
 	float xydist = sqrt(pow(float(A[0]) - float(B[0]),2) + pow(float(A[1]) - float(B[1]),2));
-	std::cout << A << B << " " << xydist << std::endl;
+//	std::cout << A << B << " " << xydist << std::endl;
 	if (xydist <= okdist)
 	  {
 	  ++neighbours;
@@ -411,6 +411,9 @@ int main(int arglen, char * argv[])
 
   typedef itk::ImageFileWriter<IType> WriterType;
   WriterType::Pointer writer3d = WriterType::New();
+  typedef itk::ImageFileWriter<FIType> WriterType2;
+  WriterType2::Pointer writer3d2 = WriterType2::New();
+
   // compute a gradient of the control image
 #ifdef MORPHGRAD
   typedef itk::BinaryBallStructuringElement< PType, dim > KType;
@@ -428,7 +431,7 @@ int main(int arglen, char * argv[])
   GradFiltType::Pointer grd = GradFiltType::New();
   GradMagType::Pointer grdMag = GradMagType::New();
   grd->SetInput(bigErode->GetOutput());
-  grd->SetSigma(5);
+  grd->SetSigma(2);
   grdMag->SetInput(grd->GetOutput());
 #endif
   
@@ -448,9 +451,9 @@ int main(int arglen, char * argv[])
   writer3d->SetFileName("preprocessed.tif");
   writer3d->Update();
 
-  writer3d->SetInput(grdMag->GetOutput());
-  writer3d->SetFileName("gradient.img");
-  writer3d->Update();
+  writer3d2->SetInput(grdMag->GetOutput());
+  writer3d2->SetFileName("gradient.img");
+  writer3d2->Update();
 
   writer3d->SetInput(wshed->GetOutput());
   writer3d->SetFileName("segresult.tif");
