@@ -6,6 +6,7 @@
 #include <itkMinimumMaximumImageCalculator.h>
 #include "itkMorphologicalWatershedImageFilter.h"
 #include "itkLabelOverlayImageFilter.h"
+#include "itkChangeInformationImageFilter.h"
 
 #include "itkGrayscaleDilateImageFilter.h"
 #include "itkGrayscaleErodeImageFilter.h"
@@ -272,12 +273,18 @@ int main(int arglen, char * argv[])
   typedef itk::ImageFileReader< IType > ReaderType;
   ReaderType::Pointer reader = ReaderType::New();
   reader->SetFileName( argv[1] );
-  reader->Update();
 
-  IType::Pointer inputimage = reader->GetOutput();
-  IType::SpacingType InSp = inputimage->GetSpacing();
-  InSp[2] = 3*InSp[0];
-  inputimage->SetSpacing(InSp);
+  // fix spacing
+  typedef itk::ChangeInformationImageFilter<IType> ChangeInfoType;
+  ChangeInfoType::SpacingType spacing;
+  spacing.Fill(1);
+  spacing[2] = 3;
+  ChangeInfoType::Pointer changeInfo = ChangeInfoType::New();
+  changeInfo->SetInput(reader->GetOutput());
+  changeInfo->SetOutputSpacing(spacing);
+  changeInfo->SetChangeSpacing(true);
+
+  IType::Pointer inputimage = changeInfo->GetOutput();
 
   // morphological prefiltering
   // start with a small opening to remove background speckle
@@ -395,6 +402,7 @@ int main(int arglen, char * argv[])
     std::cout << "Error - failed to find centres" << std::endl;
 //    return 1;
     }
+    std::cout << "--------------" << std::endl;
   // Now get ready for watershed segmentation
   // create the marker image
   // We'll begin with a background marker that is simply the image
