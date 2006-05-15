@@ -150,7 +150,7 @@ definitions rigorously defined the behavior in the presence of
 plateaus and lead to some new algorithms based on graph theory. Two
 examples of these algorithms are {\em hill-climbing} and {\em image
 integration} and will be discussed in more detail in this report.
-Figures \ref{fig:cthead1-markers}, \ref{fig:circle}and \ref{fig:difficult-cases} illustrate
+Figures \ref{fig:cthead1-markers}, \ref{fig:circle} and \ref{fig:difficult-cases} illustrate
 the possible problems with plateaus.
 
 \begin{figure}[htbp]
@@ -184,7 +184,7 @@ Readers interested in more technical detail should refer to
 
 \subsection{The topological watershed}
 An alternative approach, known as the topological watershed, has
-recently been developed \cite{}. The topological watershed modifies
+recently been developed \cite{topologicalWatershed}. The topological watershed modifies
 the topology of the surface so that all pixels that are not watershed
 lines become regional minima and watershed lines are modified so that
 they are more suitable for use in measuring saliency of boundaries
@@ -249,11 +249,12 @@ many that don't. Figure \ref{fig:overseg} illustrates the problem.
 \end{center}
 \end{figure}
 
-
-The ITK
-watershed implementation provides a way of addressing this problem
-using a measure of significance of the boundary and allowing a
-threshold to be applied first to reduce the number of local minima. 
+A common way to address this problem is to use a ignore the minima
+with a too small dynamic. Figures \ref{fig:artificial-itk} and
+\ref{fig:artificial-morpho} illustrate the effect of this technique.
+An usage example is shown in Section \ref{sect:pronucleus}.
+The ITK watershed implementation also allow a threshold to be applied
+first to reduce the number of local minima.
 
 \begin{figure}[htbp]
 \begin{center}
@@ -265,7 +266,7 @@ threshold to be applied first to reduce the number of local minima.
 \subfigure[Minima level = 50]{\includegraphics[scale=3.2]{level50-rgb}}
 \subfigure[markers]{\includegraphics[scale=3.2]{level-markers-rgb}}
 \subfigure[Watershed from markers]{\includegraphics[scale=3.2]{level-markersMf-rgb}}
-\caption{Different results of morphological watershed on an articial image. The labeled image are overlayed to the input image with {\em LabelOverlayImageFilter}. From $(b)$ to $(f)$, an example of reduction of the classical watershed over segmentation by minima dynamic filtering. $(g)$ and $(h)$ show a marker defined by a user, and the result over the input image. All the watersheds were performed with $MarkWatershed = true$ and $FullyConnected = false$.}
+\caption{Different results of morphological watershed on an articial image. The labeled image are overlayed to the input image with {\em LabelOverlayImageFilter}. From $(b)$ to $(f)$, an example of reduction of the classical watershed over segmentation by minima dynamic filtering. $(g)$ and $(h)$ show a marker defined by a user, and the result over the input image. All the watersheds were performed with $MarkWatershed = true$ and $FullyConnected = false$.\label{fig:artificial-itk}}
 \end{center}
 \end{figure}
 
@@ -281,10 +282,9 @@ threshold to be applied first to reduce the number of local minima.
 \subfigure[Level = 0.65]{\includegraphics[scale=3.2]{level65-itk-rgb}}
 \subfigure[markers]{\includegraphics[scale=3.2]{level-markers-rgb}}
 \subfigure[Watershed from markers]{\includegraphics[scale=3.2]{level-markers-itk-rgb}}
-\caption{Different results of ITK's watershed on an articial image. The labeled image are overlayed to the input image with {\em LabelOverlayImageFilter}. From $(b)$ to $(f)$, an example of reduction of the classical watershed over segmentation by minima dynamic filtering. $(g)$ and $(h)$ show a marker defined by a user, and the result over the input image.}
+\caption{Different results of ITK's watershed on an articial image. The labeled image are overlayed to the input image with {\em LabelOverlayImageFilter}. From $(b)$ to $(f)$, an example of reduction of the classical watershed over segmentation by minima dynamic filtering. $(g)$ and $(h)$ show a marker defined by a user, and the result over the input image.\label{fig:artificial-morpho}}
 \end{center}
 \end{figure}
-
 
 
 An Obvious alternative that is very similar in practice is to 
@@ -297,6 +297,7 @@ of a mask. This approach is widely used to split touching,
 approximately circular objects, such as cells.
 
 \subsection{Watershed from selected minima}
+\label{sect:ws-selected-minima}
 An alternative approach leads us to the concept of markers mentioned
 earlier. We will also see that the thresholding approach used by ITK
 may be considered as a specific case of the same approach.
@@ -620,7 +621,7 @@ Contrary to the previous algorithm, the label in the output image
 can't be used to determine if the pixel has already been added to
 the queue, and so we need to maintain this status by another way.
 It is the role of $S$ in Figure \ref{MeyerAlgorithm}. We'll discuss
-in \ref{sect:implementation} how this status can be implemented.
+in Section \ref{sect:implementation} how this status can be implemented.
 
 This algorithm mark the watershed lines.
 
@@ -822,7 +823,54 @@ performance on larger images.
 \section{Implementation}
 \label{sect:implementation}
 
-We provide with this article two new classes:
+  \subsection{With ITK watershed}
+
+The watershed from markers can be implemented with the ITK watershed,
+by using the technique of {\em minima imposition} exposed in Section
+\ref{sect:ws-selected-minima}. Several steps are required:
+\begin{itemize}
+  \item Impose the minima to the input image, with the
+\verb$MinimaImpositionImageFilter$
+  \item Perform the watershed with the \verb$WatershedImageFilter$
+  \item Restore the labels produced by the \verb$WatershedImageFilter$.
+\verb$WatershedImageFilter$ produce arbitrary labels which doesn't match
+the labels in the marker image. There is currently no filter able to
+find the label correspondance in ITK, so this step must be performed by
+hand with a code like the one before. We can use a
+\verb$ChangeLabelImageFilter$ to change the labels.
+\small \begin{verbatim}
+filter->Update();
+
+typedef itk::ChangeLabelImageFilter< LIType, IType > ChangeLabelType;
+ChangeLabelType::Pointer changeLabel = ChangeLabelType::New();
+changeLabel->SetInput( filter->GetOutput() );
+
+itk::ImageRegionConstIterator< LIType > wit( filter->GetOutput(),
+                filter->GetOutput()->GetLargestPossibleRegion() );
+itk::ImageRegionConstIterator< IType > mit( reader2->GetOutput(),
+                filter->GetOutput()->GetLargestPossibleRegion() );
+for ( mit.GoToBegin(), wit.GoToBegin();
+  !mit.IsAtEnd();
+  ++wit, ++mit )
+  {
+  if( mit.Get() != 0 )
+    { changeLabel->SetChange( wit.Get(), mit.Get() ); }
+  }
+\end{verbatim} \normalsize
+\end{itemize}
+
+This approach has several drawbacks:
+\begin{itemize}
+  \item it doesn't work if there some markers not separated by background
+pixels - they are considered as a single marker
+  \item restoring the labels is not included in a filter and so break the
+ITK pipeline model
+  \item it's less efficient, as shown in Section \ref{sect:perf}
+  \item it gives poor results with plateaus
+\end{itemize}
+
+A full example of implementation can be found in \verb$iwsm.cxx$.
+
 
   \subsection{MorphologicalWatershedFromMarkersImageFilter}
 
@@ -888,6 +936,11 @@ selected with \verb$SetLevel()$.
 
 
 \section{Timing and performance}
+\label{sect:perf}
+
+  \subsection{Classical watershed}
+\label{sect:perf-classical}
+
 The relative performance of the new filters are shown in
 Table~\ref{tbl:perf}. The timings were obtained using the {\tt
 ./perf3D images/ESCells.img}. The times for steps involved in a
@@ -899,9 +952,12 @@ doesn't have an inbuilt mechanism for boundary selection. The existing
 ITK watershed is therefore somewhat slower than the new implementation
 when used to compute a traditional watershed. The new implementations
 are not easily threadable and therefore may prove to be slower on some
-systems. However, as discussed in earlier sections, the new
+systems. Moreover, this results doesn't show the performance in the
+case where the user modify the \verb$Level$ parameters of the ITK
+filter, case where the time needed to update the filter should be a lot
+shorter. However, as discussed in earlier sections, the new
 implementation produces more stable results than the rainfall model
-and can be used in a marker based approach.
+and is more dedicated to a marker based approach.
 
 \begin{table}[htbp]
 \centering
@@ -916,6 +972,29 @@ FC & MB & Find Min &  Label mins & Watershed from markers & Total & Morph waters
 \hline
 \end{tabular}
 \caption{Execution times. Note the FC and MB refer to FullyConnected and MarkBoundary.\label{tbl:perf}}
+\end{table}
+
+
+  \subsection{Marker based watershed}
+\label{sect:perf-marker}
+
+The performance in case of a marker based approach are shown in Table
+\ref{tbl:perf-marker}, and were obtained on the same system than the
+ones in Section \ref{sect:perf-classical}, with the command {\tt 
+./mperf3D images/ESCells.img images/ESCells-markers.tif}.
+The ITK watershed use the implementation presented in Section
+\ref{sect:implementation}. The extra steps of this implementation are
+also shown in this table.
+
+\begin{table}[htbp]
+\centering
+\begin{tabular}{cccccccc}
+\hline
+FC & MB & impose min &  itk watershed & match labels & change labels & total & Morph watershed \\
+\hline
+\hline
+\end{tabular}
+\caption{Execution times with marker based approach. Note the FC and MB refer to FullyConnected and MarkBoundary.\label{tbl:perf-marker}}
 \end{table}
 
 \subsection{Other performance issues/comments}
@@ -938,7 +1017,7 @@ possibilities include using threads to improve performance of queues.
 \section{Using watersheds in ITK}
 
 \subsection{Pronucleus segmentation in bovine embryo}
-
+\label{sect:pronucleus}
 In this example, we use the watershed filter to split two nearly round
 objects: the male and female pronucleus in a bovine embryo, around 22
 hours after fecondation.
@@ -1022,7 +1101,7 @@ ws = itk.MorphologicalWatershedImageFilter.IUC2IUC2.New(idistance,
                                                         MarkWatershed=False,
                                                         Level=10)
 mask = itk.MaskImageFilter.IUC2IUC2IUC2.New(ws, fill)
-overlay = itk.LabelOverlayImageFilter.IUC2IUC2IRGBUC2.New(reader, mask, Opacity=0.5)
+overlay = itk.LabelOverlayImageFilter.IUC2IUC2IRGBUC2.New(reader, mask)
 \end{verbatim} \normalsize
 
 The same watershed is done with the ITK watershed filter\footnote{A
@@ -1033,7 +1112,7 @@ not available in python for the $MaskImageFilter$}.
 ws2 = itk.WatershedImageFilter.IUC2.New(idistance, Level=0.5)
 relabel = itk.RelabelComponentImageFilter.IUL2IUC2.New(ws2)
 mask2 = itk.MaskImageFilter.IUC2IUC2IUC2.New(relabel, fill)
-overlay2 = itk.LabelOverlayImageFilter.IUC2IUC2IRGBUC2.New(reader, mask2, Opacity=0.5)
+overlay2 = itk.LabelOverlayImageFilter.IUC2IUC2IRGBUC2.New(reader, mask2)
 \end{verbatim} \normalsize
 
 ITK watershed clearly produce a wrong segmentation in that case.
@@ -1048,6 +1127,18 @@ result of the distance approximation in the watershed algorithm.
 There is a level of erroneous folklore surrounding the watershed
 transform and it is hoped that this report helps to clear the air.
 
+
+\section{Related work}
+This work have lead us to develop some other filters to:
+\begin{itemize}
+  \item Find regional extrema \cite{regionalExtrema}
+  \item Surimpose a colored label image onto an image \cite{labelOverlay}
+  \item Impose the minima \cite{minimaImposition}
+  \item Label the connected component \cite{connectedComponent}
+  \item Invert the intensity of an image \cite{invert}
+  \item Enhance the morphological reconstruction \cite{recons}
+  \item Compute some informations about the shape of the labeled objects (not published yet)
+\end{itemize}
 
 \section{Acknowledgments}
 We thank Dr Pierre Adenot and MIMA2 confocal facilities
