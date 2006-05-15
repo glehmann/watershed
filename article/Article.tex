@@ -352,7 +352,7 @@ version of it, depending on convention).
 The procedure outlined above introduces a lot of additional steps,
 some of which could be reasonably computationally expensive
 (i.e. recursive erosion). Other steps have also been mentioned in
-passing ({\em lower completion} in Section \ref{sect:history} that may
+passing ({\em lower completion} in Section \ref{sect:history}) that may
 be potentially time consuming. Fortunately we will discover in Section
 \ref{sect:algorithms} that the appropriate choice of algorithm implementing the
 watershed transform will carry out these steps implicitly.
@@ -448,11 +448,6 @@ mentioned below.
 
 \subsubsection{Algorithm 1}
 
-{\em Is it really needed to present this algorithm given that there is
-no lower completion ? Isn't it enough to notice somewhere that an
-algorithm exist without lower completion, and which require to put
-all the pixels in the queue ?}
-
 \begin{itemize}
 \item lower complete the image
 \item initialize the queue with all pixels except interior of minima.
@@ -473,11 +468,12 @@ propagate label$(p)$ to label$(q)$;
    \end{itemize}
 \end{itemize}
 
-There are at least two reasons why we shouldn't use this
-approach. Firstly, the lower completion step is explicit, which we'd
-like to avoid and secondly {\em all} non minima pixels are placed on the
-queue, which means that the queue length is almost the same as the
-number of image pixels, increasing the overhead of queue
+This is the most basic version of hill climbing, and is presented here
+for completeness. There are at least two reasons why we shouldn't use
+this approach. Firstly, the lower completion step is explicit, which
+we'd like to avoid and secondly {\em all} non minima pixels are placed
+on the queue, which means that the queue length is almost the same as
+the number of image pixels, increasing the overhead of queue
 management. We shall see that it is only necessary to have the pixels
 on the borders of the regions in the queue.
 
@@ -617,8 +613,8 @@ This algorithm mark the watershed lines.
 
 The queue only contains the borders of the growing regions.
 
-It must be noticed that this algorithm never propagate watershed
-lines, and so produce very thin watershed lines.
+It should be noted that this algorithm never propagates watershed
+lines, and that the watershed lines it produces have a width of 1 pixel.
 
 \begin{figure}[htbp]
 \centering
@@ -1029,7 +1025,7 @@ overlay2 = itk.LabelOverlayImageFilter.IUC2IUC2IRGBUC2.New(reader, mask2, Opacit
 
 ITK watershed clearly produce a wrong segmentation in that case.
 The result of the morphological watershed is quite good, even if not perfect:
-there is some curves in the separation line of the two labels. This is the
+there are some curves in the separation line of the two labels. This is the
 result of the distance approximation in the watershed algorithm.
 
 \subsection{???}
