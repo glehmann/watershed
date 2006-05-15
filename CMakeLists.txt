@@ -342,3 +342,6 @@ ADD_TEST(ColoredOverSegmentation iws 0 0 ${CMAKE_SOURCE_DIR}/images/cthead1.png 
 ADD_TEST(ColoredOverSegmentationCompare ${IMAGE_COMPARE} cthead1-over-segmentation-rgb.png ${CMAKE_SOURCE_DIR}/images/cthead1-over-segmentation-rgb.png)
 
 
+ADD_TEST(ColoredCircle1 iws 0 0 ${CMAKE_SOURCE_DIR}/images/circle_plateau.tif dummy.png circle_rgb1.png 0.25)
+
+ADD_TEST(ColoredCircle2 ws 0 0 ${CMAKE_SOURCE_DIR}/images/circle_plateau.tif dummy.png circle_rgb2.png 0.25)

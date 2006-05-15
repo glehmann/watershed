@@ -150,8 +150,8 @@ definitions rigorously defined the behavior in the presence of
 plateaus and lead to some new algorithms based on graph theory. Two
 examples of these algorithms are {\em hill-climbing} and {\em image
 integration} and will be discussed in more detail in this report.
-Figure \ref{fig:cthead1-markers} and \ref{fig:difficult-cases} illustrate
-the possible problem with plateaus.
+Figures \ref{fig:cthead1-markers}, \ref{fig:circle}and \ref{fig:difficult-cases} illustrate
+the possible problems with plateaus.
 
 \begin{figure}[htbp]
 \begin{center}
@@ -166,8 +166,21 @@ the possible problem with plateaus.
 \end{center}
 \end{figure}
 
+\begin{figure}[htbp]
+\begin{center}
+\subfigure[Input image - bright ring on constant background]{\includegraphics[scale=0.7]{circle_plateau}}
+% \subfigure[]{\includegraphics[scale=0.7]{cthead1mf-rgb}}
+% \subfigure[]{\includegraphics[scale=0.7]{cthead1mF-rgb}}
+% \subfigure[]{\includegraphics[scale=0.7]{cthead1Mf-rgb}}
+\subfigure[Morphological watershed]{\includegraphics[scale=0.7]{circle_rgb2}}
+\subfigure[ITK watershed]{\includegraphics[scale=0.7]{circle_rgb1}}
+\caption{Another example of plateau problem. The inside and outside of the ring have the same brightness, but the ring is arbitarily assigned to the outer region by the ITK watershed. It is split by the morphological watershed.\label{fig:circle}}
+\end{center}
+\end{figure}
 
-Readers interested in more technical detail should refer to \cite{Roerdink2000a,Meijster2004a}.
+
+Readers interested in more technical detail should refer to
+\cite{Roerdink2000a,Meijster2004a}.
 
 \subsection{The topological watershed}
 An alternative approach, known as the topological watershed, has
