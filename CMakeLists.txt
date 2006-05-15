@@ -86,6 +86,10 @@ SET(CurrentExe "perf3D")
 ADD_EXECUTABLE(${CurrentExe} ${CurrentExe}.cxx)
 TARGET_LINK_LIBRARIES(${CurrentExe} ${Libraries})
 
+SET(CurrentExe "mperf3D")
+ADD_EXECUTABLE(${CurrentExe} ${CurrentExe}.cxx)
+TARGET_LINK_LIBRARIES(${CurrentExe} ${Libraries})
+
 SET(CurrentExe "testEquiv")
 ADD_EXECUTABLE(${CurrentExe} ${CurrentExe}.cxx)
 TARGET_LINK_LIBRARIES(${CurrentExe} ${Libraries})
