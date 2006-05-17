@@ -8,6 +8,7 @@ namespace itk
 
 namespace Functor {  
  
+/** The functor class used internally by LabelToRGBImageFilter */
 template< class TLabel, class TRGBPixel >
 class LabelToRGBFunctor
 {
@@ -59,18 +60,24 @@ public:
     addColor( 238, 130, 238 );
     addColor( 139, 0, 0 );
 
+    // provide some default value for external use (outside LabelToRGBImageFilter)
+    // Inside LabelToRGBImageFilter, the values are always initialized
     m_UseBackground = false;
     m_BackgroundValue = NumericTraits<TLabel>::Zero;
     }
 
   inline TRGBPixel operator()( const TLabel & p)
     {
+    // value is background
+    // return a gray pixel with the same intensity than the label pixel
     if( m_UseBackground && p == m_BackgroundValue )
       {
       TRGBPixel rgbPixel;
       rgbPixel.Set( p, p, p );
       return rgbPixel;
       }
+
+    // else, return a colored pixel from the color table
     return m_Colors[ p % m_Colors.size()];
     }
 
@@ -107,7 +114,9 @@ public:
  * \brief Apply a colormap to a label image
  *
  * Apply a colormap to a label image. The set of colors
- * is a good selection of distinct colors.
+ * is a good selection of distinct colors. The user can choose to use a background
+ * value. In that case, a gray pixel with the same intensity than the background
+ * label is produced.
  *
  * \author Gaëtan Lehmann. Biologie du Développement et de la Reproduction, INRA de Jouy-en-Josas, France.
  * \author Richard Beare. Department of Medicine, Monash University, Melbourne, Australia.
@@ -145,9 +154,11 @@ public:
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
   
+  /** Set/Get the background value */
   itkSetMacro( BackgroundValue, LabelPixelType );
   itkGetConstReferenceMacro( BackgroundValue, LabelPixelType );
 
+  /** Set/Get if one of the labels must be considered as background */
   itkSetMacro( UseBackground, bool );
   itkGetConstReferenceMacro( UseBackground, bool );
   itkBooleanMacro(UseBackground);

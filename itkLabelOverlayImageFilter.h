@@ -10,34 +10,38 @@ namespace itk
 
 namespace Functor {  
  
+/** The functor class used internally by LabelOverlayImageFilter */
 template< class TInputPixel, class TLabel, class TRGBPixel >
 class LabelOverlay
 {
 public:
-
   LabelOverlay() 
     {
+    // provide some default value for external use (outside LabelOverlayImageFilter)
+    // Inside LabelOverlayImageFilter, the values are always initialized
     m_UseBackground = false;
     m_BackgroundValue = NumericTraits<TLabel>::Zero;
     }
 
-  inline TRGBPixel operator()(  const TInputPixel & p1,
-				const TLabel & p2)
+  inline TRGBPixel operator()(  const TInputPixel & p1, const TLabel & p2)
     {
     if( m_UseBackground && p2 == m_BackgroundValue )
       {
+      // value is background
+      // return a gray pixel with the same intensity than the input pixel
       typename TRGBPixel::ValueType p = static_cast< typename TRGBPixel::ValueType >( p1 );
       TRGBPixel rgbPixel;
       rgbPixel.Set( p, p, p );
       return rgbPixel;
       }
+
+     // tainte the input pixel with the colored one returned by the color functor.
      TRGBPixel rgbPixel;
      TRGBPixel opaque = m_RGBFunctor(p2);
      for( int i = 0; i<3; i++)
        {
        rgbPixel[i] = static_cast< typename TRGBPixel::ValueType >( opaque[i] * m_Opacity + p1 * ( 1.0 - m_Opacity ) );
        }
-std::cout << opaque << std::endl;
      return rgbPixel;
     }
 
@@ -68,7 +72,9 @@ std::cout << opaque << std::endl;
  *
  * Apply a colormap to a label image and put it on top of the input image. The set of colors
  * is a good selection of distinct colors. The opacity of the label image
- * can be defined by the user.
+ * can be defined by the user. The user can also choose if he want to use a background
+ * and which label value is the background. A background label produce a gray pixel
+ * with the same intensity than the input one.
  *
  * \author Gaëtan Lehmann. Biologie du Développement et de la Reproduction, INRA de Jouy-en-Josas, France.
  *
@@ -114,15 +120,20 @@ public:
      { this->SetInput2( input ); }
 
   /** Get the label image */
-  LabelImageType * GetLabelImage()
+  const LabelImageType * GetLabelImage() const
     { return static_cast<LabelImageType*>(const_cast<DataObject *>(this->ProcessObject::GetInput(1))); }
 
+  /** Set/Get the opacity of the colored label image. The value must be
+   * between 0 and 1
+   */
   itkSetMacro( Opacity, double );
   itkGetConstReferenceMacro( Opacity, double );
 
+  /** Set/Get the background value */
   itkSetMacro( BackgroundValue, LabelPixelType );
   itkGetConstReferenceMacro( BackgroundValue, LabelPixelType );
 
+  /** Set/Get if one of the labels must be considered as background */
   itkSetMacro( UseBackground, bool );
   itkGetConstReferenceMacro( UseBackground, bool );
   itkBooleanMacro(UseBackground);
