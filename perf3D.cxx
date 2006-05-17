@@ -12,6 +12,7 @@
 #include "itkTimeProbe.h"
 #include <vector>
 #include "itkMultiThreader.h"
+#include <iomanip>
 
 int main(int, char * argv[])
 {
@@ -80,7 +81,7 @@ int main(int, char * argv[])
             << "rmin" << "\t" 
             << "label" << "\t" 
             << "mmw" << "\t" 
-            << "+" << "\t" 
+/*            << "+" << "\t" */
             << "mw" << "\t" 
             << "w" << "\t" 
             << std::endl;
@@ -103,11 +104,14 @@ int main(int, char * argv[])
       mws->SetMarkWatershed( M );
       mmws->SetMarkWatershed( M );
 
-      for( int i=0; i<5; i++ )
+      for( int i=0; i<10; i++ )
         {
-        wtime.Start();
-        ws->Update();
-        wtime.Stop();
+        if( !M && F )
+          {
+          wtime.Start();
+          ws->Update();
+          wtime.Stop();
+          }
   
         mwtime.Start();
         mws->Update();
@@ -136,15 +140,25 @@ int main(int, char * argv[])
   
         }
         
-      std::cout << F << "\t" 
+      std::cout << std::setprecision(3)
+                << F << "\t" 
                 << M << "\t" 
                 << rtime.GetMeanTime() << "\t" 
                 << ltime.GetMeanTime() << "\t" 
                 << mmwtime.GetMeanTime() << "\t" 
-                << mmwtime.GetMeanTime() + ltime.GetMeanTime() + rtime.GetMeanTime() << "\t" 
-                << mwtime.GetMeanTime() << "\t" 
-                << wtime.GetMeanTime() << "\t" 
-                <<std::endl;
+/*                << mmwtime.GetMeanTime() + ltime.GetMeanTime() + rtime.GetMeanTime() << "\t" */
+                << mwtime.GetMeanTime() << "\t";
+      if( !M && F )
+        {
+        std::cout
+                << wtime.GetMeanTime() << "\t";
+        }
+      else 
+        {
+        std::cout
+                << "-" << "\t";
+        }
+      std::cout <<std::endl;
       }
     }
   

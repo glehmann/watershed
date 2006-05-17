@@ -15,6 +15,7 @@
 #include "itkTimeProbe.h"
 #include <vector>
 #include "itkMultiThreader.h"
+#include <iomanip>
 
 int main(int, char * argv[])
 {
@@ -42,12 +43,12 @@ int main(int, char * argv[])
 
   typedef itk::MorphologicalWatershedFromMarkersImageFilter< IType, IType > MMWatershedType;
   MMWatershedType::Pointer mmws = MMWatershedType::New();
-  mmws->SetInput( reader->GetOutput() );
+  mmws->SetInput( invert->GetOutput() );
   mmws->SetMarkerImage( reader2->GetOutput() );
 
   typedef itk::MinimaImpositionImageFilter< IType, IType > MinimaImpositionType;
   MinimaImpositionType::Pointer minima = MinimaImpositionType::New();
-  minima->SetInput(0, reader->GetOutput() );
+  minima->SetInput(0, invert->GetOutput() );
   minima->SetInput(1, reader2->GetOutput() );
 
   typedef itk::WatershedImageFilter< IType > WatershedType;
@@ -57,12 +58,6 @@ int main(int, char * argv[])
   typedef itk::ChangeLabelImageFilter< LIType, IType > ChangeLabelType;
   ChangeLabelType::Pointer change = ChangeLabelType::New();
   change->SetInput( ws->GetOutput() );
-  
-  itk::ImageRegionConstIterator< LIType > wit( ws->GetOutput(),
-                                               ws->GetOutput()->GetLargestPossibleRegion() );
-  itk::ImageRegionConstIterator< IType > mit( reader2->GetOutput(),
-                                              ws->GetOutput()->GetLargestPossibleRegion() );
-
 
 
   std::cout << "#F" << "\t" 
@@ -71,9 +66,11 @@ int main(int, char * argv[])
             << "itk ws" << "\t" 
             << "match" << "\t" 
             << "change" << "\t" 
-            << "total" << "\t" 
             << "mmws" << "\t" 
+            << "itk mws" << "\t" 
             << std::endl;
+
+  invert->Update();
 
   for(int F=0; F<=1; F++ )
     {
@@ -90,30 +87,38 @@ int main(int, char * argv[])
   
       mmws->SetMarkWatershed( M );
 
-      for( int i=0; i<5; i++ )
+      for( int i=0; i<10; i++ )
         {
-        mintime.Start();
-        minima->Update();
-        mintime.Stop();
-  
-        wtime.Start();
-        ws->Update();
-        wtime.Stop();
-  
-        matchtime.Start();
-        for ( mit.GoToBegin(), wit.GoToBegin();
-          !mit.IsAtEnd();
-          ++wit, ++mit )
+        if( !M && F )
           {
-          if( mit.Get() != 0 )
-            { change->SetChange( wit.Get(), mit.Get() ); }
+          mintime.Start();
+          minima->Update();
+          mintime.Stop();
+    
+          wtime.Start();
+          ws->Update();
+          wtime.Stop();
+    
+          matchtime.Start();
+          itk::ImageRegionConstIterator< LIType > wit( ws->GetOutput(),
+                                                      ws->GetOutput()->GetLargestPossibleRegion() );
+          itk::ImageRegionConstIterator< IType > mit( reader2->GetOutput(),
+                                                      ws->GetOutput()->GetLargestPossibleRegion() );
+        
+          for ( mit.GoToBegin(), wit.GoToBegin();
+            !mit.IsAtEnd();
+            ++wit, ++mit )
+            {
+            if( mit.Get() != 0 )
+              { change->SetChange( wit.Get(), mit.Get() ); }
+            }
+          matchtime.Stop();
+    
+          changetime.Start();
+          change->Update();
+          changetime.Stop();
           }
-        matchtime.Stop();
-  
-        changetime.Start();
-        change->Update();
-        changetime.Stop();
-  
+
         mmwtime.Start();
         mmws->Update();
         mmwtime.Stop();
@@ -133,15 +138,30 @@ int main(int, char * argv[])
   
         }
         
-      std::cout << F << "\t" 
-                << M << "\t" 
+      std::cout << std::setprecision(3)
+                << F << "\t" 
+                << M << "\t";
+      if( !M && F )
+        {
+        std::cout
                 << mintime.GetMeanTime() << "\t" 
                 << wtime.GetMeanTime() << "\t" 
                 << matchtime.GetMeanTime() << "\t" 
                 << changetime.GetMeanTime() << "\t" 
-                << mintime.GetMeanTime() + wtime.GetMeanTime() + matchtime.GetMeanTime() + changetime.GetMeanTime() << "\t" 
                 << mmwtime.GetMeanTime() << "\t" 
-                <<std::endl;
+                << mintime.GetMeanTime() + wtime.GetMeanTime() + matchtime.GetMeanTime() + changetime.GetMeanTime() << "\t";
+        }
+      else 
+        {
+        std::cout
+                << "-" << "\t" 
+                << "-" << "\t" 
+                << "-" << "\t" 
+                << "-" << "\t" 
+                << mmwtime.GetMeanTime() << "\t" 
+                << "-" << "\t";
+        }
+      std::cout <<std::endl;
       }
     }
   
