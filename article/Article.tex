@@ -69,6 +69,9 @@ ITK filter classes.}.
 A brief description of two algorithms used to implement the watershed
 transform is given in Section \ref{sect:algorithms}.
 
+Section \ref{sect:using-ws-itk} propose some applications of watershed
+with ITK.
+
 \section{Image segmentation}
 Image segmentation, in the context of this report, may be broadly
 defined as finding the part(s) of the image that is of interest in
@@ -310,7 +313,8 @@ before the modification (i.e we only remove the unwanted boundaries)?
 
 This can be achieved by performing a {\em reconstruction by erosion}
 or {\em recursive conditional erosion} from the seleted regional
-minima. Figure \ref{fig:recon} illustrates the results of apply a
+minima. This process is also called {\em minima imposition}. Figure
+\ref{fig:recon} illustrates the results of apply a
 reconstruction by erosion to a 1D image. The original image is shown
 in blue and has regional minima A, B, C, D and E. The marker image
 which is recursively eroded is shown in black, with a single zero at
@@ -961,17 +965,22 @@ and is more dedicated to a marker based approach.
 
 \begin{table}[htbp]
 \centering
-\begin{tabular}{cccccccc}
+\begin{tabular}{cc|ccc|cc}
 \hline
-FC & MB & Find Min &  Label mins & Watershed from markers & Total & Morph watershed &  itk watershed \\
+FC & MB & Find min &  Label min & Ws from markers & Morph ws &  ITK ws \\
 \hline
-0  &    0  &     1.948  & 0.522  & 5.752  & 8.222   & 8.218  & 12.596 \\
-0  &    1  &     1.922  & 0.516  & 6.724  & 9.162   & 9.28   & 12.61 \\
-1  &    0  &     4.26   & 0.154  & 13.274 & 17.688  & 18.158 & 12.61 \\
-1  &    1  &     4.284  & 0.15   & 17.23  & 21.664  & 21.76  & 12.606 \\
+\hline
+0 &      0 &      1.61 &   0.0476 & 3.72 &   6.14 &   - \\
+0 &      1 &      1.59 &   0.0428 & 6.25 &   8.95 &   - \\
+1 &      0 &      3.15 &   0.0465 & 7.77 &   11.5 &   6.48 \\
+1 &      1 &      3.19  &  0.0462  &14.8 &   19.2  &  - \\
+% 0  &    0  &     1.948  & 0.522  & 5.752  & 8.222   & 8.218  & 12.596 \\
+% 0  &    1  &     1.922  & 0.516  & 6.724  & 9.162   & 9.28   & 12.61 \\
+% 1  &    0  &     4.26   & 0.154  & 13.274 & 17.688  & 18.158 & 12.61 \\
+% 1  &    1  &     4.284  & 0.15   & 17.23  & 21.664  & 21.76  & 12.606 \\
 \hline
 \end{tabular}
-\caption{Execution times. Note the FC and MB refer to FullyConnected and MarkBoundary.\label{tbl:perf}}
+\caption{Execution times. Note the FC and MWL refer to FullyConnected and MarkWatershedLine.\label{tbl:perf}}
 \end{table}
 
 \subsection{Marker based watershed}
@@ -986,17 +995,22 @@ also shown in this table.
 
 \begin{table}[htbp]
 \centering
-\begin{tabular}{cccccccc}
+\begin{tabular}{cc|cccc|cc}
 \hline
-FC & MB & impose min &  itk watershed & match labels & change labels & total & Morph watershed \\
+FC & MWL & Impose min &  ITK ws & Match labels & Change labels & Morph ws & ITK ws \\
 \hline
-0   &  0  &  2.47776 & 8.12256 & 4.29153e-07 & 0.0990558 &  10.6994 & 3.70646\\
-0   &  1  &  2.24303 & 8.20924 & 9.53674e-07 & 0.0977524 &  10.55   & 6.22279\\
-1   &  0  &  5.92089 & 12.2889 & 4.29153e-07 & 0.0971172 &  18.3069 & 10.7172\\
-1   &  1  &  6.08657 & 12.222  & 5.72205e-07 & 0.0927572 &  18.4014 & 18.4605\\
+\hline
+0 &      0 &      -    &   -   &    -      & -     &  3.67 &   - \\
+0 &      1 &      -    &   -   &    -      & -     &  6.53 &   - \\
+1 &      0 &      5.46 &   7.8 &    0.0192 & 0.227 &  14.6 &   13.5 \\
+1 &      1 &      -    &   -   &    -      & -     &  34.8 &   - \\
+% 0   &  0  &  2.47776 & 8.12256 & 4.29153e-07 & 0.0990558 &  10.6994 & 3.70646\\
+% 0   &  1  &  2.24303 & 8.20924 & 9.53674e-07 & 0.0977524 &  10.55   & 6.22279\\
+% 1   &  0  &  5.92089 & 12.2889 & 4.29153e-07 & 0.0971172 &  18.3069 & 10.7172\\
+% 1   &  1  &  6.08657 & 12.222  & 5.72205e-07 & 0.0927572 &  18.4014 & 18.4605\\
 \hline
 \end{tabular}
-\caption{Execution times with marker based approach. Note the FC and MB refer to FullyConnected and MarkBoundary.\label{tbl:perf-marker}}
+\caption{Execution times with marker based approach. Note the FC and MWL refer to FullyConnected and MarkWatershedLine.\label{tbl:perf-marker}}
 \end{table}
 
 \subsection{Other performance issues/comments}
@@ -1017,6 +1031,11 @@ possibilities include using threads to improve performance of queues.
 
 
 \section{Using watersheds in ITK}
+\label{sect:using-ws-itk}
+
+It should be noticed that all the images shown in this article have been
+produced with ITK and can be easily reproduced and tested by running 
+{\em ctest} in the build tree.
 
 \subsection{Pronucleus segmentation in bovine embryo}
 \label{sect:pronucleus}
@@ -1025,7 +1044,8 @@ objects: the male and female pronucleus in a bovine embryo, around 22
 hours after fecondation.
 
 The program is in python for conciseness\footnote{And also to promote
-python wrappers.}.
+python wrappers.}. A C++ version, \verb$splitPronucleus2D.cxx$, is also
+available.
 
 \begin{figure}[htbp]
 \begin{center}
@@ -1100,10 +1120,12 @@ from markers.
 
 \small \begin{verbatim}
 ws = itk.MorphologicalWatershedImageFilter.IUC2IUC2.New(idistance,
-                                                        MarkWatershed=False,
+                                                        MarkWatershedLine=False,
                                                         Level=10)
 mask = itk.MaskImageFilter.IUC2IUC2IUC2.New(ws, fill)
-overlay = itk.LabelOverlayImageFilter.IUC2IUC2IRGBUC2.New(reader, mask)
+overlay = itk.LabelOverlayImageFilter.IUC2IUC2IRGBUC2.New(reader,
+                                                          mask,
+                                                          UseBackground=True)
 \end{verbatim} \normalsize
 
 The same watershed is done with the ITK watershed filter\footnote{A
@@ -1114,11 +1136,15 @@ not available in python for the $MaskImageFilter$}.
 ws2 = itk.WatershedImageFilter.IUC2.New(idistance, Level=0.5)
 relabel = itk.RelabelComponentImageFilter.IUL2IUC2.New(ws2)
 mask2 = itk.MaskImageFilter.IUC2IUC2IUC2.New(relabel, fill)
-overlay2 = itk.LabelOverlayImageFilter.IUC2IUC2IRGBUC2.New(reader, mask2)
+overlay2 = itk.LabelOverlayImageFilter.IUC2IUC2IRGBUC2.New(reader,
+                                                           mask2
+                                                           UseBackground=True)
 \end{verbatim} \normalsize
 
-ITK watershed clearly produce a wrong segmentation in that case.
-The result of the morphological watershed is quite good, even if not perfect:
+ITK watershed clearly produce a wrong segmentation in that case. However, using
+a floating point image to store the distance map would have produce a better
+result.
+The segmentation of the morphological watershed is quite good, even if not perfect:
 there are some curves in the separation line of the two labels. This is the
 result of the distance approximation in the watershed algorithm.
 
