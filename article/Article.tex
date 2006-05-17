@@ -974,10 +974,8 @@ FC & MB & Find Min &  Label mins & Watershed from markers & Total & Morph waters
 \caption{Execution times. Note the FC and MB refer to FullyConnected and MarkBoundary.\label{tbl:perf}}
 \end{table}
 
-
-  \subsection{Marker based watershed}
+\subsection{Marker based watershed}
 \label{sect:perf-marker}
-
 The performance in case of a marker based approach are shown in Table
 \ref{tbl:perf-marker}, and were obtained on the same system than the
 ones in Section \ref{sect:perf-classical}, with the command {\tt 
@@ -992,6 +990,10 @@ also shown in this table.
 \hline
 FC & MB & impose min &  itk watershed & match labels & change labels & total & Morph watershed \\
 \hline
+0   &  0  &  2.47776 & 8.12256 & 4.29153e-07 & 0.0990558 &  10.6994 & 3.70646\\
+0   &  1  &  2.24303 & 8.20924 & 9.53674e-07 & 0.0977524 &  10.55   & 6.22279\\
+1   &  0  &  5.92089 & 12.2889 & 4.29153e-07 & 0.0971172 &  18.3069 & 10.7172\\
+1   &  1  &  6.08657 & 12.222  & 5.72205e-07 & 0.0927572 &  18.4014 & 18.4605\\
 \hline
 \end{tabular}
 \caption{Execution times with marker based approach. Note the FC and MB refer to FullyConnected and MarkBoundary.\label{tbl:perf-marker}}
