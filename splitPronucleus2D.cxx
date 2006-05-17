@@ -23,6 +23,10 @@ int main(int arglen, char * argv[])
   typedef unsigned long LPType;
   typedef itk::Image< LPType, dim > LIType;
 
+  typedef unsigned char RPType;
+//  typedef double RPType;
+  typedef itk::Image< RPType, dim > RIType;
+
   typedef itk::RGBPixel<unsigned char>   RGBPixelType;
   typedef itk::Image<RGBPixelType, dim>    RGBImageType;
     
@@ -57,14 +61,18 @@ int main(int arglen, char * argv[])
   InvertType::Pointer invert = InvertType::New();
   invert->SetInput( fill->GetOutput() );
   
-  typedef itk::DanielssonDistanceMapImageFilter< IType, IType > DistanceType;
+  typedef itk::DanielssonDistanceMapImageFilter< IType, RIType > DistanceType;
   DistanceType::Pointer distance = DistanceType::New();
   distance->SetInput( invert->GetOutput() );
 
-  InvertType::Pointer idistance = InvertType::New();
+  typedef itk::InvertIntensityImageFilter< RIType, RIType > RInvertType;
+  RInvertType::Pointer idistance = RInvertType::New();
   idistance->SetInput( distance->GetOutput() );
-  
-  typedef itk::MorphologicalWatershedImageFilter< IType, IType > MWatershedType;
+  idistance->SetMaximum( 255 );
+
+
+
+  typedef itk::MorphologicalWatershedImageFilter< RIType, IType > MWatershedType;
   MWatershedType::Pointer ws = MWatershedType::New();
   ws->SetInput( idistance->GetOutput() );
   ws->SetMarkWatershedLine( false );
@@ -83,7 +91,7 @@ int main(int arglen, char * argv[])
 
 
 
-  typedef itk::WatershedImageFilter< IType > WatershedType;
+  typedef itk::WatershedImageFilter< RIType > WatershedType;
   WatershedType::Pointer ws2 = WatershedType::New();
   ws2->SetInput( idistance->GetOutput() );
   ws2->SetLevel( 0.5 );
