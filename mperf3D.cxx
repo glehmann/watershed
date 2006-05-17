@@ -85,7 +85,7 @@ int main(int, char * argv[])
       minima->SetFullyConnected( F );
       mmws->SetFullyConnected( F );
   
-      mmws->SetMarkWatershed( M );
+      mmws->SetMarkWatershedLine( M );
 
       for( int i=0; i<10; i++ )
         {

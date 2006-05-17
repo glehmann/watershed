@@ -32,7 +32,7 @@ int main(int, char * argv[])
   typedef itk::MorphologicalWatershedImageFilter< IType, IType > FilterType;
   FilterType::Pointer filter = FilterType::New();
   filter->SetInput( invert->GetOutput() );
-  filter->SetMarkWatershed( atoi( argv[1] ) );
+  filter->SetMarkWatershedLine( atoi( argv[1] ) );
   filter->SetFullyConnected( atoi( argv[2] ) );
   filter->SetLevel( atoi( argv[3] ) );
 

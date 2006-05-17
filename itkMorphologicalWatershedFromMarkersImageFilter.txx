@@ -38,7 +38,7 @@ MorphologicalWatershedFromMarkersImageFilter<TInputImage, TLabelImage>
 {
   this->SetNumberOfRequiredInputs(2);
   m_FullyConnected = false;
-  m_MarkWatershed = true;
+  m_MarkWatershedLine = true;
 }
 
 
@@ -141,7 +141,7 @@ MorphologicalWatershedFromMarkersImageFilter<TInputImage, TLabelImage>
   //---------------------------------------------------------------------------
   // Meyer's algorithm
   //---------------------------------------------------------------------------
-  if( m_MarkWatershed )
+  if( m_MarkWatershedLine )
     {
     // first stage:
     //  - set markers pixels to already processed status
@@ -389,7 +389,7 @@ MorphologicalWatershedFromMarkersImageFilter<TInputImage, TLabelImage>
   Superclass::PrintSelf(os, indent);
   
   os << indent << "FullyConnected: "  << m_FullyConnected << std::endl;
-  os << indent << "MarkWatershed: "  << m_MarkWatershed << std::endl;
+  os << indent << "MarkWatershedLine: "  << m_MarkWatershedLine << std::endl;
 }
   
 }// end namespace itk

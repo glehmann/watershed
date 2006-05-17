@@ -101,8 +101,8 @@ int main(int, char * argv[])
       mmws->SetFullyConnected( F );
       label->SetFullyConnected( F );
   
-      mws->SetMarkWatershed( M );
-      mmws->SetMarkWatershed( M );
+      mws->SetMarkWatershedLine( M );
+      mmws->SetMarkWatershedLine( M );
 
       for( int i=0; i<10; i++ )
         {

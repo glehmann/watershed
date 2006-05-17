@@ -31,7 +31,7 @@ MorphologicalWatershedImageFilter<TInputImage, TOutputImage>
 ::MorphologicalWatershedImageFilter()
 {
   m_FullyConnected = false;
-  m_MarkWatershed = true;
+  m_MarkWatershedLine = true;
   m_Level = NumericTraits< InputImagePixelType >::Zero;
 }
 
@@ -97,7 +97,7 @@ MorphologicalWatershedImageFilter<TInputImage, TOutputImage>
   wshed->SetInput( this->GetInput() );
   wshed->SetMarkerImage( label->GetOutput() );
   wshed->SetFullyConnected( m_FullyConnected );
-  wshed->SetMarkWatershed( m_MarkWatershed );
+  wshed->SetMarkWatershedLine( m_MarkWatershedLine );
 
 
   if( m_Level != NumericTraits< InputImagePixelType >::Zero )
@@ -147,7 +147,7 @@ MorphologicalWatershedImageFilter<TInputImage, TOutputImage>
   Superclass::PrintSelf(os, indent);
 
   os << indent << "FullyConnected: "  << m_FullyConnected << std::endl;
-  os << indent << "MarkWatershed: "  << m_MarkWatershed << std::endl;
+  os << indent << "MarkWatershedLine: "  << m_MarkWatershedLine << std::endl;
   os << indent << "Level: "  << static_cast<typename NumericTraits<InputImagePixelType>::PrintType>(m_Level) << std::endl;
 }
   

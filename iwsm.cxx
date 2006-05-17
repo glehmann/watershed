@@ -37,7 +37,7 @@ int main(int arglen, char * argv[])
   FilterType::Pointer filter = FilterType::New();
   filter->SetInput( minima->GetOutput() );
 //   filter->SetMarkerImage( reader2->GetOutput() );
-//   filter->SetMarkWatershed( atoi( argv[1] ) );
+//   filter->SetMarkWatershedLine( atoi( argv[1] ) );
 //   filter->SetFullyConnected( atoi( argv[2] ) );
 
   itk::SimpleFilterWatcher watcher(filter, "filter");

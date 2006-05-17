@@ -103,9 +103,9 @@ public:
    * is true. Set it to false do not only avoid writing watershed pixels,
    * it also decrease algorithm complexity.
    */
-  itkSetMacro(MarkWatershed, bool);
-  itkGetConstReferenceMacro(MarkWatershed, bool);
-  itkBooleanMacro(MarkWatershed);
+  itkSetMacro(MarkWatershedLine, bool);
+  itkGetConstReferenceMacro(MarkWatershedLine, bool);
+  itkBooleanMacro(MarkWatershedLine);
 
 protected:
   MorphologicalWatershedFromMarkersImageFilter();
@@ -140,7 +140,7 @@ private:
 
   bool m_FullyConnected;
 
-  bool m_MarkWatershed;
+  bool m_MarkWatershedLine;
 
 } ; // end of class
 

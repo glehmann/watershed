@@ -27,7 +27,7 @@ int main(int arglen, char * argv[])
   typedef itk::WatershedImageFilter< IType > FilterType;
   FilterType::Pointer filter = FilterType::New();
   filter->SetInput( reader->GetOutput() );
-/*  filter->SetMarkWatershed( true );
+/*  filter->SetMarkWatershedLine( true );
   filter->SetFullyConnected( false );*/
   filter->SetLevel( atof( argv[1] ) );
 
