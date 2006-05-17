@@ -102,6 +102,10 @@ SET(CurrentExe "splitCells")
 ADD_EXECUTABLE(${CurrentExe} ${CurrentExe}.cxx)
 TARGET_LINK_LIBRARIES(${CurrentExe} ${Libraries})
 
+SET(CurrentExe "splitPronucleus2D")
+ADD_EXECUTABLE(${CurrentExe} ${CurrentExe}.cxx)
+TARGET_LINK_LIBRARIES(${CurrentExe} ${Libraries})
+
 
 
 ENDIF(BUILD_TESTING)
@@ -351,3 +355,14 @@ ADD_TEST(ColoredCircle1Compare ${IMAGE_COMPARE} circle_rgb1.png ${CMAKE_SOURCE_D
 
 ADD_TEST(ColoredCircle2 ws 0 0 ${CMAKE_SOURCE_DIR}/images/circle_plateau.tif dummy.png circle_rgb2.png)
 ADD_TEST(ColoredCircle2Compare ${IMAGE_COMPARE} circle_rgb2.png ${CMAKE_SOURCE_DIR}/images/circle_rgb2.png)
+
+ADD_TEST(SplitPronucleus2D splitPronucleus2D ${CMAKE_SOURCE_DIR}/images/embryo.png)
+ADD_TEST(SplitPronucleus2DdistanceCompare ${IMAGE_COMPARE} embryo-distance.png ${CMAKE_SOURCE_DIR}/images/embryo-distance.png)
+ADD_TEST(SplitPronucleus2DfillCompare ${IMAGE_COMPARE} embryo-fill.png ${CMAKE_SOURCE_DIR}/images/embryo-fill.png)
+ADD_TEST(SplitPronucleus2DidistanceCompare ${IMAGE_COMPARE} embryo-idistance.png ${CMAKE_SOURCE_DIR}/images/embryo-idistance.png)
+ADD_TEST(SplitPronucleus2DinvertCompare ${IMAGE_COMPARE} embryo-invert.png ${CMAKE_SOURCE_DIR}/images/embryo-invert.png)
+ADD_TEST(SplitPronucleus2DmedianCompare ${IMAGE_COMPARE} embryo-median.png ${CMAKE_SOURCE_DIR}/images/embryo-median.png)
+ADD_TEST(SplitPronucleus2DopenCompare ${IMAGE_COMPARE} embryo-open.png ${CMAKE_SOURCE_DIR}/images/embryo-open.png)
+ADD_TEST(SplitPronucleus2Doverlay2Compare ${IMAGE_COMPARE} embryo-overlay2.png ${CMAKE_SOURCE_DIR}/images/embryo-overlay2.png)
+ADD_TEST(SplitPronucleus2DoverlayCompare ${IMAGE_COMPARE} embryo-overlay.png ${CMAKE_SOURCE_DIR}/images/embryo-overlay.png)
+ADD_TEST(SplitPronucleus2DthCompare ${IMAGE_COMPARE} embryo-th.png ${CMAKE_SOURCE_DIR}/images/embryo-th.png)
