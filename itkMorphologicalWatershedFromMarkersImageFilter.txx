@@ -174,12 +174,19 @@ MorphologicalWatershedFromMarkersImageFilter<TInputImage, TLabelImage>
     statusImage->FillBuffer( false );
   
     for ( markerIt.GoToBegin(), statusIt.GoToBegin(), outputIt.GoToBegin(), inputIt.GoToBegin();
-      !markerIt.IsAtEnd();
-      ++markerIt, ++statusIt, ++outputIt, ++inputIt ) 
+      !markerIt.IsAtEnd(); ++markerIt, ++outputIt)
       {
       LabelImagePixelType markerPixel = markerIt.GetCenterPixel();
       if ( markerPixel != bgLabel )
         {
+	
+        IndexType idx = markerIt.GetIndex();
+        
+        // move the iterators to the right place
+        OffsetType shift = idx - statusIt.GetIndex();
+        statusIt += shift;
+        inputIt += shift;
+
         // this pixel belongs to a marker
         // mark it as already processed
         statusIt.SetCenterPixel( true );
@@ -247,10 +254,13 @@ MorphologicalWatershedFromMarkersImageFilter<TInputImage, TLabelImage>
         for (noIt = outputIt.Begin(); noIt != outputIt.End(); noIt++)
           {
           LabelImagePixelType o = noIt.Get();
-          if( o != wsLabel && !collision )
+          if( o != wsLabel )
             {
             if( marker != wsLabel && o != marker )
-              { collision = true; }
+              { 
+	      collision = true; 
+	      break;
+	      }
             else
               { marker = o; }
             }
@@ -267,10 +277,11 @@ MorphologicalWatershedFromMarkersImageFilter<TInputImage, TLabelImage>
             if ( !nsIt.Get() )
               {
               // the pixel is not yet processed. add it to the fah
-              if ( niIt.Get() <= currentValue )
+	      InputImagePixelType GrayVal = niIt.Get();
+              if ( GrayVal <= currentValue )
                 { currentQueue.push( inputIt.GetIndex() + niIt.GetNeighborhoodOffset() ); }
               else
-                { fah[ niIt.Get() ].push( inputIt.GetIndex() + niIt.GetNeighborhoodOffset() ); }
+                { fah[ GrayVal ].push( inputIt.GetIndex() + niIt.GetNeighborhoodOffset() ); }
               // mark it as already in the fah
               nsIt.Set( true );
               }
@@ -297,21 +308,28 @@ MorphologicalWatershedFromMarkersImageFilter<TInputImage, TLabelImage>
     outputIt.OverrideBoundaryCondition(&lcbc2);
 
     for ( markerIt.GoToBegin(), outputIt.GoToBegin(), inputIt.GoToBegin();
-      !markerIt.IsAtEnd();
-      ++markerIt, ++outputIt, ++inputIt ) 
+	  !markerIt.IsAtEnd();
+	  ++markerIt, ++outputIt ) 
       {
       LabelImagePixelType markerPixel = markerIt.GetCenterPixel();
       if ( markerPixel != bgLabel )
         {
+	IndexType idx = markerIt.GetIndex();
+        OffsetType shift = idx - inputIt.GetIndex();
+        inputIt += shift;
+
         // this pixels belongs to a marker
         // copy it to the output image
         outputIt.SetCenterPixel( markerPixel );
         // search if it has background pixel in its neighborhood
         bool haveBgNeighbor = false;
-        for ( nmIt= markerIt.Begin(); nmIt != markerIt.End() && !haveBgNeighbor; nmIt++ )
+        for ( nmIt= markerIt.Begin(); nmIt != markerIt.End(); nmIt++ )
           {
           if ( nmIt.Get() == bgLabel )
-            { haveBgNeighbor = true; }
+            { 
+	    haveBgNeighbor = true; 
+	    break;
+	    }
           }
         if ( haveBgNeighbor )
           {
@@ -367,10 +385,11 @@ MorphologicalWatershedFromMarkersImageFilter<TInputImage, TLabelImage>
             {
             // the pixel is not yet processed. It can be labeled with the current label
             noIt.Set( currentMarker );
-            if ( niIt.Get() <= currentValue )
+	    InputImagePixelType GrayVal = niIt.Get();
+	    if ( GrayVal <= currentValue )
               { currentQueue.push( inputIt.GetIndex() + noIt.GetNeighborhoodOffset() ); }
             else
-              { fah[ niIt.Get() ].push( inputIt.GetIndex() + noIt.GetNeighborhoodOffset() ); }
+              { fah[ GrayVal ].push( inputIt.GetIndex() + noIt.GetNeighborhoodOffset() ); }
             progress.CompletedPixel();
             }
           }
