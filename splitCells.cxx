@@ -448,7 +448,7 @@ int main(int arglen, char * argv[])
   wshed->SetInput(grdMag->GetOutput());
   wshed->SetMarkerImage(marker);
   wshed->SetFullyConnected(false);
-  wshed->SetMarkWatershed(false);
+  wshed->SetMarkWatershedLine(false);
   wshed->Update();
 
   writer3d->SetInput(marker);
