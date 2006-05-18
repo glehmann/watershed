@@ -89,7 +89,7 @@ int main(int, char * argv[])
 
       for( int i=0; i<10; i++ )
         {
-        if( !M && F )
+        if( !M && !F )
           {
           mintime.Start();
           minima->Update();
@@ -141,7 +141,7 @@ int main(int, char * argv[])
       std::cout << std::setprecision(3)
                 << F << "\t" 
                 << M << "\t";
-      if( !M && F )
+      if( !M && !F )
         {
         std::cout
                 << mintime.GetMeanTime() << "\t" 

@@ -106,7 +106,7 @@ int main(int, char * argv[])
 
       for( int i=0; i<10; i++ )
         {
-        if( !M && F )
+        if( !M && !F )
           {
           wtime.Start();
           ws->Update();
@@ -148,7 +148,7 @@ int main(int, char * argv[])
                 << mmwtime.GetMeanTime() << "\t" 
 /*                << mmwtime.GetMeanTime() + ltime.GetMeanTime() + rtime.GetMeanTime() << "\t" */
                 << mwtime.GetMeanTime() << "\t";
-      if( !M && F )
+      if( !M && !F )
         {
         std::cout
                 << wtime.GetMeanTime() << "\t";
