@@ -933,11 +933,18 @@ without marker. It encapsulate several filters:
 \end{itemize}
 While \verb$RegionalMinimaImageFilter$, \verb$ConnectedComponentImageFilter$,
 and \verb$MorphologicalWatershedFromMarkersImageFilter$ are the usal steps
-of the waterhed usage, the \verb$HMinimaImageFilter$ is a convenient way
+of the watershed usage, the \verb$HMinimaImageFilter$ is a convenient way
 to avoid the classical watershed's over segmentation by allowing the user
 to select the dynamic of the minima. The minimum dynamic of minima can be
 selected with \verb$SetLevel()$.
 
+  \subsection{WrapITK integration}
+
+The new filters have been fully tested with python, with the WrapITK project.
+An example of python usage is shown in Section \ref{sect:pronucleus}.
+The sources of this article contain the configuration files needed to build
+build the new filters with WrapITK, as an external project - see \cite{WrapITK}
+for more information about how to build and use an external project.
 
 \section{Timing and performance}
 \label{sect:perf}
