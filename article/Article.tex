@@ -954,7 +954,32 @@ for more information about how to build and use an external project.
 
 The relative performance of the new filters are shown in
 Table~\ref{tbl:perf}. The timings were obtained using the {\tt
-./perf3D images/ESCells.img}. The times for steps involved in a
+./perf3D images/ESCells.img} on an Athlon 64 
+Processor 2800+ (1802 MHz) with 512Kb cache, 512 Mb of RAM running
+Mandriva linux 64 bits with gcc 4.1.1. The input image have a size of
+$371 \times 371 \times 34$.
+
+\begin{table}[htbp]
+\centering
+\begin{tabular}{cc|ccc|cc}
+\hline
+FC & MWL & Find min &  Label min & Ws from markers & Morph ws &  ITK ws \\
+\hline
+\hline
+0 &      0 &      1.39 &   0.0566 & 2.74 &   4.61 &   7.47 \\
+0 &      1 &      1.38 &   0.056  & 4.34 &   6.53 &   - \\
+1 &      0 &      2.85 &   0.0568 & 5.8  &   9.54 &   - \\
+1 &      1 &      2.85 &   0.0568 & 10.5 &   14.4 &   - \\
+% 0  &    0  &     1.948  & 0.522  & 5.752  & 8.222   & 8.218  & 12.596 \\
+% 0  &    1  &     1.922  & 0.516  & 6.724  & 9.162   & 9.28   & 12.61 \\
+% 1  &    0  &     4.26   & 0.154  & 13.274 & 17.688  & 18.158 & 12.61 \\
+% 1  &    1  &     4.284  & 0.15   & 17.23  & 21.664  & 21.76  & 12.606 \\
+\hline
+\end{tabular}
+\caption{Execution times. Note the FC and MWL refer to FullyConnected and MarkWatershedLine.\label{tbl:perf}}
+\end{table}
+
+The times for steps involved in a
 morphological watershed are shown in the first few columns, with the
 time from a combined filter and the itk watershed shown last. It
 should be noted that the itk watershed does not allow connectivity to
@@ -969,26 +994,6 @@ filter, case where the time needed to update the filter should be a lot
 shorter. However, as discussed in earlier sections, the new
 implementation produces more stable results than the rainfall model
 and is more dedicated to a marker based approach.
-
-\begin{table}[htbp]
-\centering
-\begin{tabular}{cc|ccc|cc}
-\hline
-FC & MB & Find min &  Label min & Ws from markers & Morph ws &  ITK ws \\
-\hline
-\hline
-0 &      0 &      1.61 &   0.0476 & 3.72 &   6.14 &   - \\
-0 &      1 &      1.59 &   0.0428 & 6.25 &   8.95 &   - \\
-1 &      0 &      3.15 &   0.0465 & 7.77 &   11.5 &   6.48 \\
-1 &      1 &      3.19  &  0.0462  &14.8 &   19.2  &  - \\
-% 0  &    0  &     1.948  & 0.522  & 5.752  & 8.222   & 8.218  & 12.596 \\
-% 0  &    1  &     1.922  & 0.516  & 6.724  & 9.162   & 9.28   & 12.61 \\
-% 1  &    0  &     4.26   & 0.154  & 13.274 & 17.688  & 18.158 & 12.61 \\
-% 1  &    1  &     4.284  & 0.15   & 17.23  & 21.664  & 21.76  & 12.606 \\
-\hline
-\end{tabular}
-\caption{Execution times. Note the FC and MWL refer to FullyConnected and MarkWatershedLine.\label{tbl:perf}}
-\end{table}
 
 \subsection{Marker based watershed}
 \label{sect:perf-marker}
@@ -1007,10 +1012,10 @@ also shown in this table.
 FC & MWL & Impose min &  ITK ws & Match labels & Change labels & Morph ws & ITK ws \\
 \hline
 \hline
-0 &      0 &      -    &   -   &    -      & -     &  3.67 &   - \\
-0 &      1 &      -    &   -   &    -      & -     &  6.53 &   - \\
-1 &      0 &      5.46 &   7.8 &    0.0192 & 0.227 &  14.6 &   13.5 \\
-1 &      1 &      -    &   -   &    -      & -     &  34.8 &   - \\
+0 &      0 &      2.32 &   6.81 &   0.0295 & 0.273 &  3.12 &   9.43 \\
+0 &      1 &      -    &   -    &   -      & -     &  5    &   - \\
+1 &      0 &      -    &   -    &   -      & -     &  6.57 &   - \\
+1 &      1 &      -    &   -    &   -      & -     &  11.6 &   - \\
 % 0   &  0  &  2.47776 & 8.12256 & 4.29153e-07 & 0.0990558 &  10.6994 & 3.70646\\
 % 0   &  1  &  2.24303 & 8.20924 & 9.53674e-07 & 0.0977524 &  10.55   & 6.22279\\
 % 1   &  0  &  5.92089 & 12.2889 & 4.29153e-07 & 0.0971172 &  18.3069 & 10.7172\\
