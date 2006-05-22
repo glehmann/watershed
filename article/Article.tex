@@ -1150,7 +1150,10 @@ overlay2 = itk.LabelOverlayImageFilter.IUC2IUC2IRGBUC2.New(reader,
 
 ITK watershed clearly produce a wrong segmentation in that case. However, using
 a floating point image to store the distance map would have produce a better
-result.
+result very similar to the one of the morphological watershed. It seems to be
+another example of plateaus problem, where each level curve is seen as a plateau
+when the pixel type of the distance image is an integral.
+
 The segmentation of the morphological watershed is quite good, even if not perfect:
 there are some curves in the separation line of the two labels. This is the
 result of the distance approximation in the watershed algorithm.
