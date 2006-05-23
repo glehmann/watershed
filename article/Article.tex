@@ -433,6 +433,7 @@ value then that pixel is given the label associated with the
 wavefront, otherwise the label is left unchanged.
 
 \subsection{Hill climbing}
+\label{sect:hillclimbing}
 Hill climbing is an approximation that eliminates the need to maintain
 a distance image. The approximation employed is that distances between
 all neighbors in a 4, 6, 8, 18 or 26\footnote{4 and 8 connected
@@ -793,12 +794,11 @@ as it is. This problem is also visible in Figure
 example is attempting to split a plateau into two regions, and should
 therefore produce a Voronoi tesselation, with the two markers being
 separated by a straight line. This does not happen because various
-approximations have been made, as mentioned in Section \ref{}, that
-influence the estimation of the distance function. Even if a more
-accurate underlying distance function was used the computations are
-still being carried out on a grid and so are limited by the digital
-representation of lines.
-
+approximations have been made, as mentioned in Section
+\ref{sect:hillclimbing}, that influence the estimation of the distance
+function. Even if a more accurate underlying distance function was
+used the computations are still being carried out on a grid and so are
+limited by the digital representation of lines.
 The next image, thick line, again show that ITK watershed can produce
 strange results with a green label which is where we should have the
 light blue one. Morphological watershed gives good results. The last
