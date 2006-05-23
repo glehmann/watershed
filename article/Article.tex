@@ -57,14 +57,13 @@ of more formal definitions have been devised to allow development of
 practical algorithms. A brief discussion of some of these definitions
 and algorithms is provided in Section \ref{sect:history}. 
 
-Section \ref{sect:usingWT} provides an introduction to a
-methodology known as {\em marker based} watershed. Using markers in
-watershed transforms is a well established technique in the
-morphological image analysis community and has proved very useful for
-many applications. The aim of this part of the report is to describe
-the technique to a wider audience \footnote{It should also be noted
-that the lack of a marker based watershed motivated the recent work on
-ITK filter classes.}.
+Section \ref{sect:usingWT} provides an introduction to a methodology
+known as {\em marker based} watershed. Using markers in watershed
+transforms is a well established technique in the morphological image
+analysis community and has proved very useful for many
+applications. The aim of this part of the report is to describe the
+technique to a wider audience \footnote{The lack of a marker based
+watershed motivated this work on ITK filter classes.}.
 
 A brief description of two algorithms used to implement the watershed
 transform is given in Section \ref{sect:algorithms}.
@@ -290,7 +289,7 @@ first to reduce the number of local minima.
 \end{figure}
 
 
-An Obvious alternative that is very similar in practice is to 
+An obvious alternative that is very similar in practice is to 
 smooth the image so that there are fewer regional minima.
 
 There are some situations where this direct approach can be
@@ -314,7 +313,7 @@ before the modification (i.e we only remove the unwanted boundaries)?
 This can be achieved by performing a {\em reconstruction by erosion}
 or {\em recursive conditional erosion} from the seleted regional
 minima. This process is also called {\em minima imposition}. Figure
-\ref{fig:recon} illustrates the results of apply a
+\ref{fig:recon} illustrates the result of applying a
 reconstruction by erosion to a 1D image. The original image is shown
 in blue and has regional minima A, B, C, D and E. The marker image
 which is recursively eroded is shown in black, with a single zero at
@@ -406,11 +405,12 @@ algorithms use standard c++ containers (maps and standard queues) to
 implement the ordered queue\footnote{One potential problem with
 applying this style of algorithm to non integer data is finding the
 regional minima. Reconstruction approaches are often used to find
-regional minima of integer type images, but subtracting 1, carrying
-out a recursive dilation and subtracting the two. The same concept
-does not extend to floating point data. However, if regional minima
-are available the algorithms we are discussing can be applied to
-floating point data.}.
+regional minima of integer type images, by subtracting 1, carrying out
+a recursive dilation and subtracting the two. The same concept does
+not extend to floating point data. However, if regional minima are
+available the algorithms we are discussing can be applied to floating
+point data. It is possible to use other techniques, such as flooding
+approaches, to find regional minima of floating point images.}.
 
 In both algorithms each pixel is regarded as a node in a graph that is
 connected to neighboring pixels by pairs of edges. Costs of the edges
@@ -747,9 +747,6 @@ queue \GETS \emptyset \\
 The difference between algorithms 2 and 3 is the order in which
 labelling and queueing happens.
 
-Algorithm 3 requires slightly more complexity to store label
-information in the queue.
-
 {\em a summary of our findings comparing the last 2 algorithms}
 
 The new work implements algorithms 2 and 3 -- algorithm 2 is used when
@@ -786,7 +783,33 @@ are.
 \subfigure[$F=true$ and $M=true$]{\includegraphics[scale=8]{button-hole-MF-rgb}}
 \subfigure[ITK]{\includegraphics[scale=8]{button-hole-itk-rgb}}
 
-\caption{Three difficult test images. The first image, plateau, show that ITK's watershed produce a bad result on this image: only one minima take all the image. This problem is also shown in Figure \ref{fig:cthead1-markers}. The morphological watershed give a better result, but not yet perfect: the separation line should not be curved as it is. This problem is also visible in Figure \ref{fig:embryo-mws}. The next image, thick line, again show that ITK watershed can produce strange results with a green label which is where we should have the light blue one. Morphological watershed gives good results. The last image, button hole, is a very difficult case for watershed algorithms which mark watershed line: the watershed pixel at the bottom of the image stop the label propagation. There is several possible behavior: produce a large watershed line which cover all the zone (Vincent-Soille algorithm, not shown here), let the label on the top of the image propagate in the zone (Meyer algorithm), split the zone in 2 zones with the 2 labels of the bottom of the image (topological watershed, not shown here).\label{fig:difficult-cases}}
+\caption{Three difficult test images. The first image, plateau, illustrates a 
+bad result produced by ITK's watershed in which most of the area is
+assigned to one minima. This problem is also shown in Figure
+\ref{fig:cthead1-markers}. The morphological watershed give a better
+result, but not yet perfect: the separation line should not be curved
+as it is. This problem is also visible in Figure
+\ref{fig:embryo-mws}. The reason for the problem is as follows - the 
+example is attempting to split a plateau into two regions, and should
+therefore produce a Voronoi tesselation, with the two markers being
+separated by a straight line. This does not happen because various
+approximations have been made, as mentioned in Section \ref{}, that
+influence the estimation of the distance function. Even if a more
+accurate underlying distance function was used the computations are
+still being carried out on a grid and so are limited by the digital
+representation of lines.
+
+The next image, thick line, again show that ITK watershed can produce
+strange results with a green label which is where we should have the
+light blue one. Morphological watershed gives good results. The last
+image, button hole, is a very difficult case for watershed algorithms
+which mark watershed lines: the watershed pixel at the bottom of the
+image stop the label propagation. There are several possible
+behaviors: produce a large watershed line which covers all the zone
+(Vincent-Soille algorithm, not shown here), let the label on the top
+of the image propagate into the zone (Meyer algorithm), split the zone
+in 2 zones with the 2 labels of the bottom of the image (topological
+watershed, not shown here).\label{fig:difficult-cases}}
 \end{center}
 \end{figure}
 
@@ -878,12 +901,14 @@ A full example of implementation can be found in \verb$iwsm.cxx$.
 
   \subsection{MorphologicalWatershedFromMarkersImageFilter}
 
-\verb$MorphologicalWatershedFromMarkersImageFilter$ implement the
+\verb$MorphologicalWatershedFromMarkersImageFilter$ implements
 algorithms \ref{sect:BeucherAlgorithm} and \ref{sect:MeyerAlgorithm}.
-They are accessible respectively when the attribute \verb$MarkWatershed$
-is \verb$false$ or is \verb$true$. The filter is templated over the
-input image type, which can be any scalar type, and the label image type
-which should be an integer. The filter take 2 inputs:
+Setting attribute \verb$MarkWatershedLine$ to \verb$true$ selects
+algorithm \ref{sect:MeyerAlgorithm} (Meyer) while setting to
+\verb$false$ selects algorithm \ref{sect:BeucherAlgorithm} (Beucher).
+The filter is templated over the input image type, which can be any
+scalar type, and the label image type which should be an integer. The
+filter takes 2 inputs:
 \begin{itemize}
   \item a grayscale image which can be set with \verb$SetInput(image)$,
 \verb$SetInput(0, image)$ or \verb$SetInput1(image)$.
@@ -893,13 +918,14 @@ because it will fail if the input image and the marker image are not of the
 same type. The markers are all the non-zero values in the image.
 \end{itemize}
 
-The algorithm \ref{sect:MeyerAlgorithm} require to keep the status of all
-the pixels: {\em already added to the queue} or {\em not yet added to the queue}.
-This task is often done by using negative values in the output image
-for the pixels not yet added to the queue. In our implementation, we have
-chosen to use a binary image to store this, while labels always take values
-above 0 and watershed lines are marked with value 0. The negative values
-option have several drawbacks:
+Algorithm \ref{sect:MeyerAlgorithm} requires the status of all pixels
+to be tracked -- pixels are either {\em already added to the queue} or
+{\em not yet added to the queue}.  This task is often done by using
+negative values in the output image for the pixels not yet added to
+the queue. In our implementation, we have chosen to use a binary image
+to store this, while labels always take values above 0 and watershed
+lines are marked with value 0. The negative values option have several
+drawbacks:
 \begin{itemize}
   \item it requires to use a different image type than the label type defined
 by the user in case the user have chosen an unsigned pixel type.
@@ -911,10 +937,13 @@ pixel type} by using a type which contains a larger range of value than the
 type choosed by the user, but then, we must copy the data to an image of
 the type chosen by the user at the end of the algorithm.
 
-We prefered using a separated binary image (of type \verb$itk::Image<bool, dim>$)
-to store this information. This solution avoid the need to copy the image at
-the end, and so should be more efficient in computation time, and require only
-one bit per pixel and so should be more memory efficient as well.
+{\em Don't think this should be here. Is there any compiler that will
+represent bool images as bit vectors? It might save memory but will
+increase access time}.  We prefered using a separated binary image (of
+type \verb$itk::Image<bool, dim>$) to store this information. This
+solution avoid the need to copy the image at the end, and so should be
+more efficient in computation time, and require only one bit per pixel
+and so should be more memory efficient as well.
 
 The connectivity is defined using the usual ITK way: \verb$SetFullConnected(false)$
 (4-connected in 2D, 6-connected in 3D) or \verb$SetFullConnected(true)$ (8-connected
@@ -923,8 +952,8 @@ connectivity in 3D}.
 
   \subsection{MorphologicalWatershedImageFilter}
 
-\verb$MorphologicalWatershedImageFilter$ perform a watershed transformation
-without marker. It encapsulate several filters:
+\verb$MorphologicalWatershedImageFilter$ performs a watershed transformation
+without markers. It encapsulate several filters:
 \begin{itemize}
   \item \verb$HMinimaImageFilter$
   \item \verb$RegionalMinimaImageFilter$
