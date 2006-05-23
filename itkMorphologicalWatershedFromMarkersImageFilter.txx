@@ -29,6 +29,7 @@
 #include "itkConstantBoundaryCondition.h"
 #include "itkSize.h"
 #include "itkConnectedComponentAlgorithm.h"
+#include "itkFillSides.h"
 
 namespace itk {
 
@@ -39,6 +40,7 @@ MorphologicalWatershedFromMarkersImageFilter<TInputImage, TLabelImage>
   this->SetNumberOfRequiredInputs(2);
   m_FullyConnected = false;
   m_MarkWatershedLine = true;
+  m_PadImageBoundary = true;
 }
 
 
@@ -219,6 +221,12 @@ MorphologicalWatershedFromMarkersImageFilter<TInputImage, TLabelImage>
       // one more pixel done in the init stage
       progress.CompletedPixel();
       }
+    // fill the borders of the status image with "true"
+    //FillSides<StatusImageType>(statusImage, true);
+    // Now disable the boundary checks
+    //outputIt.NeedToUseBoundaryConditionOff();
+    //statusIt.NeedToUseBoundaryConditionOff();
+    //inputIt.NeedToUseBoundaryConditionOff();
     // end of init stage
     
     // flooding

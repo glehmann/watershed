@@ -107,6 +107,10 @@ public:
   itkGetConstReferenceMacro(MarkWatershedLine, bool);
   itkBooleanMacro(MarkWatershedLine);
 
+  itkSetMacro(PadImageBoundary, bool);
+  itkGetConstReferenceMacro(PadImageBoundary, bool);
+  itkBooleanMacro(PadImageBoundary);
+
 protected:
   MorphologicalWatershedFromMarkersImageFilter();
   ~MorphologicalWatershedFromMarkersImageFilter() {};
@@ -141,6 +145,7 @@ private:
   bool m_FullyConnected;
 
   bool m_MarkWatershedLine;
+  bool m_PadImageBoundary;
 
 } ; // end of class
 
