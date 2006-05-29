@@ -268,7 +268,7 @@ first to reduce the number of local minima.
 \subfigure[Minima level = 50]{\includegraphics[scale=3.2]{level50-rgb}}
 \subfigure[markers]{\includegraphics[scale=3.2]{level-markers-rgb}}
 \subfigure[Watershed from markers]{\includegraphics[scale=3.2]{level-markersMf-rgb}}
-\caption{Different results of morphological watershed on an articial image. The labeled image are overlayed to the input image with {\em LabelOverlayImageFilter}. From $(b)$ to $(f)$, an example of reduction of the classical watershed over segmentation by minima dynamic filtering. $(g)$ and $(h)$ show a marker defined by a user, and the result over the input image. All the watersheds were performed with $MarkWatershed = true$ and $FullyConnected = false$.\label{fig:artificial-itk}}
+\caption{Different results of morphological watershed on an articial image. The labeled image are overlayed to the input image with {\em LabelOverlayImageFilter}. From $(b)$ to $(f)$, an example of reduction of the classical watershed over segmentation by minima dynamic filtering. $(g)$ and $(h)$ show a marker defined by a user, and the result over the input image. All the watersheds were performed with $MarkWatershedLine = true$ and $FullyConnected = false$.\label{fig:artificial-itk}}
 \end{center}
 \end{figure}
 
@@ -1192,19 +1192,125 @@ The segmentation of the morphological watershed is quite good, even if not perfe
 there are some curves in the separation line of the two labels. This is the
 result of the distance approximation in the watershed algorithm.
 
-\subsection{???}
+\subsection{2D electrophoresis gel segmentation}
+Protein separation in two dimensions on electrophoresis gels is one of
+the many situations where image segmentation techniques are commonly
+used to make measurements of spots which are often touching. This
+section describes a multi-stage watershed approach and illustrates the
+use of the watershed transform on gradient images and the use of
+watershed lines, which are a new capability of the filters introduced
+in this paper, as markers. This technnique almost certainly isn't the
+best way of segmenting gels, and probably won't work on many gels
+without tuning. It is simply offered as an example of how watershed
+transforms may be used. There are many variants of the basic
+algorithm, some of which are discussed in the text.
+
+The algorithm source code is in {\tt segGel.cxx} and the images used
+in this example are from \url{http://www-lecb.ncifcrf.gov/flicker/}.
+
+The original image is shown in Figure \ref{fig:origGel}. The spots we
+are interested in are dark, and frequently touching. In gels often
+have all sorts of artifacts, ranging from streaks along separation
+dimensions to an over abundance of a protein that leads to a large
+dark spot that may saturate the image brightness (i.e be darker than
+the dark floor of the imaging system). We will not address these sorts
+of issues here.
+
+The basic steps are
+\begin{itemize}
+\item {\bf Find spot markers.} Here we'll use a combination of smoothing 
+and minima detection. Depending on the noise levels of the image there
+are likely to be minima in bright regions of the image. It may be
+possible to discard a number of minima based on brightness, depending
+on how certain we are about the maximum brightness of a valid spot.
+
+The results of an unmodified minima detection after median smoothing
+is shown in Figure \ref{fig:minimaGel}.
+\item {\bf Find background marker.} We'll use a watershed on the raw image 
+to generate a background marker. The background marker will be the
+watershed line. Setting attribute \verb$MarkWatershedLine$ to
+\verb$true$ will result in the watershed line being marked with zero 
+values. In this situation we are using the watershed to tesselate the
+image into regions. The region boundaries will be in the brightest
+parts of the image between markers. Figure \ref{fig:backgroundGel} 
+illustrates the results of this step.
+\item {\bf Combine markers.} The spot and background markers are combined 
+by adding them together, after using the binary threshold filter to
+generate the background marker from the first watershed -- see Figure \ref{fig:combinedGel}.
+\item {\bf Compute gradient.} A gradient of the raw image is then computed. 
+We use the {\tt GradientRecursiveGaussianImageFilter}, but many
+options are available. The gradient image is shown in Figure
+\ref{fig:gradientGel}.
+\item {\bf Compute watershed transform} using the gradient image as the 
+control surface. Figure \ref{fig:resultGel}.
+\item {\bf Optional additional watershed steps.} The results of this sort 
+of segmentation, based on an image gradient, often appear to
+underestimate the spot size. This is because the watershed transform
+will produce edges along image ridges, which correspond to the
+locations of maximum image gradient. Unfortunately this tends not to
+correspond to the location a human observer would select. 
+
+This easy easy to understand if a gaussian spot is considered -- the
+position of maximal gradient is halfway down the edge of the spot,
+while a human would tend to mark the edge as being near the point
+where the spot brightness becomes indistinguishable from the
+background brightness. This location is often closer to the position
+of the maximum of the second derivative.
+
+Therefore we can ``improve'' the segmentation by using the previous
+results to develop a new set of markers and apply the watershed
+transform using the second derivative as a control surface. It is
+sensible to use a different set of spot markers to the original
+because there are two maxima of second derivative, and the original
+markers will tend to be inside both, while the results of the first
+stage will be contain the closer maxima. Figures
+\ref{fig:combinedGel2}, \ref{fig:gradientGel2} and \ref{fig:resultGel2}
+illustrate these steps.
+
+\item {\bf Postprocessing.} This implementation doesn't do any post 
+processing, but in most cases it would be a useful step. Error
+situations, such as spots being a crazy size, shape or brightness
+could be detected brought to the attention of the user or attempts
+could be made to automatically correct the result.
+\end{itemize}
+\begin{figure}[htbp]
+\begin{center}
+\subfigure[Input]{\includegraphics[scale=0.4]{leukemia-ALL-Human-b01633-Flicker-NCI}\label{fig:origGel}}
+\subfigure[Regional minima]{\includegraphics[scale=0.4]{gel_minima}\label{fig:minimaGel}}
+\subfigure[Background marker]{\includegraphics[scale=0.4]{gel_tesselation}\label{fig:backgroundGel}}
+
+\subfigure[All markers]{\includegraphics[scale=0.4]{gel_allmarkers}\label{fig:combinedGel}}
+\subfigure[Gradient]{\includegraphics[scale=0.4]{gel_gradient}\label{fig:gradientGel}}
+\subfigure[Result (background marker removed)]{\includegraphics[scale=0.4]{gel_result}\label{fig:resultGel}}
+\subfigure[All markers - stage 2]{\includegraphics[scale=0.4]{gel_allmarkers2}\label{fig:combinedGel2}}
+\subfigure[Second derivative (gamma corrected)]{\includegraphics[scale=0.4]{gel_gradient2_gamma2}\label{fig:gradientGel2}}
+\subfigure[Result stage 2 (background marker removed)]{\includegraphics[scale=0.4]{gel_result2}\label{fig:resultGel2}}
+
+\caption{Steps used in segmenting a gel using multiple watershed stages.}
+\end{center}
+\end{figure}
+
+A cursory examination of the results will show that segmentation is
+far from perfect. Some touching spots only have one marker so only one
+spot is found and there are markers placed in what should probably be
+condsidered as background. These problems may be addressed in a number
+of ways, such as performing more careful selection of regional minima
+and sharpening the original image using deconvolution, as well as
+various post processing options. We are not going to explore these
+issues here because the aim is to illustrate a few ways in which the
+watershed transform can be used.
 
 
 \section{Discussion}
 There is a level of erroneous folklore surrounding the watershed
-transform and it is hoped that this report helps to clear the air.
-
+transform and it is hoped that this report helps to clear the air, as
+well as providing a useful tutorial/introduction to a useful tool.
 
 \section{Related work}
 This work have lead us to develop some other filters to:
 \begin{itemize}
   \item Find regional extrema \cite{regionalExtrema}
-  \item Surimpose a colored label image onto an image \cite{labelOverlay}
+  \item Superimpose a colored label image onto an image \cite{labelOverlay}
   \item Impose the minima \cite{minimaImposition}
   \item Label the connected component \cite{connectedComponent}
   \item Invert the intensity of an image \cite{invert}
