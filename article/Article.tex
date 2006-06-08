@@ -147,7 +147,14 @@ a {\tt \_vs} suffix).
 
 Another major advance made soon after by Meyer and Beucher
 \cite{Beucher93a,Meyer1994a}. Meyer defined the watershed transform in terms of {\em
-topographic distances} through {\em lower complete} images. These
+topographic distances} through {\em lower complete} images\footnote{A lower complete
+image is an image where there is no plateaus, excepted plateaus
+which are regional minima. A common way to compute the lower completion of an
+image, is to add the distance from the nearest lower pixel to the pixels of all
+the plateaus. Lower completion have the property to produce the same image than
+the input image if the input image is already lower complete. By lower completing
+an image, we introduce a new order relation in the plateaus pixels which can be
+used to solve the plateaus problem with watershed.}. These
 definitions rigorously defined the behavior in the presence of
 plateaus and lead to some new algorithms based on graph theory. Two
 examples of these algorithms are {\em hill-climbing} and {\em image
@@ -158,15 +165,16 @@ the possible problems with plateaus.
 \begin{figure}[htbp]
 \begin{center}
 \subfigure[Input image]{\includegraphics[scale=0.7]{cthead1}}
-\subfigure[User defined labels colored with LabelOverlayImageFilter]{\includegraphics[scale=0.7]{cthead1-markers-rgb}}
+\subfigure[User defined labels]{\includegraphics[scale=0.7]{cthead1-markers-rgb}}
 % \subfigure[]{\includegraphics[scale=0.7]{cthead1mf-rgb}}
 % \subfigure[]{\includegraphics[scale=0.7]{cthead1mF-rgb}}
 % \subfigure[]{\includegraphics[scale=0.7]{cthead1Mf-rgb}}
 \subfigure[Morphological watershed]{\includegraphics[scale=0.7]{cthead1MF-rgb}}
 \subfigure[ITK watershed]{\includegraphics[scale=0.7]{cthead1itk-rgb}}
-\caption{Example of plateau problem. The blue marker is clearly extended where it should not with the ITK watershed.\label{fig:cthead1-markers}}
+\caption{Example of plateau problem. The blue marker is clearly extended where it should not with the ITK watershed. Labels are colorized and superimposed on the input image.\label{fig:cthead1-markers}}
 \end{center}
 \end{figure}
+
 
 \begin{figure}[htbp]
 \begin{center}
@@ -184,7 +192,7 @@ the possible problems with plateaus.
 Readers interested in more technical detail should refer to
 \cite{Roerdink2000a,Meijster2004a}.
 
-\subsection{The topological watershed}
+% \subsection{The topological watershed}
 An alternative approach, known as the topological watershed, has
 recently been developed \cite{topologicalWatershed}. The topological watershed modifies
 the topology of the surface so that all pixels that are not watershed
@@ -199,11 +207,11 @@ of using measures of border significance for merging criteria. This
 work lead to the discovery that it wasn't possible to compute certain
 measures with the flooding approaches used by many implementations.
 
-I don't understand the implications of the topological watershed yet.
+% I don't understand the implications of the topological watershed yet.
 
-\section{Rainfall model}
+% \section{Rainfall model}
 \label{sect:rainfall}
-{\em where should we put this?}  The original concept behind the
+The original concept behind the
 watershed transform was rain falling on a terrain and flowing down
 paths of steepest descent to local minima. There has been a lot of
 work on alternatives to this approach because of the problems with
@@ -503,12 +511,6 @@ imposition of minima for a marker based segmentation approach.
 \subsubsection{Algorithm 2 - commonly attributed to Beucher.}
 \label{sect:BeucherAlgorithm}
 
-Using ordered queues.
-
-This algorithm does not mark the watershed lines.
-
-The queue only contains the borders of the growing regions.
-
 This algorithm take a grayscale image $I$ and a marker image $M$
 which contains a set of markers with different labels. It can be
 splitted in to steps:
@@ -576,6 +578,13 @@ queue \GETS \emptyset \\
 \caption{Simple watershed algorithm.\label{BeucherAlgorithm} $FIRST(queue)$ extract the highest priority element from the queue. $N(p)$ return the list of p's neighbors. $MAX(a,b)$ returns the maximum of $a$, and $b$. $WSLABEL$ is the label used to define background and watershed pixels (usally $0$). The lower completion is done by the statement (\ref{algo:Beucher:max}). Determine if a marker pixel before adding it in the queue (\ref{algo:Beucher:bgNeighbor}) is not required, but helps to decrease memory usage in case of large markers.}
 \end{figure}
 
+It should be noticed that:
+\begin{itemize}
+  \item this algorithm use ordered queues,
+  \item this algorithm doesn't mark the watershed lines,
+  \item the ordered queue only contains the borders of the growing regions.
+\end{itemize}
+
 
 % \begin{itemize}
 % \item initialize the queue with edges of the regional minima. 
@@ -602,8 +611,6 @@ queue \GETS \emptyset \\
 \subsubsection{Algorithm 3 - commonly attributed to Meyer.}
 \label{sect:MeyerAlgorithm}
 
-Also using ordered queues.
-
 This algorithm take a grayscale image $I$ and a marker image $M$
 which contains a set of markers with different labels. It can be
 splitted in to steps:
@@ -628,12 +635,18 @@ the queue, and so we need to maintain this status by another way.
 It is the role of $S$ in Figure \ref{MeyerAlgorithm}. We'll discuss
 in Section \ref{sect:implementation} how this status can be implemented.
 
-This algorithm mark the watershed lines.
 
-The queue only contains the borders of the growing regions.
-
-It should be noted that this algorithm never propagates watershed
+It should be noticed that:
+\begin{itemize}
+  \item this algorithm mark the watershed lines,
+  \item the queue only contains the borders of the growing regions,
+  \item this algorithm never propagates watershed
 lines, and that the watershed lines it produces have a width of 1 pixel.
+Also, the watershed lines form a connected obejct if we consider the
+opposite connectivity than the one used in the algorithm: with a 2D
+image the watershed lines are 8-connected if the algorithm is run
+as 4-connected, and 4-connected if it is run as 8-connected.
+\end{itemize}
 
 \begin{figure}[htbp]
 \centering
@@ -745,14 +758,14 @@ queue \GETS \emptyset \\
 % \end{itemize}
 
 
-The difference between algorithms 2 and 3 is the order in which
-labelling and queueing happens.
-
-{\em a summary of our findings comparing the last 2 algorithms}
-
-The new work implements algorithms 2 and 3 -- algorithm 2 is used when
-the watershed lines are not marked while algorithm 3 is used when they
-are.
+% The difference between algorithms 2 and 3 is the order in which
+% labelling and queueing happens.
+% 
+% {\em a summary of our findings comparing the last 2 algorithms}
+% 
+% The new work implements algorithms 2 and 3 -- algorithm 2 is used when
+% the watershed lines are not marked while algorithm 3 is used when they
+% are.
 
 \begin{figure}[htbp]
 \begin{center}
@@ -809,43 +822,44 @@ behaviors: produce a large watershed line which covers all the zone
 (Vincent-Soille algorithm, not shown here), let the label on the top
 of the image propagate into the zone (Meyer algorithm), split the zone
 in 2 zones with the 2 labels of the bottom of the image (topological
-watershed, not shown here).\label{fig:difficult-cases}}
+watershed, not shown here). See \cite{najman03watershed} for more
+details.\label{fig:difficult-cases}}
 \end{center}
 \end{figure}
 
 
 
-\section{Finding regional minima}
-The marker based watershed filter can be used as a convention
-watershed algorithm by finding the regional minima and using them as
-markers. Regional minima (and maxima) are often useful, and there are
-a number of different ways of finding them:
-\begin{itemize}
-\item Using reconstruction approaches mentioned earlier - 
-the problem with these is that a value of 1 is subtracted from the
-original to produce the image from which the reconstruction is carried
-out, which makes the approach less useful for floating point
-types. The advantage of this approach is that it can be easily
-extended to find {\em image dynamics}, which are often more stable and
-less subject to noise than regional minima.
-\item The way ITK does it, which is related to the connected 
-component labeller. Finds all flat regions and then figures out which
-are plateaus, minima and maxima by looking at the boundary values.
-\item Flooding transform (not sure where this came from) which 
-sets anything not a regional minima to a specified max value. The
-algorithm assumes that the border is set to the maximum value. Pixels
-are visited in raster order. If a pixel $A$ has a neighbour $B$ and
-$P(A) > p(B)$ (i.e grey level of A is greater than B) then all pixels
-connected to $A$ with value $P(A)$ are set to the maximum value. This
-is a recursive algorithm that finds pixels that cannot be a regional
-minimum (because they have a lower neighbour) and then eliminates any
-connected region that also cannot be a regional minima.
-
-The result would then need to be thresholded and labelled to produce
-markers. This approach is not limited by the pixel type, but does
-require a more random visit order when flooding, which could restrict
-performance on larger images.
-\end{itemize}
+% \section{Finding regional minima}
+% The marker based watershed filter can be used as a convention
+% watershed algorithm by finding the regional minima and using them as
+% markers. Regional minima (and maxima) are often useful, and there are
+% a number of different ways of finding them:
+% \begin{itemize}
+% \item Using reconstruction approaches mentioned earlier - 
+% the problem with these is that a value of 1 is subtracted from the
+% original to produce the image from which the reconstruction is carried
+% out, which makes the approach less useful for floating point
+% types. The advantage of this approach is that it can be easily
+% extended to find {\em image dynamics}, which are often more stable and
+% less subject to noise than regional minima.
+% \item The way ITK does it, which is related to the connected 
+% component labeller. Finds all flat regions and then figures out which
+% are plateaus, minima and maxima by looking at the boundary values.
+% \item Flooding transform (not sure where this came from) which 
+% sets anything not a regional minima to a specified max value. The
+% algorithm assumes that the border is set to the maximum value. Pixels
+% are visited in raster order. If a pixel $A$ has a neighbour $B$ and
+% $P(A) > p(B)$ (i.e grey level of A is greater than B) then all pixels
+% connected to $A$ with value $P(A)$ are set to the maximum value. This
+% is a recursive algorithm that finds pixels that cannot be a regional
+% minimum (because they have a lower neighbour) and then eliminates any
+% connected region that also cannot be a regional minima.
+% 
+% The result would then need to be thresholded and labelled to produce
+% markers. This approach is not limited by the pixel type, but does
+% require a more random visit order when flooding, which could restrict
+% performance on larger images.
+% \end{itemize}
 
 \section{Implementation}
 \label{sect:implementation}
@@ -863,8 +877,8 @@ by using the technique of {\em minima imposition} exposed in Section
 \verb$WatershedImageFilter$ produce arbitrary labels which doesn't match
 the labels in the marker image. There is currently no filter able to
 find the label correspondance in ITK, so this step must be performed by
-hand with a code like the one before. We can use a
-\verb$ChangeLabelImageFilter$ to change the labels.
+hand with a code like the one before. The \verb$ChangeLabelImageFilter$
+is well designed for this task:
 \small \begin{verbatim}
 filter->Update();
 
@@ -888,12 +902,14 @@ for ( mit.GoToBegin(), wit.GoToBegin();
 
 This approach has several drawbacks:
 \begin{itemize}
-  \item it doesn't work if there some markers not separated by background
+  \item it doesn't work if there some markers are not separated by background
 pixels - they are considered as a single marker
   \item restoring the labels is not included in a filter and so break the
 ITK pipeline model
   \item it's less efficient, as shown in Section \ref{sect:perf}
-  \item it gives poor results with plateaus
+  \item it still gives poor results with plateaus. A lower completion
+sould be performed before to also solve this problem\footnote{Lower
+completion is not implemented yet in ITK}.
 \end{itemize}
 
 A full example of implementation can be found in \verb$iwsm.cxx$.
@@ -937,13 +953,13 @@ pixel type} by using a type which contains a larger range of value than the
 type choosed by the user, but then, we must copy the data to an image of
 the type chosen by the user at the end of the algorithm.
 
-{\em Don't think this should be here. Is there any compiler that will
-represent bool images as bit vectors? It might save memory but will
-increase access time}.  We prefered using a separated binary image (of
-type \verb$itk::Image<bool, dim>$) to store this information. This
-solution avoid the need to copy the image at the end, and so should be
-more efficient in computation time, and require only one bit per pixel
-and so should be more memory efficient as well.
+% {\em Don't think this should be here. Is there any compiler that will
+% represent bool images as bit vectors? It might save memory but will
+% increase access time}.  We prefered using a separated binary image (of
+% type \verb$itk::Image<bool, dim>$) to store this information. This
+% solution avoid the need to copy the image at the end, and so should be
+% more efficient in computation time, and require only one bit per pixel
+% and so should be more memory efficient as well.
 
 The connectivity is defined using the usual ITK way: \verb$SetFullConnected(false)$
 (4-connected in 2D, 6-connected in 3D) or \verb$SetFullConnected(true)$ (8-connected
@@ -953,7 +969,7 @@ connectivity in 3D}.
   \subsection{MorphologicalWatershedImageFilter}
 
 \verb$MorphologicalWatershedImageFilter$ performs a watershed transformation
-without markers. It encapsulate several filters:
+{\em without} markers. It encapsulate several filters:
 \begin{itemize}
   \item \verb$HMinimaImageFilter$
   \item \verb$RegionalMinimaImageFilter$
@@ -1121,7 +1137,7 @@ th = itk.BinaryThresholdImageFilter.IUC2IUC2.New(median, LowerThreshold=40)
 
 The binary image produced by the \verb$ThresholdImageFilter$ contains lot
 of small objects. To remove them, we use an {\em opening by reconstruction}
-which have the advantage to preserve the egdes of the object.
+which has the advantage to preserve the egdes of the objects.
 
 \small \begin{verbatim}
 kernel = itk.strel(2, 30)
@@ -1129,7 +1145,7 @@ open = itk.OpeningByReconstructionImageFilter.IUC2IUC2.New(th, Kernel=kernel)
 \end{verbatim} \normalsize
 
 There is now only one binary object in the image, but it contains lots of holes
-which will produce an unsable distance map for the watershed. We fill them
+which will produce an unusable distance map for the watershed. We fill them
 with a {\em hole filling} filter. This algorithm, based on a morphological
 reconstruction, fill the hole in a binary object but preserve the edges of the
 object. In this case, it is important to keep the two cavities between the two
@@ -1141,7 +1157,7 @@ fill = itk.GrayscaleFillholeImageFilter.IUC2IUC2.New(open)
 
 Then we compute the distance map which will be used by the watershed. The
 binary object must be inverted to compute the distance {\em inside} the
-object, and the distance map must be inverted to used by the watershed.
+object, and the distance map must be inverted to be used by the watershed.
 
 \small \begin{verbatim}
 invert = itk.InvertIntensityImageFilter.IUC2IUC2.New(fill)
@@ -1149,15 +1165,15 @@ distance = itk.DanielssonDistanceMapImageFilter.IUC2IUC2.New(invert)
 idistance = itk.InvertIntensityImageFilter.IUC2IUC2.New(distance)
 \end{verbatim} \normalsize
 
-The watershed is then performed to split the two pronucleus. A level
-is used to avoid the too small minima in the border of the object and thus
+The watershed is then performed to split the two pronucleus. A \verb$Level$
+is set to avoid the too small minima in the border of the object and thus
 avoid over segmentation. The label produced by the watershed are then
 displayed on top of the original image.
 
 The watershed extends the labels on the entire image. We use a
-\verb$MaskImageFilter$ to limit the labels to the object. Another commonly
-used method is to use the background as a marker and to perform a watershed
-from markers.
+\verb$MaskImageFilter$ to keep the labels inside the object. Another commonly
+used method to keep the labeled zone in the object is to use the regional
+minima {\em and} the background as markers, to perform a marker based watershed.
 
 \small \begin{verbatim}
 ws = itk.MorphologicalWatershedImageFilter.IUC2IUC2.New(idistance,
@@ -1170,8 +1186,8 @@ overlay = itk.LabelOverlayImageFilter.IUC2IUC2IRGBUC2.New(reader,
 \end{verbatim} \normalsize
 
 The same watershed is done with the ITK watershed filter\footnote{A
-$RelabelComponentImageFilter$ is used here because unsigned long is
-not available in python for the $MaskImageFilter$}.
+$RelabelComponentImageFilter$ is used here because $unsigned long$ is
+not one of the available types for the $MaskImageFilter$ in python}.
 
 \small \begin{verbatim}
 ws2 = itk.WatershedImageFilter.IUC2.New(idistance, Level=0.5)
@@ -1307,7 +1323,7 @@ transform and it is hoped that this report helps to clear the air, as
 well as providing a useful tutorial/introduction to a useful tool.
 
 \section{Related work}
-This work have lead us to develop some other filters to:
+This work has lead us to develop some other filters to:
 \begin{itemize}
   \item Find regional extrema \cite{regionalExtrema}
   \item Superimpose a colored label image onto an image \cite{labelOverlay}
