@@ -29,7 +29,7 @@
 #include "itkConstantBoundaryCondition.h"
 #include "itkSize.h"
 #include "itkConnectedComponentAlgorithm.h"
-#include "itkFillSides.h"
+// #include "itkFillSides.h"
 
 namespace itk {
 
