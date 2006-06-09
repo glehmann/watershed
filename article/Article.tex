@@ -43,7 +43,7 @@ colorlinks,linkcolor={blue},citecolor={blue},urlcolor={blue},
 This report discusses various definitions and implementations of the
 watershed transform as well as providing an introduction to some well
 known techniques for applying the watershed transform to practical
-problems. The discussion will be focussed on new and existing ITK
+problems. The discussion will be focused on new and existing ITK
 classes.
 \end{abstract}
 
@@ -68,7 +68,7 @@ watershed motivated this work on ITK filter classes.}.
 A brief description of two algorithms used to implement the watershed
 transform is given in Section \ref{sect:algorithms}.
 
-Section \ref{sect:using-ws-itk} propose some applications of watershed
+Section \ref{sect:using-ws-itk} proposes some applications of watershed
 with ITK.
 
 \section{Image segmentation}
@@ -113,8 +113,8 @@ watershed lines, might have value of $0$.
 The watershed transform was first proposed by Beucher and
 Lantu\'{e}joul\cite{Beucher-Lantu-79} as a geophysical model of rain
 falling on a terrain. The idea is that a raindrop falling on a surface
-will trickle down the path of steepest descent to a minima. The set of
-points on the surface that lead to the same minima is known as a
+will trickle down the path of steepest descent to a minimum. The set of
+points on the surface that lead to the same minimum is known as a
 catchment basin and borders between catchment basins are watershed
 lines\footnote{Major geographical features, like rivers or oceans, are
 often considered as separated by watershed lines, usually along
@@ -131,8 +131,8 @@ process, with each regional minima\footnote{A regional minima is a set
 of pixels surrounded by pixels of higher value.} becoming the source
 of a lake. The terrain is progressively flooded and lakes eventually
 meet neighboring lakes. Virtual dams are constructed to keep the
-neighboring lakes separate as the waterlevel rises. When the image
-surface is completely fooded the virtual dams correspond to the
+neighboring lakes separate as the water level rises. When the image
+surface is completely flooded the virtual dams correspond to the
 watershed lines\footnote{In 3D neighboring lakes meet at surfaces.}.
 
 A major breakthrough in the implementation of the watershed was made
@@ -147,20 +147,21 @@ a {\tt \_vs} suffix).
 
 Another major advance made soon after by Meyer and Beucher
 \cite{Beucher93a,Meyer1994a}. Meyer defined the watershed transform in terms of {\em
-topographic distances} through {\em lower complete} images\footnote{A lower complete
-image is an image where there is no plateaus, excepted plateaus
-which are regional minima. A common way to compute the lower completion of an
-image, is to add the distance from the nearest lower pixel to the pixels of all
-the plateaus. Lower completion have the property to produce the same image than
-the input image if the input image is already lower complete. By lower completing
-an image, we introduce a new order relation in the plateaus pixels which can be
-used to solve the plateaus problem with watershed.}. These
-definitions rigorously defined the behavior in the presence of
-plateaus and lead to some new algorithms based on graph theory. Two
-examples of these algorithms are {\em hill-climbing} and {\em image
-integration} and will be discussed in more detail in this report.
-Figures \ref{fig:cthead1-markers}, \ref{fig:circle} and \ref{fig:difficult-cases} illustrate
-the possible problems with plateaus.
+topographic distances} through {\em lower complete} images\footnote{A
+lower complete image is an image where the only plateaus are regional
+minima. A common way to compute the lower completion of an image, is
+to add the distance from the nearest lower pixel to the pixels of all
+the plateaus. Lower completion have the property to produce the same
+image than the input image if the input image is already lower
+complete. By lower completing an image, we introduce a new order
+relation in the plateaus pixels which can be used to solve the
+plateaus problem with watershed.}. These definitions rigorously
+defined the behavior in the presence of plateaus and lead to some new
+algorithms based on graph theory. Two examples of these algorithms are
+{\em hill-climbing} and {\em image integration} and will be discussed
+in more detail in this report.  Figures \ref{fig:cthead1-markers},
+\ref{fig:circle} and \ref{fig:difficult-cases} illustrate the possible
+problems with plateaus.
 
 \begin{figure}[htbp]
 \begin{center}
@@ -184,7 +185,7 @@ the possible problems with plateaus.
 % \subfigure[]{\includegraphics[scale=0.7]{cthead1Mf-rgb}}
 \subfigure[Morphological watershed]{\includegraphics[scale=0.7]{circle_rgb2}}
 \subfigure[ITK watershed]{\includegraphics[scale=0.7]{circle_rgb1}}
-\caption{Another example of plateau problem. The inside and outside of the ring have the same brightness, but the ring is arbitarily assigned to the outer region by the ITK watershed. It is split by the morphological watershed.\label{fig:circle}}
+\caption{Another example of plateau problem. The inside and outside of the ring have the same brightness, but the ring is arbitrarily assigned to the outer region by the ITK watershed. It is split by the morphological watershed.\label{fig:circle}}
 \end{center}
 \end{figure}
 
@@ -227,18 +228,18 @@ useful result. The ITK watershed uses a number of steps to avoid this problem:
 \item Check each flat region and find the lowest neighbor. Change the label of the flat region to that of the lowest neighbor.
 \end{enumerate}
  
-It should be evident that a number of arbitary choices have been made
+It should be evident that a number of arbitrary choices have been made
 here - for example it is impossible to break a flat region into
 pieces, which would probably better fit the physical reality of
 rainfall (consider a flat topped ridge which should perhaps be split
 down the middle). What happens of there are multiple neighboring
-regions with equal height - is the labelling decision now somewhat arbitary?
+regions with equal height - is the labelling decision now somewhat arbitrary?
 
-In general the flooding models avoid these dilemas and lead to more
+In general the flooding models avoid these dilemmas and lead to more
 elegant algorithms.
 
 
-\section{Using the watershed tranform}
+\section{Using the watershed transform}
 \label{sect:usingWT}
 \subsection{Classical approach}
 The simplest way of using the watershed is to preprocess the image we
@@ -276,7 +277,7 @@ first to reduce the number of local minima.
 \subfigure[Minima level = 50]{\includegraphics[scale=3.2]{level50-rgb}}
 \subfigure[markers]{\includegraphics[scale=3.2]{level-markers-rgb}}
 \subfigure[Watershed from markers]{\includegraphics[scale=3.2]{level-markersMf-rgb}}
-\caption{Different results of morphological watershed on an articial image. The labeled image are overlayed to the input image with {\em LabelOverlayImageFilter}. From $(b)$ to $(f)$, an example of reduction of the classical watershed over segmentation by minima dynamic filtering. $(g)$ and $(h)$ show a marker defined by a user, and the result over the input image. All the watersheds were performed with $MarkWatershedLine = true$ and $FullyConnected = false$.\label{fig:artificial-itk}}
+\caption{Different results of morphological watershed on an artificial image. The labeled image are overlayed on the input image with {\em LabelOverlayImageFilter}. From $(b)$ to $(f)$, an example of reduction of the classical watershed over segmentation by minima dynamic filtering. $(g)$ and $(h)$ show a marker defined by a user, and the result over the input image. All the watersheds were performed with $MarkWatershedLine = true$ and $FullyConnected = false$.\label{fig:artificial-itk}}
 \end{center}
 \end{figure}
 
@@ -292,7 +293,7 @@ first to reduce the number of local minima.
 \subfigure[Level = 0.65]{\includegraphics[scale=3.2]{level65-itk-rgb}}
 \subfigure[markers]{\includegraphics[scale=3.2]{level-markers-rgb}}
 \subfigure[Watershed from markers]{\includegraphics[scale=3.2]{level-markers-itk-rgb}}
-\caption{Different results of ITK's watershed on an articial image. The labeled image are overlayed to the input image with {\em LabelOverlayImageFilter}. From $(b)$ to $(f)$, an example of reduction of the classical watershed over segmentation by minima dynamic filtering. $(g)$ and $(h)$ show a marker defined by a user, and the result over the input image.\label{fig:artificial-morpho}}
+\caption{Different results of ITK's watershed on an artificial image. The labeled image are overlayed on the input image with {\em LabelOverlayImageFilter}. From $(b)$ to $(f)$, an example of reduction of the classical watershed over segmentation by minima dynamic filtering. $(g)$ and $(h)$ show a marker defined by a user, and the result over the input image.\label{fig:artificial-morpho}}
 \end{center}
 \end{figure}
 
@@ -319,14 +320,14 @@ present and the watershed lines that remain are the same as they were
 before the modification (i.e we only remove the unwanted boundaries)?
 
 This can be achieved by performing a {\em reconstruction by erosion}
-or {\em recursive conditional erosion} from the seleted regional
+or {\em recursive conditional erosion} from the selected regional
 minima. This process is also called {\em minima imposition}. Figure
 \ref{fig:recon} illustrates the result of applying a
 reconstruction by erosion to a 1D image. The original image is shown
 in blue and has regional minima A, B, C, D and E. The marker image
 which is recursively eroded is shown in black, with a single zero at
 regional minimum B. The red plateaus illustrate the parts of the
-result image that are above the orginal. The resulting image has only
+result image that are above the original. The resulting image has only
 on regional minima that corresponds to B.
 \begin{figure}[htbp]
 \begin{center}
@@ -347,7 +348,7 @@ operation.
 
 This procedure may not seem to offer much advantage -- after all how
 are we going to decide which minima are useful to us? The key step to
-using these ideas in practice is to realize that an arbitary mask
+using these ideas in practice is to realize that an arbitrary mask
 image can be used to create minima in an image in locations we want
 simply by multiplying the image by the mask. Recursive erosion of the
 original image using that mask then produces a topology to which we
@@ -370,7 +371,7 @@ various preprocessing steps.
 might be done by multiplying by the marker image (or an inverted
 version of it, depending on convention).
 \item \label{recipe:erode}Recursively erode the control surface to eliminate all minima besides those introduced in the previous step. This produces a new control surface.
-\item Apply the watershed tranform to the new surface.
+\item Apply the watershed transform to the new surface.
 \end{enumerate}
 
 \subsection{Efficiency issues}
@@ -388,18 +389,18 @@ The two that will be outlined here are known as {\em image
 integration}\cite{Meyer1994a} and {\em hill climbing}
 \cite{Beucher93a}, both of which are classed as ordered
 algorithms and are examples of graph flooding approaches. These
-algorithms implement the watershed tranform by topographic distance
+algorithms implement the watershed transform by topographic distance
 (or approximate it) and are derived from Dijkstra-Moore minimal path
 algorithms of graph theory.
 
 \subsection{Ordered queues}
 Both of these implementations depend on ordered queues to avoid the
 need for explicit computation of lower complete images and recursive
-erosion. An ordered queue is a heirarchical priority queue with two
+erosion. An ordered queue is a hierarchical priority queue with two
 levels. One level is defined by the pixel gray level, with darker
 pixels having higher priority, while the second applies to pixels of
 the same grey level and provides a FIFO ordering. The FIFO ordering
-leads to a breadth first propogation across plateaus because the
+leads to a breadth first propagation across plateaus because the
 ordering becomes related to distance from the regional minima. This is
 the mechanism that avoids the to explicitly compute lower slope.
 
@@ -433,7 +434,7 @@ everywhere, except at the minima where it is initialized to the index
 of the minima (or, more typically, the value of the marker image at
 those points).
 
-Wavefronts are propogated from each minima, using the ordered queue
+Wavefronts are propagated from each minima, using the ordered queue
 approach. As the wavefront reaches pixel the distance travelled by the
 wavefront is compared to the distance stored in the distance image. If
 the distance travelled by the new wavefront is less than the stored
@@ -511,9 +512,9 @@ imposition of minima for a marker based segmentation approach.
 \subsubsection{Algorithm 2 - commonly attributed to Beucher.}
 \label{sect:BeucherAlgorithm}
 
-This algorithm take a grayscale image $I$ and a marker image $M$
+This algorithm take a gray scale image $I$ and a marker image $M$
 which contains a set of markers with different labels. It can be
-splitted in to steps:
+split into two steps:
 \begin{enumerate}
   \item copy the marker image $M$ to the output image, and put
 all the marker pixels $p$ with background neighbors in the
@@ -575,7 +576,7 @@ queue \GETS \emptyset \\
   \END
 \END
 \end{pseudocode}
-\caption{Simple watershed algorithm.\label{BeucherAlgorithm} $FIRST(queue)$ extract the highest priority element from the queue. $N(p)$ return the list of p's neighbors. $MAX(a,b)$ returns the maximum of $a$, and $b$. $WSLABEL$ is the label used to define background and watershed pixels (usally $0$). The lower completion is done by the statement (\ref{algo:Beucher:max}). Determine if a marker pixel before adding it in the queue (\ref{algo:Beucher:bgNeighbor}) is not required, but helps to decrease memory usage in case of large markers.}
+\caption{Simple watershed algorithm.\label{BeucherAlgorithm} $FIRST(queue)$ extract the highest priority element from the queue. $N(p)$ return the list of p's neighbors. $MAX(a,b)$ returns the maximum of $a$, and $b$. $WSLABEL$ is the label used to define background and watershed pixels (usually $0$). The lower completion is done by the statement (\ref{algo:Beucher:max}). Determine if a marker pixel before adding it in the queue (\ref{algo:Beucher:bgNeighbor}) is not required, but helps to decrease memory usage in case of large markers.}
 \end{figure}
 
 It should be noticed that:
@@ -611,9 +612,9 @@ It should be noticed that:
 \subsubsection{Algorithm 3 - commonly attributed to Meyer.}
 \label{sect:MeyerAlgorithm}
 
-This algorithm take a grayscale image $I$ and a marker image $M$
+This algorithm take a gray scale image $I$ and a marker image $M$
 which contains a set of markers with different labels. It can be
-splitted in to steps:
+split into two steps:
 \begin{enumerate}
   \item copy the marker image $M$ to the output image, and put
 all the background pixels $p$ with markers in there neighbors in the
@@ -642,7 +643,7 @@ It should be noticed that:
   \item the queue only contains the borders of the growing regions,
   \item this algorithm never propagates watershed
 lines, and that the watershed lines it produces have a width of 1 pixel.
-Also, the watershed lines form a connected obejct if we consider the
+Also, the watershed lines form a connected object if we consider the
 opposite connectivity than the one used in the algorithm: with a 2D
 image the watershed lines are 8-connected if the algorithm is run
 as 4-connected, and 4-connected if it is run as 8-connected.
@@ -721,7 +722,7 @@ queue \GETS \emptyset \\
   \END
 \END
 \end{pseudocode}
-\caption{Watershed algorithm with watershed lines.\label{MeyerAlgorithm} $FIRST(queue)$ extract the highest priority element from the queue. $N(p)$ return the list of p's neighbors. $MAX(a,b)$ returns the maximum of $a$, and $b$. $WSLABEL$ is the label used to define background and watershed pixels (usally $0$). The lower completion is done by the statement (\ref{algo:Meyer:max})}
+\caption{Watershed algorithm with watershed lines.\label{MeyerAlgorithm} $FIRST(queue)$ extract the highest priority element from the queue. $N(p)$ return the list of p's neighbors. $MAX(a,b)$ returns the maximum of $a$, and $b$. $WSLABEL$ is the label used to define background and watershed pixels (usually $0$). The lower completion is done by the statement (\ref{algo:Meyer:max})}
 \end{figure}
 
 
@@ -805,7 +806,7 @@ result, but not yet perfect: the separation line should not be curved
 as it is. This problem is also visible in Figure
 \ref{fig:embryo-mws}. The reason for the problem is as follows - the 
 example is attempting to split a plateau into two regions, and should
-therefore produce a Voronoi tesselation, with the two markers being
+therefore produce a Voronoi tessellation, with the two markers being
 separated by a straight line. This does not happen because various
 approximations have been made, as mentioned in Section
 \ref{sect:hillclimbing}, that influence the estimation of the distance
@@ -876,7 +877,7 @@ by using the technique of {\em minima imposition} exposed in Section
   \item Restore the labels produced by the \verb$WatershedImageFilter$.
 \verb$WatershedImageFilter$ produce arbitrary labels which doesn't match
 the labels in the marker image. There is currently no filter able to
-find the label correspondance in ITK, so this step must be performed by
+find the label correspondence in ITK, so this step must be performed by
 hand with a code like the one before. The \verb$ChangeLabelImageFilter$
 is well designed for this task:
 \small \begin{verbatim}
@@ -908,7 +909,7 @@ pixels - they are considered as a single marker
 ITK pipeline model
   \item it's less efficient, as shown in Section \ref{sect:perf}
   \item it still gives poor results with plateaus. A lower completion
-sould be performed before to also solve this problem\footnote{Lower
+souled be performed before to also solve this problem\footnote{Lower
 completion is not implemented yet in ITK}.
 \end{itemize}
 
@@ -926,7 +927,7 @@ The filter is templated over the input image type, which can be any
 scalar type, and the label image type which should be an integer. The
 filter takes 2 inputs:
 \begin{itemize}
-  \item a grayscale image which can be set with \verb$SetInput(image)$,
+  \item a gray scale image which can be set with \verb$SetInput(image)$,
 \verb$SetInput(0, image)$ or \verb$SetInput1(image)$.
   \item a marker image which can be set with \verb$SetMarkerImage(image)$
 and \verb$SetInput2(image)$. \verb$SetInput(0, image)$ should be avoided
@@ -945,12 +946,12 @@ drawbacks:
 \begin{itemize}
   \item it requires to use a different image type than the label type defined
 by the user in case the user have chosen an unsigned pixel type.
-  \item it requires to use one of the value which can be possibly aready used
+  \item it requires to use one of the value which can be possibly already used
 by a label in the marker image, in case of a signed type.
 \end{itemize}
 Those problems can be avoided\footnote{It's not true for the unsigned long
 pixel type} by using a type which contains a larger range of value than the
-type choosed by the user, but then, we must copy the data to an image of
+type chosen by the user, but then, we must copy the data to an image of
 the type chosen by the user at the end of the algorithm.
 
 % {\em Don't think this should be here. Is there any compiler that will
@@ -977,7 +978,7 @@ connectivity in 3D}.
   \item \verb$MorphologicalWatershedFromMarkersImageFilter$
 \end{itemize}
 While \verb$RegionalMinimaImageFilter$, \verb$ConnectedComponentImageFilter$,
-and \verb$MorphologicalWatershedFromMarkersImageFilter$ are the usal steps
+and \verb$MorphologicalWatershedFromMarkersImageFilter$ are the usual steps
 of the watershed usage, the \verb$HMinimaImageFilter$ is a convenient way
 to avoid the classical watershed's over segmentation by allowing the user
 to select the dynamic of the minima. The minimum dynamic of minima can be
@@ -1021,13 +1022,13 @@ FC & MWL & Find min &  Label min & Ws from markers & Morph ws &  ITK ws \\
 % 1  &    1  &     4.284  & 0.15   & 17.23  & 21.664  & 21.76  & 12.606 \\
 \hline
 \end{tabular}
-\caption{Execution times. Note the FC and MWL refer to FullyConnected and MarkWatershedLine.\label{tbl:perf}}
+\caption{Execution times. Note - FC and MWL refer to FullyConnected and MarkWatershedLine.\label{tbl:perf}}
 \end{table}
 
 The times for steps involved in a
 morphological watershed are shown in the first few columns, with the
-time from a combined filter and the itk watershed shown last. It
-should be noted that the itk watershed does not allow connectivity to
+time from a combined filter and the ITK watershed shown last. It
+should be noted that the ITK watershed does not allow connectivity to
 be modified by the user - it always uses face connected mode and
 doesn't have an inbuilt mechanism for boundary selection. The existing
 ITK watershed is therefore somewhat slower than the new implementation
@@ -1067,12 +1068,12 @@ FC & MWL & Impose min &  ITK ws & Match labels & Change labels & Morph ws & ITK 
 % 1   &  1  &  6.08657 & 12.222  & 5.72205e-07 & 0.0927572 &  18.4014 & 18.4605\\
 \hline
 \end{tabular}
-\caption{Execution times with marker based approach. Note the FC and MWL refer to FullyConnected and MarkWatershedLine.\label{tbl:perf-marker}}
+\caption{Execution times with marker based approach. Note - FC and MWL refer to FullyConnected and MarkWatershedLine.\label{tbl:perf-marker}}
 \end{table}
 
 \subsection{Other performance issues/comments}
 \begin{itemize}
-\item Preventing boundary checks - not really the itk way, but if a user is
+\item Preventing boundary checks - not really the ITK way, but if a user is
 willing to throw away the image border by treating it as a watershed
 line then there is no need to test for boundary conditions. There
 isn't even any need to use the face calculator approach because border
@@ -1081,7 +1082,7 @@ certain their neighbors are never checked.
 \item Streaming and threading  - queue based algorithms are generally difficult 
 to thread efficiently and generally need to have all of the input
 available so prevent streaming from working well. The existing ITK
-watershed does provide a multithreaded implementation and similar
+watershed does provide a multi threaded implementation and similar
 techniques may be possible with the new implementation. Other
 possibilities include using threads to improve performance of queues.
 \end{itemize}
@@ -1128,7 +1129,7 @@ reader = itk.ImageFileReader.IUC2.New(FileName='embryo.png')
 
 We use a median image filter to remove some noise, and threshold the image
 to get a binary image\footnote{The methods to remove the noise and binarize the
-image are volontary kept simple for this example}.
+image are kept simple for this example}.
 
 \small \begin{verbatim}
 median = itk.MedianImageFilter.IUC2IUC2.New(reader)
@@ -1137,7 +1138,7 @@ th = itk.BinaryThresholdImageFilter.IUC2IUC2.New(median, LowerThreshold=40)
 
 The binary image produced by the \verb$ThresholdImageFilter$ contains lot
 of small objects. To remove them, we use an {\em opening by reconstruction}
-which has the advantage to preserve the egdes of the objects.
+which has the advantage to preserve the edges of the objects.
 
 \small \begin{verbatim}
 kernel = itk.strel(2, 30)
@@ -1215,7 +1216,7 @@ used to make measurements of spots which are often touching. This
 section describes a multi-stage watershed approach and illustrates the
 use of the watershed transform on gradient images and the use of
 watershed lines, which are a new capability of the filters introduced
-in this paper, as markers. This technnique almost certainly isn't the
+in this paper, as markers. This technique almost certainly isn't the
 best way of segmenting gels, and probably won't work on many gels
 without tuning. It is simply offered as an example of how watershed
 transforms may be used. There are many variants of the basic
@@ -1246,7 +1247,7 @@ is shown in Figure \ref{fig:minimaGel}.
 to generate a background marker. The background marker will be the
 watershed line. Setting attribute \verb$MarkWatershedLine$ to
 \verb$true$ will result in the watershed line being marked with zero 
-values. In this situation we are using the watershed to tesselate the
+values. In this situation we are using the watershed to tessellate the
 image into regions. The region boundaries will be in the brightest
 parts of the image between markers. Figure \ref{fig:backgroundGel} 
 illustrates the results of this step.
@@ -1309,7 +1310,7 @@ could be made to automatically correct the result.
 A cursory examination of the results will show that segmentation is
 far from perfect. Some touching spots only have one marker so only one
 spot is found and there are markers placed in what should probably be
-condsidered as background. These problems may be addressed in a number
+considered as background. These problems may be addressed in a number
 of ways, such as performing more careful selection of regional minima
 and sharpening the original image using deconvolution, as well as
 various post processing options. We are not going to explore these
@@ -1345,7 +1346,7 @@ timing and for the bovine embryo image.
 
 
 \bibliographystyle{plain}
-\bibliography{InsightJournal,Refnames.bib}
+\bibliography{InsightJournal,local.bib}
 \nocite{ITKSoftwareGuide}
 
 \end{document}
