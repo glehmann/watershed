@@ -68,7 +68,7 @@ public:
     }
 
   /** push a value in the queue */
-  inline void Push( KeyType & k, ValueType & v)
+  inline void Push( const KeyType & k, const ValueType & v)
     {
     m_Map[k].push_back( v );
     m_Size++;
