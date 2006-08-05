@@ -56,12 +56,14 @@ public:
   /** return the current key */
   inline const KeyType & FrontKey() const
     {
+    assert(!this->Empty());
     return m_Map.begin()->first;
     }
 
   /** return the current value */
   inline const ValueType & FrontValue() const
     {
+    assert(!this->Empty());
     return m_Map.begin()->second.front();
     }
 
@@ -87,6 +89,7 @@ public:
   /** remove the first element of the queue */
   inline void Pop()
     {
+    assert(!this->Empty());
     ValueListType & valueList = m_Map.begin()->second;
     valueList.pop_front();
     if( valueList.empty() )
