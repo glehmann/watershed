@@ -36,7 +36,7 @@ namespace itk
  * This class gives both better performances for image analysis, and ensure
  * the output order of the values.
  */
-template <typename TKey, typename TValue, typename TCompare>
+template <typename TKey, typename TValue, typename TCompare=typename std::less<TKey> >
 class PriorityQueue
 {
 
