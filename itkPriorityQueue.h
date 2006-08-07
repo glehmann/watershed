@@ -115,6 +115,143 @@ private:
 
 };
 
+
+
+template <typename TKey, typename TValue, typename TCompare >
+class VectorPriorityQueue
+{
+
+public:
+
+  /** Standard typedefs */
+  typedef VectorPriorityQueue      Self;
+
+  typedef TValue ValueType;
+  typedef TKey KeyType;
+  typedef TCompare CompareType;
+
+  typedef std::list<ValueType>      ValueListType;
+  typedef std::vector<ValueListType>  VectorType;
+
+  // for code conciseness
+  typedef NumericTraits< TKey > NT;
+
+  /** return the current key */
+  inline const KeyType & FrontKey() const
+    {
+    assert(!this->Empty());
+    return m_CurrentValue;
+    }
+
+  /** return the current value */
+  inline const ValueType & FrontValue() const
+    {
+    assert(!this->Empty());
+    return m_Vector[ m_CurrentValue  - NT::NonpositiveMin() ].front();
+    }
+
+  /** push a value in the queue */
+  inline void Push( const KeyType & k, const ValueType & v)
+    {
+    m_Vector[ k  - NT::NonpositiveMin() ].push_back( v );
+    if( this->Empty() || m_Compare( k, m_CurrentValue ) )
+      {
+      m_CurrentValue = k;
+      }
+    m_Size++;
+    }
+
+  /** return the size of the queue */
+  inline const unsigned long & Size() const
+    {
+    return m_Size;
+    }
+
+  /** return true if the queue is empty */
+  inline const bool Empty() const
+    {
+    return m_Size == 0;
+    }
+
+  /** remove the first element of the queue */
+  inline void Pop()
+    {
+    assert(!this->Empty());
+    ValueListType & valueList = m_Vector[ m_CurrentValue  - NT::NonpositiveMin() ];
+    valueList.pop_front();
+    m_Size--;
+
+    if( valueList.empty() && !this->Empty() )
+      {
+      // update the current key to a new value
+      while( m_Vector[ m_CurrentValue - NT::NonpositiveMin() ].empty() )
+        {
+        m_CurrentValue += m_Direction;
+        }
+      }
+
+    }
+
+  VectorPriorityQueue()
+    {
+    m_Vector.resize( NT::max() - NT::NonpositiveMin() + 1 );
+    if( m_Compare( NT::max(), NT::NonpositiveMin() ) )
+      {
+      m_Direction = -1;
+      }
+    else
+      {
+      m_Direction = 1;
+      }
+    m_Size = 0;
+    // initialized to make valgrind happy
+    m_CurrentValue = 0;
+    }
+
+
+protected:
+
+private:
+
+  VectorType m_Vector;
+  unsigned long m_Size;
+  TKey m_CurrentValue;
+  TCompare m_Compare;
+  signed int m_Direction;
+
+};
+
+template <typename TValue, typename TCompare >
+class PriorityQueue<unsigned char, TValue, TCompare>
+: public VectorPriorityQueue<unsigned char, TValue, TCompare>
+{
+};
+
+template <typename TValue, typename TCompare >
+class PriorityQueue<unsigned short, TValue, TCompare>
+: public VectorPriorityQueue<unsigned short, TValue, TCompare>
+{
+};
+
+template <typename TValue, typename TCompare >
+class PriorityQueue<signed char, TValue, TCompare>
+: public VectorPriorityQueue<signed char, TValue, TCompare>
+{
+};
+
+template <typename TValue, typename TCompare >
+class PriorityQueue<signed short, TValue, TCompare>
+: public VectorPriorityQueue<signed short, TValue, TCompare>
+{
+};
+
+template <typename TValue, typename TCompare >
+class PriorityQueue<bool, TValue, TCompare>
+: public VectorPriorityQueue<bool, TValue, TCompare>
+{
+};
+
+
 } // end namespace itk
 
 #endif
