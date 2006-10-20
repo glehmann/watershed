@@ -30,7 +30,7 @@ namespace itk
  * \sa ImageToImageFilter
  */
 
-template <class TInputImage, class TOutputImage>
+template <class TInputImage, class TOutputImage, class TMaskImage=TInputImage>
 class ITK_EXPORT ConnectedComponentImageFilter : 
     public ImageToImageFilter< TInputImage, TOutputImage > 
 {
@@ -54,6 +54,7 @@ public:
   typedef typename TOutputImage::InternalPixelType OutputInternalPixelType;
   typedef typename TInputImage::PixelType InputPixelType;
   typedef typename TInputImage::InternalPixelType InputInternalPixelType;
+  typedef typename TMaskImage::PixelType MaskPixelType;
   itkStaticConstMacro(OutputImageDimension, unsigned int,
                       TOutputImage::ImageDimension);
   itkStaticConstMacro(InputImageDimension, unsigned int,
@@ -63,11 +64,13 @@ public:
    * Image typedef support
    */
   typedef TInputImage  InputImageType;
+  typedef TMaskImage   MaskImageType;
   typedef TOutputImage OutputImageType;
   typedef   typename TInputImage::IndexType       IndexType;
   typedef   typename TInputImage::SizeType        SizeType;
   typedef   typename TOutputImage::RegionType     RegionType;
   typedef   std::list<IndexType>                  ListType;
+  typedef typename MaskImageType::Pointer MaskImagePointer;
 
   /** 
    * Smart pointer typedef support 
@@ -103,6 +106,14 @@ public:
 		  (Concept::SameDimension<itkGetStaticConstMacro(InputImageDimension),itkGetStaticConstMacro(OutputImageDimension)>));
 
 
+  void SetMaskImage(TMaskImage* mask) {
+    this->SetNthInput(1, const_cast<TMaskImage *>( mask ));
+  }
+
+  const TMaskImage* GetMaskImage() const {
+    return (static_cast<const TMaskImage*>(this->ProcessObject::GetInput(1)));
+  }
+  
 protected:
   ConnectedComponentImageFilter() 
     {
@@ -128,10 +139,10 @@ protected:
    * EnlargeOutputRequestedRegion().
    * \sa ProcessObject::EnlargeOutputRequestedRegion() */
   void EnlargeOutputRequestedRegion(DataObject *itkNotUsed(output));
-  
-private:
 
   bool m_FullyConnected;
+  
+private:
   unsigned long m_ObjectCount;
   // some additional types
   typedef typename TOutputImage::RegionType::SizeType OutSizeType;

@@ -8,12 +8,13 @@
 #include "itkImageLinearConstIteratorWithIndex.h"  
 #include "itkConstShapedNeighborhoodIterator.h"
 #include "itkImageRegionIterator.h"
+#include "itkMaskImageFilter.h"
 
 namespace itk
 {
-template< class TInputImage, class TOutputImage >
+template< class TInputImage, class TOutputImage, class TMaskImage >
 void
-ConnectedComponentImageFilter< TInputImage, TOutputImage >
+ConnectedComponentImageFilter< TInputImage, TOutputImage, TMaskImage >
 ::GenerateInputRequestedRegion()
 {
   // call the superclass' implementation of this method
@@ -21,15 +22,22 @@ ConnectedComponentImageFilter< TInputImage, TOutputImage >
   
   // We need all the input.
   InputImagePointer input = const_cast<InputImageType *>(this->GetInput());
-  
+  if( !input )
+    {
+    return;
+    }
   input->SetRequestedRegion( input->GetLargestPossibleRegion() );
+
+  MaskImagePointer mask = const_cast<MaskImageType *>(this->GetMaskImage());
+  if (mask)
+    {
+    mask->SetRequestedRegion( input->GetLargestPossibleRegion() );
+    }
 }
 
-
-
-template <class TInputImage, class TOutputImage>
+template< class TInputImage, class TOutputImage, class TMaskImage >
 void 
-ConnectedComponentImageFilter<TInputImage, TOutputImage>
+ConnectedComponentImageFilter< TInputImage, TOutputImage, TMaskImage>
 ::EnlargeOutputRequestedRegion(DataObject *)
 {
   this->GetOutput()
@@ -37,9 +45,9 @@ ConnectedComponentImageFilter<TInputImage, TOutputImage>
 }
 
 
-template< class TInputImage, class TOutputImage >
+template< class TInputImage, class TOutputImage, class TMaskImage >
 void
-ConnectedComponentImageFilter< TInputImage, TOutputImage >
+ConnectedComponentImageFilter< TInputImage, TOutputImage, TMaskImage>
 ::GenerateData()
 {
   // create a line iterator
@@ -47,6 +55,18 @@ ConnectedComponentImageFilter< TInputImage, TOutputImage >
 
   typename TOutputImage::Pointer output = this->GetOutput();
   typename TInputImage::ConstPointer input = this->GetInput();
+  typename TMaskImage::ConstPointer mask = this->GetMaskImage();
+
+  typedef MaskImageFilter< TInputImage, TMaskImage, TInputImage > MaskFilterType;
+  typename MaskFilterType::Pointer maskFilter = MaskFilterType::New();
+  if( mask )
+    {
+    maskFilter->SetInput( input );
+    maskFilter->SetInput2( mask );
+    maskFilter->Update();
+    input = maskFilter->GetOutput();
+    }
+
   long LineIdx = 0;
   InputLineIteratorType inLineIt(input, output->GetRequestedRegion());
   inLineIt.SetDirection(0);
@@ -168,9 +188,9 @@ ConnectedComponentImageFilter< TInputImage, TOutputImage >
 }
 
 
-template< class TInputImage, class TOutputImage >
+template< class TInputImage, class TOutputImage, class TMaskImage >
 void
-ConnectedComponentImageFilter< TInputImage, TOutputImage >
+ConnectedComponentImageFilter< TInputImage, TOutputImage, TMaskImage>
 ::SetupLineOffsets(OffsetVec &LineOffsets)
 {
   // Create a neighborhood so that we can generate a table of offsets
@@ -267,9 +287,9 @@ ConnectedComponentImageFilter< TInputImage, TOutputImage >
   
   // LineOffsets is the thing we wanted.
 }
-template< class TInputImage, class TOutputImage >
+template< class TInputImage, class TOutputImage, class TMaskImage >
 void
-ConnectedComponentImageFilter< TInputImage, TOutputImage >
+ConnectedComponentImageFilter< TInputImage, TOutputImage, TMaskImage>
 ::CompareLines(lineEncoding &current, const lineEncoding &Neighbour)
 {
   long offset = 0;
@@ -357,9 +377,9 @@ ConnectedComponentImageFilter< TInputImage, TOutputImage >
 
 }
 
-template< class TInputImage, class TOutputImage >
+template< class TInputImage, class TOutputImage, class TMaskImage >
 void
-ConnectedComponentImageFilter< TInputImage, TOutputImage >
+ConnectedComponentImageFilter< TInputImage, TOutputImage, TMaskImage>
 ::FillOutput(const LineMapType &LineMap,
 	     ProgressReporter &progress)
 {
@@ -412,17 +432,17 @@ ConnectedComponentImageFilter< TInputImage, TOutputImage >
 }
 
 // union find related functions
-template< class TInputImage, class TOutputImage >
+template< class TInputImage, class TOutputImage, class TMaskImage >
 void
-ConnectedComponentImageFilter< TInputImage, TOutputImage >
+ConnectedComponentImageFilter< TInputImage, TOutputImage, TMaskImage>
 ::InsertSet(const unsigned long int label)
 {
   m_UnionFind[label]=label;
 }
 
-template< class TInputImage, class TOutputImage >
+template< class TInputImage, class TOutputImage, class TMaskImage >
 unsigned long int
-ConnectedComponentImageFilter< TInputImage, TOutputImage >
+ConnectedComponentImageFilter< TInputImage, TOutputImage, TMaskImage>
 ::CreateConsecutive()
 {
   m_Consecutive = UnionFindType(m_UnionFind.size());
@@ -440,9 +460,9 @@ ConnectedComponentImageFilter< TInputImage, TOutputImage >
   return(CLab);
 }
 
-template< class TInputImage, class TOutputImage >
+template< class TInputImage, class TOutputImage, class TMaskImage >
 unsigned long int
-ConnectedComponentImageFilter< TInputImage, TOutputImage >
+ConnectedComponentImageFilter< TInputImage, TOutputImage, TMaskImage>
 ::LookupSet(const unsigned long int label)
 {
   // recursively set the equivalence if necessary
@@ -453,9 +473,9 @@ ConnectedComponentImageFilter< TInputImage, TOutputImage >
   return(m_UnionFind[label]);
 }
 
-template< class TInputImage, class TOutputImage >
+template< class TInputImage, class TOutputImage, class TMaskImage >
 void
-ConnectedComponentImageFilter< TInputImage, TOutputImage >
+ConnectedComponentImageFilter< TInputImage, TOutputImage, TMaskImage>
 ::LinkLabels(const unsigned long int lab1, const unsigned long int lab2)
 {
   unsigned long E1 = this->LookupSet(lab1);
@@ -472,9 +492,9 @@ ConnectedComponentImageFilter< TInputImage, TOutputImage >
 
 }
 
-template< class TInputImage, class TOutputImage >
+template< class TInputImage, class TOutputImage, class TMaskImage >
 void
-ConnectedComponentImageFilter< TInputImage, TOutputImage >
+ConnectedComponentImageFilter< TInputImage, TOutputImage, TMaskImage>
 ::PrintSelf(std::ostream& os, Indent indent) const
 {
   Superclass::PrintSelf(os,indent);
