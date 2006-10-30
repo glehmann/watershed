@@ -27,7 +27,7 @@
 #include "itkSize.h"
 #include "itkConnectedComponentAlgorithm.h"
 #include "itkPriorityQueue.h"
-
+#include "itkImageDuplicator.h"
 namespace itk {
 
 template <class TInputImage, class TLabelImage>
@@ -397,6 +397,18 @@ MorphologicalWatershedFromMarkersImageFilter<TInputImage, TLabelImage>
     distanceImage->Allocate();
     // set distance image to infinity
     distanceImage->FillBuffer(itk::NumericTraits<DistancePixelType>::max());
+    // recconstructed image
+    typedef typename itk::ImageDuplicator<InputImageType> DupType;
+    typename DupType::Pointer duplicator = DupType::New();
+    duplicator->SetInputImage(this->GetInput());
+    duplicator->Update();
+    typename InputImageType::Pointer reconImage = duplicator->GetOutput();
+    
+    typedef ShapedNeighborhoodIterator<InputImageType> InputIteratorType2;
+    InputIteratorType2 inputIt2(radius, reconImage, this->GetInput()->GetRequestedRegion());
+    typename InputIteratorType2::Iterator niIt;
+    setConnectivity( &inputIt2, m_FullyConnected );
+
     // FAH (in french: File d'Attente Hierarchique)
     typedef PriorityQueue< InputImagePixelType, IndexType > PriorityQueueType;
     PriorityQueueType fah;
@@ -432,7 +444,7 @@ MorphologicalWatershedFromMarkersImageFilter<TInputImage, TLabelImage>
       {
       // initialization
       for ( markerIt.GoToBegin(), distanceIt.GoToBegin(), outputIt.GoToBegin(), 
-	      inputIt.GoToBegin();
+	      inputIt2.GoToBegin();
 	    !markerIt.IsAtEnd(); ++markerIt, ++outputIt)
 	{
 	LabelImagePixelType markerPixel = markerIt.GetCenterPixel();
@@ -440,12 +452,12 @@ MorphologicalWatershedFromMarkersImageFilter<TInputImage, TLabelImage>
 	  {
 	  IndexType idx = markerIt.GetIndex();
 	  // move the iterators to the right place
-	  OffsetType shift = idx - inputIt.GetIndex();
+	  OffsetType shift = idx - inputIt2.GetIndex();
 	  distanceIt += shift;
-	  inputIt += shift;
+	  inputIt2 += shift;
 	  // perhaps we should initialize these points to zero
 	  distanceIt.SetCenterPixel(0);  
-	  //distanceIt.SetCenterPixel(inputIt.GetCenterPixel() );  
+	  //distanceIt.SetCenterPixel(inputIt2.GetCenterPixel() );  
 	  // copy it to the output image
 	  outputIt.SetCenterPixel( markerPixel );
 	  // Check the neighbors
@@ -483,7 +495,7 @@ MorphologicalWatershedFromMarkersImageFilter<TInputImage, TLabelImage>
       // now for flooding
       // init all the iterators
       outputIt.GoToBegin();
-      inputIt.GoToBegin();
+      inputIt2.GoToBegin();
       distanceIt.GoToBegin();
 
       while( !fah.Empty() )
@@ -494,21 +506,26 @@ MorphologicalWatershedFromMarkersImageFilter<TInputImage, TLabelImage>
 	// move the iterators to the right place
 	OffsetType shift = idx - outputIt.GetIndex();
 	outputIt += shift;
-	inputIt += shift;
+	inputIt2 += shift;
 	distanceIt += shift;
 	float ThisDistance = distanceIt.GetCenterPixel();
 	LabelImagePixelType currentMarker = outputIt.GetCenterPixel();
 
 	// visit neighbors
 	unsigned i;
-	for (noIt = outputIt.Begin(), niIt = inputIt.Begin(), 
+	for (noIt = outputIt.Begin(), niIt = inputIt2.Begin(), 
 	       ndIt = distanceIt.Begin(), i=0;
 	     noIt != outputIt.End();
 	     noIt++, niIt++, ++ndIt, i++)
 	  {
 	  float NewDistance, NeighDistance = ndIt.Get();
 	  InputImagePixelType priority, NeighVal = niIt.Get();
-	  if (NeighVal <= StoredVal)
+	  // need to be very careful about the reconstruction
+	  // component - how do we make sure reconstruction is
+	  // happening implicitly without allowing labels to flood
+	  // downhill over already labelled regions unnecessarily. One
+	  // possibility is to have a copy of the input image
+	  if (NeighVal == StoredVal)
 	    {
 	    // we are on the same plateau
 	    NewDistance = ThisDistance + weights[i];
@@ -516,9 +533,31 @@ MorphologicalWatershedFromMarkersImageFilter<TInputImage, TLabelImage>
 	    }
 	  else
 	    {
-	    // on a new plateau
-	    NewDistance = weights[i];
-	    priority = NeighVal;
+	    if (NeighVal > StoredVal)
+	      {
+	      // new plateau
+	      NewDistance = ThisDistance + weights[i];
+	      priority = NeighVal;
+	      }
+	    else
+	      {
+	      // either a reconstruction or falling onto an already
+	      // flooded area
+	      LabelImagePixelType NMarker = noIt.Get();
+	      if (NMarker == wsLabel)
+		{
+		// reconstruction
+		niIt.Set(StoredVal);
+		NewDistance = ThisDistance + weights[i];
+		priority = StoredVal;
+		}
+	      else
+		{
+		// Going somewhere we've been -- set the cost high so
+		// we don't do anythin
+		NewDistance = NumericTraits<DistancePixelType>::max();
+		}
+	      }
 	    }
 	  if (NewDistance < NeighDistance)
 	    {
@@ -527,7 +566,6 @@ MorphologicalWatershedFromMarkersImageFilter<TInputImage, TLabelImage>
 	    ndIt.Set(NewDistance);
 	    fah.Push(priority, idx + niIt.GetNeighborhoodOffset());
 	    }
-
 	  progress.CompletedPixel();
 	  }
 	// remove the processed pixel from the queue
