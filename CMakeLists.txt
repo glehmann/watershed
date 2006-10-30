@@ -70,6 +70,10 @@ SET(CurrentExe "wsm")
 ADD_EXECUTABLE(${CurrentExe} ${CurrentExe}.cxx)
 TARGET_LINK_LIBRARIES(${CurrentExe} ${Libraries})
 
+SET(CurrentExe "wsmI")
+ADD_EXECUTABLE(${CurrentExe} ${CurrentExe}.cxx)
+TARGET_LINK_LIBRARIES(${CurrentExe} ${Libraries})
+
 SET(CurrentExe "iwsm")
 ADD_EXECUTABLE(${CurrentExe} ${CurrentExe}.cxx)
 TARGET_LINK_LIBRARIES(${CurrentExe} ${Libraries})
@@ -250,6 +254,7 @@ ADD_TEST(3x3mFCompare testEquiv 3x3mF.png ${CMAKE_SOURCE_DIR}/images/3x3m.png)
 ADD_TEST(3x3mf wsm 0 0 ${CMAKE_SOURCE_DIR}/images/3x3-input.png ${CMAKE_SOURCE_DIR}/images/3x3-markers.png 3x3mf.png)
 ADD_TEST(3x3mfCompare testEquiv 3x3mf.png ${CMAKE_SOURCE_DIR}/images/3x3m.png)
 
+ADD_TEST(blank wsmI 0 1 ${CMAKE_SOURCE_DIR}/images/blank.png ${CMAKE_SOURCE_DIR}/images/bmark.png blankMF.png blankMF-rgb.png 0.5)
 
 
 ADD_TEST(Cthead1MF wsm 1 1 ${CMAKE_SOURCE_DIR}/images/cthead1.png ${CMAKE_SOURCE_DIR}/images/cthead1-markers.png cthead1MF.png cthead1MF-rgb.png 0.5)

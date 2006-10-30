@@ -111,6 +111,10 @@ public:
   itkGetConstReferenceMacro(PadImageBoundary, bool);
   itkBooleanMacro(PadImageBoundary);
 
+  itkSetMacro(UseImageIntegration, bool);
+  itkGetConstReferenceMacro(UseImageIntegration, bool);
+  itkBooleanMacro(UseImageIntegration);
+
 protected:
   MorphologicalWatershedFromMarkersImageFilter();
   ~MorphologicalWatershedFromMarkersImageFilter() {};
@@ -146,6 +150,11 @@ private:
 
   bool m_MarkWatershedLine;
   bool m_PadImageBoundary;
+  bool m_UseImageIntegration;
+
+  typedef Image< float, ImageDimension > DistanceImageType;
+  typedef std::vector<typename DistanceImageType::PixelType> WeightType;
+  typedef typename DistanceImageType::PixelType DistancePixelType;
 
 } ; // end of class
 
