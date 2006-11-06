@@ -434,7 +434,7 @@ MorphologicalWatershedFromMarkersImageFilter<TInputImage, TLabelImage>
 	w += pow(offset[i]*spacing[i],2);
 	}
       weights.push_back(sqrt(w));
-      std::cout << sqrt(w) << std::endl;
+//      std::cout << sqrt(w) << std::endl;
       }
     if (m_MarkWatershedLine)
       {
@@ -442,6 +442,10 @@ MorphologicalWatershedFromMarkersImageFilter<TInputImage, TLabelImage>
       }
     else
       {
+      ConstantBoundaryCondition<LabelImageType> lcbc2;
+      lcbc2.SetConstant( NumericTraits< LabelImagePixelType >::max() ); // outside pixel are watershed so they won't be use to find real watershed  pixels
+      outputIt.OverrideBoundaryCondition(&lcbc2);
+
       // initialization
       for ( markerIt.GoToBegin(), distanceIt.GoToBegin(), outputIt.GoToBegin(), 
 	      inputIt2.GoToBegin();
@@ -536,7 +540,7 @@ MorphologicalWatershedFromMarkersImageFilter<TInputImage, TLabelImage>
 	    if (NeighVal > StoredVal)
 	      {
 	      // new plateau
-	      NewDistance = ThisDistance + weights[i];
+	      NewDistance = 0.0; //ThisDistance + weights[i];
 	      priority = NeighVal;
 	      }
 	    else
