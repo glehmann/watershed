@@ -175,51 +175,51 @@ MorphologicalWatershedFromMarkersImageFilter<TInputImage, TLabelImage>
       statusImage->FillBuffer( false );
       
       for ( markerIt.GoToBegin(), statusIt.GoToBegin(), outputIt.GoToBegin(), inputIt.GoToBegin();
-	    !markerIt.IsAtEnd(); ++markerIt, ++outputIt)
-	{
-	LabelImagePixelType markerPixel = markerIt.GetCenterPixel();
-	if ( markerPixel != bgLabel )
-	  {
-	
-	  IndexType idx = markerIt.GetIndex();
-	  
-	  // move the iterators to the right place
-	  OffsetType shift = idx - statusIt.GetIndex();
-	  statusIt += shift;
-	  inputIt += shift;
-	  
-	  // this pixel belongs to a marker
-	  // mark it as already processed
-	  statusIt.SetCenterPixel( true );
-	  // copy it to the output image
-	  outputIt.SetCenterPixel( markerPixel );
-	  // and increase progress because this pixel will not be used in the flooding stage.
-	  progress.CompletedPixel();
-	  
-	  // search the background pixels in the neighborhood
-	  for ( nmIt= markerIt.Begin(), nsIt= statusIt.Begin(), niIt= inputIt.Begin();
-		nmIt != markerIt.End();
-		nmIt++, nsIt++, niIt++ )
-	    {
-	    if ( !nsIt.Get() && nmIt.Get() == bgLabel )
-	      {
+            !markerIt.IsAtEnd(); ++markerIt, ++outputIt)
+        {
+        LabelImagePixelType markerPixel = markerIt.GetCenterPixel();
+        if ( markerPixel != bgLabel )
+          {
+        
+          IndexType idx = markerIt.GetIndex();
+          
+          // move the iterators to the right place
+          OffsetType shift = idx - statusIt.GetIndex();
+          statusIt += shift;
+          inputIt += shift;
+          
+          // this pixel belongs to a marker
+          // mark it as already processed
+          statusIt.SetCenterPixel( true );
+          // copy it to the output image
+          outputIt.SetCenterPixel( markerPixel );
+          // and increase progress because this pixel will not be used in the flooding stage.
+          progress.CompletedPixel();
+          
+          // search the background pixels in the neighborhood
+          for ( nmIt= markerIt.Begin(), nsIt= statusIt.Begin(), niIt= inputIt.Begin();
+                nmIt != markerIt.End();
+                nmIt++, nsIt++, niIt++ )
+            {
+            if ( !nsIt.Get() && nmIt.Get() == bgLabel )
+              {
               // this neighbor is a background pixel and is not already processed; add its
               // index to fah
               fah.Push( niIt.Get(), markerIt.GetIndex() + nmIt.GetNeighborhoodOffset() );
               // mark it as already in the fah to avoid adding it several times
               nsIt.Set( true );
-	      }
-	    }
-	  }
-	else
-	  {
-	  // Some pixels may be never processed so, by default, non marked pixels
-	  // must be marked as watershed
-	  outputIt.SetCenterPixel( wsLabel );
-	  }
-	// one more pixel done in the init stage
-	progress.CompletedPixel();
-	}
+              }
+            }
+          }
+        else
+          {
+          // Some pixels may be never processed so, by default, non marked pixels
+          // must be marked as watershed
+          outputIt.SetCenterPixel( wsLabel );
+          }
+        // one more pixel done in the init stage
+        progress.CompletedPixel();
+        }
       // end of init stage
       
       // flooding
@@ -230,62 +230,62 @@ MorphologicalWatershedFromMarkersImageFilter<TInputImage, TLabelImage>
       
       // and start flooding
       while( !fah.Empty() )
-	{
-	// store the current vars
-	const InputImagePixelType & currentValue = fah.FrontKey();
-	const IndexType & idx = fah.FrontValue();
+        {
+        // store the current vars
+        const InputImagePixelType & currentValue = fah.FrontKey();
+        const IndexType & idx = fah.FrontValue();
         
-	// move the iterators to the right place
-	OffsetType shift = idx - outputIt.GetIndex();
-	outputIt += shift;
-	statusIt += shift;
-	inputIt += shift;
-	
-	// iterate over the neighbors. If there is only one marker value, give that value
-	// to the pixel, else keep it as is (watershed line)
-	LabelImagePixelType marker = wsLabel;
-	bool collision = false;
-	for (noIt = outputIt.Begin(); noIt != outputIt.End(); noIt++)
-	  {
-	  LabelImagePixelType o = noIt.Get();
-	  if( o != wsLabel )
-	    {
-	    if( marker != wsLabel && o != marker )
-	      { 
-	      collision = true; 
-	      break;
-	      }
-	    else
-	      { marker = o; }
-	    }
-	  }
-	if( !collision )
-	  {
-	  // set the marker value
-	  outputIt.SetCenterPixel( marker );
-	  // and propagate to the neighbors
-	  for (niIt = inputIt.Begin(), nsIt = statusIt.Begin();
-	       niIt != inputIt.End();
-	       niIt++, nsIt++)
-	    {
-	    if ( !nsIt.Get() )
-	      {
-	      // the pixel is not yet processed. add it to the fah
-	      InputImagePixelType grayVal = niIt.Get();
-	      if ( grayVal <= currentValue )
-		{ fah.Push( currentValue, inputIt.GetIndex() + niIt.GetNeighborhoodOffset() ); }
-	      else
-		{ fah.Push( grayVal, inputIt.GetIndex() + niIt.GetNeighborhoodOffset() ); }
-	      // mark it as already in the fah
-	      nsIt.Set( true );
-	      }
-	    }
-	  }
-	// one more pixel in the flooding stage
-	progress.CompletedPixel();
-	// remove the processed pixel of the queue
-	fah.Pop();
-	}
+        // move the iterators to the right place
+        OffsetType shift = idx - outputIt.GetIndex();
+        outputIt += shift;
+        statusIt += shift;
+        inputIt += shift;
+        
+        // iterate over the neighbors. If there is only one marker value, give that value
+        // to the pixel, else keep it as is (watershed line)
+        LabelImagePixelType marker = wsLabel;
+        bool collision = false;
+        for (noIt = outputIt.Begin(); noIt != outputIt.End(); noIt++)
+          {
+          LabelImagePixelType o = noIt.Get();
+          if( o != wsLabel )
+            {
+            if( marker != wsLabel && o != marker )
+              { 
+              collision = true; 
+              break;
+              }
+            else
+              { marker = o; }
+            }
+          }
+        if( !collision )
+          {
+          // set the marker value
+          outputIt.SetCenterPixel( marker );
+          // and propagate to the neighbors
+          for (niIt = inputIt.Begin(), nsIt = statusIt.Begin();
+              niIt != inputIt.End();
+              niIt++, nsIt++)
+            {
+            if ( !nsIt.Get() )
+              {
+              // the pixel is not yet processed. add it to the fah
+              InputImagePixelType grayVal = niIt.Get();
+              if ( grayVal <= currentValue )
+                { fah.Push( currentValue, inputIt.GetIndex() + niIt.GetNeighborhoodOffset() ); }
+              else
+                { fah.Push( grayVal, inputIt.GetIndex() + niIt.GetNeighborhoodOffset() ); }
+              // mark it as already in the fah
+              nsIt.Set( true );
+              }
+            }
+          }
+        // one more pixel in the flooding stage
+        progress.CompletedPixel();
+        // remove the processed pixel of the queue
+        fah.Pop();
+        }
       }
 
 
@@ -303,46 +303,46 @@ MorphologicalWatershedFromMarkersImageFilter<TInputImage, TLabelImage>
       outputIt.OverrideBoundaryCondition(&lcbc2);
       
       for ( markerIt.GoToBegin(), outputIt.GoToBegin(), inputIt.GoToBegin();
-	    !markerIt.IsAtEnd();
-	    ++markerIt, ++outputIt ) 
-	{
-	LabelImagePixelType markerPixel = markerIt.GetCenterPixel();
-	if ( markerPixel != bgLabel )
-	  {
-	  IndexType idx = markerIt.GetIndex();
-	  OffsetType shift = idx - inputIt.GetIndex();
-	  inputIt += shift;
-	  
-	  // this pixels belongs to a marker
-	  // copy it to the output image
-	  outputIt.SetCenterPixel( markerPixel );
-	  // search if it has background pixel in its neighborhood
-	  bool haveBgNeighbor = false;
-	  for ( nmIt= markerIt.Begin(); nmIt != markerIt.End(); nmIt++ )
-	    {
-	    if ( nmIt.Get() == bgLabel )
-	      { 
-	      haveBgNeighbor = true; 
-	      break;
-	      }
-	    }
-	  if ( haveBgNeighbor )
-	    {
+            !markerIt.IsAtEnd();
+            ++markerIt, ++outputIt ) 
+        {
+        LabelImagePixelType markerPixel = markerIt.GetCenterPixel();
+        if ( markerPixel != bgLabel )
+          {
+          IndexType idx = markerIt.GetIndex();
+          OffsetType shift = idx - inputIt.GetIndex();
+          inputIt += shift;
+          
+          // this pixels belongs to a marker
+          // copy it to the output image
+          outputIt.SetCenterPixel( markerPixel );
+          // search if it has background pixel in its neighborhood
+          bool haveBgNeighbor = false;
+          for ( nmIt= markerIt.Begin(); nmIt != markerIt.End(); nmIt++ )
+            {
+            if ( nmIt.Get() == bgLabel )
+              { 
+              haveBgNeighbor = true; 
+              break;
+              }
+            }
+          if ( haveBgNeighbor )
+            {
             // there is a background pixel in the neighborhood; add to fah
             fah.Push( inputIt.GetCenterPixel(), markerIt.GetIndex() );
-	    }
-	  else
-	    {
-	    // increase progress because this pixel will not be used in the flooding stage.
-	    progress.CompletedPixel();
-	    }
-	  }
-	else
-	  {
-	  outputIt.SetCenterPixel( wsLabel );
-	  }
-	progress.CompletedPixel();
-	}
+            }
+          else
+            {
+            // increase progress because this pixel will not be used in the flooding stage.
+            progress.CompletedPixel();
+            }
+          }
+        else
+          {
+          outputIt.SetCenterPixel( wsLabel );
+          }
+        progress.CompletedPixel();
+        }
       // end of init stage
       
       // flooding
@@ -352,38 +352,38 @@ MorphologicalWatershedFromMarkersImageFilter<TInputImage, TLabelImage>
       
       // and start flooding
       while( !fah.Empty() )
-	{
-	// store the current vars
-	const InputImagePixelType & currentValue = fah.FrontKey();
-	const IndexType & idx = fah.FrontValue();
+        {
+        // store the current vars
+        const InputImagePixelType & currentValue = fah.FrontKey();
+        const IndexType & idx = fah.FrontValue();
         
-	// move the iterators to the right place
-	OffsetType shift = idx - outputIt.GetIndex();
-	outputIt += shift;
-	inputIt += shift;
-	
-	LabelImagePixelType currentMarker = outputIt.GetCenterPixel();
-	// get the current value of the pixel
-	// iterate over neighbors to propagate the marker
-	for (noIt = outputIt.Begin(), niIt = inputIt.Begin();
-	     noIt != outputIt.End();
-	     noIt++, niIt++)
-	  {
-	  if ( noIt.Get() == wsLabel )
-	    {
-	    // the pixel is not yet processed. It can be labeled with the current label
-	    noIt.Set( currentMarker );
-	    const InputImagePixelType & grayVal = niIt.Get();
-	    if ( grayVal <= currentValue )
-	      { fah.Push( currentValue, inputIt.GetIndex() + niIt.GetNeighborhoodOffset() ); }
-	    else
-	      { fah.Push( grayVal, inputIt.GetIndex() + niIt.GetNeighborhoodOffset() ); }
-	    progress.CompletedPixel();
-	    }
-	  }
-	// remove the processed pixel of the queue
-	fah.Pop();
-	}
+        // move the iterators to the right place
+        OffsetType shift = idx - outputIt.GetIndex();
+        outputIt += shift;
+        inputIt += shift;
+        
+        LabelImagePixelType currentMarker = outputIt.GetCenterPixel();
+        // get the current value of the pixel
+        // iterate over neighbors to propagate the marker
+        for (noIt = outputIt.Begin(), niIt = inputIt.Begin();
+            noIt != outputIt.End();
+            noIt++, niIt++)
+          {
+          if ( noIt.Get() == wsLabel )
+            {
+            // the pixel is not yet processed. It can be labeled with the current label
+            noIt.Set( currentMarker );
+            const InputImagePixelType & grayVal = niIt.Get();
+            if ( grayVal <= currentValue )
+              { fah.Push( currentValue, inputIt.GetIndex() + niIt.GetNeighborhoodOffset() ); }
+            else
+              { fah.Push( grayVal, inputIt.GetIndex() + niIt.GetNeighborhoodOffset() ); }
+            progress.CompletedPixel();
+            }
+          }
+        // remove the processed pixel of the queue
+        fah.Pop();
+        }
       }
     }
   else
@@ -430,9 +430,9 @@ MorphologicalWatershedFromMarkersImageFilter<TInputImage, TLabelImage>
       OffsetType offset = noIt.GetNeighborhoodOffset();
       float w = 0;
       for (unsigned i=0;i<ImageDimension;i++)
-	{
-	w += pow(offset[i]*spacing[i],2);
-	}
+        {
+        w += pow(offset[i]*spacing[i],2);
+        }
       weights.push_back(sqrt(w));
 //      std::cout << sqrt(w) << std::endl;
       }
@@ -448,54 +448,54 @@ MorphologicalWatershedFromMarkersImageFilter<TInputImage, TLabelImage>
 
       // initialization
       for ( markerIt.GoToBegin(), distanceIt.GoToBegin(), outputIt.GoToBegin(), 
-	      inputIt2.GoToBegin();
-	    !markerIt.IsAtEnd(); ++markerIt, ++outputIt)
-	{
-	LabelImagePixelType markerPixel = markerIt.GetCenterPixel();
-	if ( markerPixel != bgLabel )
-	  {
-	  IndexType idx = markerIt.GetIndex();
-	  // move the iterators to the right place
-	  OffsetType shift = idx - inputIt2.GetIndex();
-	  distanceIt += shift;
-	  inputIt2 += shift;
-	  // perhaps we should initialize these points to zero
-	  distanceIt.SetCenterPixel(0);  
-	  //distanceIt.SetCenterPixel(inputIt2.GetCenterPixel() );  
-	  // copy it to the output image
-	  outputIt.SetCenterPixel( markerPixel );
-	  // Check the neighbors
-	  // test whether there is a background pixel in the neighborhood
-	  bool haveBgNeighbor = false;
-	  for ( nmIt= markerIt.Begin(); nmIt != markerIt.End(); nmIt++ )
-	    {
-	    if ( nmIt.Get() == bgLabel )
-	      { 
-	      haveBgNeighbor = true; 
-	      break;
-	      }
-	    }
-	  if ( haveBgNeighbor )
-	    {
-	    // there is a background pixel in the neighborhood; add to
-	    // fah. All marker pixels should have the same priority???
-	    fah.Push(NumericTraits<InputImagePixelType>::NonpositiveMin(), markerIt.GetIndex() );
-	    }
-	  else
-	    {
-	    //increase progress because this pixel will not be used in the flooding stage.
-	    progress.CompletedPixel();
-	    }
-	  
-	  }
-	else
-	  {
-	  // Some pixels may be never processed so, by default, non marked pixels
-	  // must be marked as watershed
-	  outputIt.SetCenterPixel( wsLabel );	
-	  }
-	progress.CompletedPixel();
-	}
+              inputIt2.GoToBegin();
+            !markerIt.IsAtEnd(); ++markerIt, ++outputIt)
+        {
+        LabelImagePixelType markerPixel = markerIt.GetCenterPixel();
+        if ( markerPixel != bgLabel )
+          {
+          IndexType idx = markerIt.GetIndex();
+          // move the iterators to the right place
+          OffsetType shift = idx - inputIt2.GetIndex();
+          distanceIt += shift;
+          inputIt2 += shift;
+          // perhaps we should initialize these points to zero
+          distanceIt.SetCenterPixel(0);  
+          //distanceIt.SetCenterPixel(inputIt2.GetCenterPixel() );  
+          // copy it to the output image
+          outputIt.SetCenterPixel( markerPixel );
+          // Check the neighbors
+          // test whether there is a background pixel in the neighborhood
+          bool haveBgNeighbor = false;
+          for ( nmIt= markerIt.Begin(); nmIt != markerIt.End(); nmIt++ )
+            {
+            if ( nmIt.Get() == bgLabel )
+              { 
+              haveBgNeighbor = true; 
+              break;
+              }
+            }
+          if ( haveBgNeighbor )
+            {
+            // there is a background pixel in the neighborhood; add to
+            // fah. All marker pixels should have the same priority???
+            fah.Push(NumericTraits<InputImagePixelType>::NonpositiveMin(), markerIt.GetIndex() );
+            }
+          else
+            {
+            //increase progress because this pixel will not be used in the flooding stage.
+            progress.CompletedPixel();
+            }
+          
+          }
+        else
+          {
+          // Some pixels may be never processed so, by default, non marked pixels
+          // must be marked as watershed
+          outputIt.SetCenterPixel( wsLabel );	
+          }
+        progress.CompletedPixel();
+        }
       // now for flooding
       // init all the iterators
       outputIt.GoToBegin();
@@ -503,78 +503,78 @@ MorphologicalWatershedFromMarkersImageFilter<TInputImage, TLabelImage>
       distanceIt.GoToBegin();
 
       while( !fah.Empty() )
-	{
-	// store the current vars
-	const InputImagePixelType & StoredVal = fah.FrontKey();
-	const IndexType & idx = fah.FrontValue();
-	// move the iterators to the right place
-	OffsetType shift = idx - outputIt.GetIndex();
-	outputIt += shift;
-	inputIt2 += shift;
-	distanceIt += shift;
-	float ThisDistance = distanceIt.GetCenterPixel();
-	LabelImagePixelType currentMarker = outputIt.GetCenterPixel();
+        {
+        // store the current vars
+        const InputImagePixelType & StoredVal = fah.FrontKey();
+        const IndexType & idx = fah.FrontValue();
+        // move the iterators to the right place
+        OffsetType shift = idx - outputIt.GetIndex();
+        outputIt += shift;
+        inputIt2 += shift;
+        distanceIt += shift;
+        float ThisDistance = distanceIt.GetCenterPixel();
+        LabelImagePixelType currentMarker = outputIt.GetCenterPixel();
 
-	// visit neighbors
-	unsigned i;
-	for (noIt = outputIt.Begin(), niIt = inputIt2.Begin(), 
-	       ndIt = distanceIt.Begin(), i=0;
-	     noIt != outputIt.End();
-	     noIt++, niIt++, ++ndIt, i++)
-	  {
-	  float NewDistance, NeighDistance = ndIt.Get();
-	  InputImagePixelType priority, NeighVal = niIt.Get();
-	  // need to be very careful about the reconstruction
-	  // component - how do we make sure reconstruction is
-	  // happening implicitly without allowing labels to flood
-	  // downhill over already labelled regions unnecessarily. One
-	  // possibility is to have a copy of the input image
-	  if (NeighVal == StoredVal)
-	    {
-	    // we are on the same plateau
-	    NewDistance = ThisDistance + weights[i];
-	    priority = StoredVal;
-	    }
-	  else
-	    {
-	    if (NeighVal > StoredVal)
-	      {
-	      // new plateau
-	      NewDistance = 0.0; //ThisDistance + weights[i];
-	      priority = NeighVal;
-	      }
-	    else
-	      {
-	      // either a reconstruction or falling onto an already
-	      // flooded area
-	      LabelImagePixelType NMarker = noIt.Get();
-	      if (NMarker == wsLabel)
-		{
-		// reconstruction
-		niIt.Set(StoredVal);
-		NewDistance = ThisDistance + weights[i];
-		priority = StoredVal;
-		}
-	      else
-		{
-		// Going somewhere we've been -- set the cost high so
-		// we don't do anythin
-		NewDistance = NumericTraits<DistancePixelType>::max();
-		}
-	      }
-	    }
-	  if (NewDistance < NeighDistance)
-	    {
-	    // found a cheaper way of getting to the target pixel
-	    noIt.Set(currentMarker);
-	    ndIt.Set(NewDistance);
-	    fah.Push(priority, idx + niIt.GetNeighborhoodOffset());
-	    }
-	  progress.CompletedPixel();
-	  }
-	// remove the processed pixel from the queue
-	fah.Pop();	
-	}
+        // visit neighbors
+        unsigned i;
+        for (noIt = outputIt.Begin(), niIt = inputIt2.Begin(), 
+              ndIt = distanceIt.Begin(), i=0;
+            noIt != outputIt.End();
+            noIt++, niIt++, ++ndIt, i++)
+          {
+          float NewDistance, NeighDistance = ndIt.Get();
+          InputImagePixelType priority, NeighVal = niIt.Get();
+          // need to be very careful about the reconstruction
+          // component - how do we make sure reconstruction is
+          // happening implicitly without allowing labels to flood
+          // downhill over already labelled regions unnecessarily. One
+          // possibility is to have a copy of the input image
+          if (NeighVal == StoredVal)
+            {
+            // we are on the same plateau
+            NewDistance = ThisDistance + weights[i];
+            priority = StoredVal;
+            }
+          else
+            {
+            if (NeighVal > StoredVal)
+              {
+              // new plateau
+              NewDistance = 0.0; //ThisDistance + weights[i];
+              priority = NeighVal;
+              }
+            else
+              {
+              // either a reconstruction or falling onto an already
+              // flooded area
+              LabelImagePixelType NMarker = noIt.Get();
+              if (NMarker == wsLabel)
+                {
+                // reconstruction
+                niIt.Set(StoredVal);
+                NewDistance = ThisDistance + weights[i];
+                priority = StoredVal;
+                }
+              else
+                {
+                // Going somewhere we've been -- set the cost high so
+                // we don't do anythin
+                NewDistance = NumericTraits<DistancePixelType>::max();
+                }
+              }
+            }
+          if (NewDistance < NeighDistance)
+            {
+            // found a cheaper way of getting to the target pixel
+            noIt.Set(currentMarker);
+            ndIt.Set(NewDistance);
+            fah.Push(priority, idx + niIt.GetNeighborhoodOffset());
+            }
+          progress.CompletedPixel();
+          }
+        // remove the processed pixel from the queue
+        fah.Pop();	
+        }
       }
     }
 }
