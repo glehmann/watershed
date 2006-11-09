@@ -540,7 +540,7 @@ MorphologicalWatershedFromMarkersImageFilter<TInputImage, TLabelImage>
             if (NeighVal > StoredVal)
               {
               // new plateau
-              NewDistance = 0.0; //ThisDistance + weights[i];
+              NewDistance = weights[i]; //0.0; //ThisDistance + weights[i];
               priority = NeighVal;
               }
             else
