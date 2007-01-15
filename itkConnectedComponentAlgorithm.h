@@ -45,7 +45,7 @@ setConnectivity( TIterator* it, bool fullyConnected=false )
 
 template< class TIterator >
 TIterator*
-setConnectivityPrev( TIterator* it, bool fullyConnected=false )
+setConnectivityPrevious( TIterator* it, bool fullyConnected=false )
 {
   // activate the "previous" neighbours
   typename TIterator::OffsetType offset;

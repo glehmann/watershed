@@ -137,7 +137,7 @@ ReconstructionImageFilter<TInputImage, TOutputImage, TCompare>
   NOutputIterator outNIt(kernelRadius,
 			 output,
 			 output->GetRequestedRegion() );
-  setConnectivityPrev( &outNIt, m_FullyConnected );
+  setConnectivityPrevious( &outNIt, m_FullyConnected );
   
   ConstantBoundaryCondition<OutputImageType> oBC;
   oBC.SetConstant(m_MarkerValue);
@@ -417,7 +417,7 @@ ReconstructionImageFilter<TInputImage, TOutputImage, TCompare>
 			 output,
 			 thisRegion );
 
-  setConnectivityPrev( &outNIt, m_FullyConnected );
+  setConnectivityPrevious( &outNIt, m_FullyConnected );
   
   ConstantBoundaryCondition<OutputImageType> oBC;
   oBC.SetConstant(m_MarkerValue);
@@ -677,7 +677,7 @@ ReconstructionImageFilter<TInputImage, TOutputImage, TCompare>
   NOutputIterator outNIt(kernelRadius,
 			 markerImageP,
 			 *fit );
-  setConnectivityPrev( &outNIt, m_FullyConnected );
+  setConnectivityPrevious( &outNIt, m_FullyConnected );
   
   ConstantBoundaryCondition<OutputImageType> oBC;
   oBC.SetConstant(m_MarkerValue);
