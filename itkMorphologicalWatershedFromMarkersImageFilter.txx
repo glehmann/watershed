@@ -523,7 +523,7 @@ MorphologicalWatershedFromMarkersImageFilter<TInputImage, TLabelImage>
             noIt++, niIt++, ++ndIt, i++)
           {
           float NewDistance, NeighDistance = ndIt.Get();
-          InputImagePixelType priority, NeighVal = niIt.Get();
+          InputImagePixelType priority = StoredVal, NeighVal = niIt.Get();
           // need to be very careful about the reconstruction
           // component - how do we make sure reconstruction is
           // happening implicitly without allowing labels to flood

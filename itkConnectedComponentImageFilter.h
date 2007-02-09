@@ -177,6 +177,9 @@ private:
   void LinkLabels(const unsigned long int lab1, const unsigned long int lab2);
   unsigned long int CreateConsecutive();
   //////////////////
+  bool CheckNeighbors(const typename TOutputImage::IndexType &A, 
+		      const typename TOutputImage::IndexType &B);
+
   void CompareLines(lineEncoding &current, const lineEncoding &Neighbour);
 
   void FillOutput(const LineMapType &LineMap,

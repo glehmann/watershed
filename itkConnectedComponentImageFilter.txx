@@ -150,9 +150,7 @@ ConnectedComponentImageFilter< TInputImage, TOutputImage, TMaskImage>
   //while( LineIt != MapEnd)
   for (LineIt = MapBegin; LineIt != MapEnd; ++LineIt)
     {
-    //lineEncoding L = LineIt->second;
     long ThisIdx = LineIt->first;
-    //std::cout << "Line number = " << LineIt->first << std::endl;
     for (OffsetVec::const_iterator I = LineOffsets.begin();
 	 I != LineOffsets.end(); ++I)
       {
@@ -161,8 +159,13 @@ ConnectedComponentImageFilter< TInputImage, TOutputImage, TMaskImage>
       typename LineMapType::const_iterator NN = LineMap.find(NeighIdx);
       if (NN != MapEnd) 
 	{
-	// Compare the two lines
-	CompareLines(LineIt->second, NN->second);
+	// Now check whether they are really neighbors
+	bool areNeighbors = CheckNeighbors(LineIt->second[0].where, NN->second[0].where);
+	if (areNeighbors)
+	  {
+	  // Compare the two lines
+	  CompareLines(LineIt->second, NN->second);
+	  }
 	}
       }
     }
@@ -219,7 +222,7 @@ ConnectedComponentImageFilter< TInputImage, TOutputImage, TMaskImage>
     {
     PretendSize[i] = OutSize[i+1];
     }
-
+  std::cout << PretendSize << std::endl;
   LineRegion.SetSize(PretendSize);
   PretendSizeType kernelRadius;
   kernelRadius.Fill(1);
@@ -271,22 +274,42 @@ ConnectedComponentImageFilter< TInputImage, TOutputImage, TMaskImage>
     SizeBuff[i+1] = PretendSize[i];
     }
   unsigned int pos = 0;
+  std::cout << SizeBuff << std::endl;
   for (LI=ActiveIndexes.begin(); LI != ActiveIndexes.end(); LI++, pos++)
     {
     unsigned int idx = *LI;
     offset = lnit.GetOffset(idx);
-    //std::cout << offset << std::endl;
+    std::cout << offset << std::endl;
     int vv = 0;
     for (int J = 0; J < PretendImageType::ImageDimension;J++)
       {
       vv += offset[J] * SizeBuff[J];
       }
-    //std::cout << vv << std::endl;
+    std::cout << vv << std::endl;
     LineOffsets.push_back( vv);
     }
   
   // LineOffsets is the thing we wanted.
 }
+template< class TInputImage, class TOutputImage, class TMaskImage >
+bool
+ConnectedComponentImageFilter< TInputImage, TOutputImage, TMaskImage>
+::CheckNeighbors(const typename TOutputImage::IndexType &A, 
+		 const typename TOutputImage::IndexType &B)
+{
+  // this checks whether the line encodings are really neighbors. The
+  // first dimension gets ignored because the encodings are along that
+  // axis
+  typename TOutputImage::OffsetType Off = A - B;
+  for (unsigned i = 1; i < OutputImageDimension; i++)
+    {
+    if (abs(Off[i]) > 1)
+      return(false);
+    }
+  return(true);
+}
+
+
 template< class TInputImage, class TOutputImage, class TMaskImage >
 void
 ConnectedComponentImageFilter< TInputImage, TOutputImage, TMaskImage>
