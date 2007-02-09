@@ -222,7 +222,6 @@ ConnectedComponentImageFilter< TInputImage, TOutputImage, TMaskImage>
     {
     PretendSize[i] = OutSize[i+1];
     }
-  std::cout << PretendSize << std::endl;
   LineRegion.SetSize(PretendSize);
   PretendSizeType kernelRadius;
   kernelRadius.Fill(1);
@@ -274,18 +273,15 @@ ConnectedComponentImageFilter< TInputImage, TOutputImage, TMaskImage>
     SizeBuff[i+1] = PretendSize[i];
     }
   unsigned int pos = 0;
-  std::cout << SizeBuff << std::endl;
   for (LI=ActiveIndexes.begin(); LI != ActiveIndexes.end(); LI++, pos++)
     {
     unsigned int idx = *LI;
     offset = lnit.GetOffset(idx);
-    std::cout << offset << std::endl;
     int vv = 0;
     for (int J = 0; J < PretendImageType::ImageDimension;J++)
       {
       vv += offset[J] * SizeBuff[J];
       }
-    std::cout << vv << std::endl;
     LineOffsets.push_back( vv);
     }
   
