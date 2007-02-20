@@ -272,7 +272,7 @@ ConnectedComponentImageFilter< TInputImage, TOutputImage, TMaskImage>
     {
     SizeBuff[i+1] = PretendSize[i];
     }
-  for (int i =1; i < PretendImageType::ImageDimension 1; i++)
+  for (int i =1; i < PretendImageType::ImageDimension ; i++)
     {
     SizeBuff[i] *= SizeBuff[i-1];
     }
