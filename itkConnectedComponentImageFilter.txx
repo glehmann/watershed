@@ -225,6 +225,7 @@ ConnectedComponentImageFilter< TInputImage, TOutputImage, TMaskImage>
   LineRegion.SetSize(PretendSize);
   PretendSizeType kernelRadius;
   kernelRadius.Fill(1);
+  fakeImage->SetRegions(LineRegion);
   LineNeighborhoodType lnit(kernelRadius, fakeImage, LineRegion);
 
   // only activate the indices that are "previous" to the current
@@ -265,27 +266,13 @@ ConnectedComponentImageFilter< TInputImage, TOutputImage, TMaskImage>
 
   typename LineNeighborhoodType::IndexListType::const_iterator LI;
   
-  PretendSizeType SizeBuff;
-  SizeBuff[0] = 1;
-  // should do this with a copy
-  for (int i =0; i < PretendImageType::ImageDimension - 1; i++)
+  typename PretendImageType::IndexType startidx = LineRegion.GetIndex();
+  long startoffset = fakeImage->ComputeOffset( startidx );
+  
+  for (LI=ActiveIndexes.begin(); LI != ActiveIndexes.end(); LI++)
     {
-    SizeBuff[i+1] = PretendSize[i];
-    }
-  for (int i =1; i < PretendImageType::ImageDimension ; i++)
-    {
-    SizeBuff[i] *= SizeBuff[i-1];
-    }
-  unsigned int pos = 0;
-  for (LI=ActiveIndexes.begin(); LI != ActiveIndexes.end(); LI++, pos++)
-    {
-    unsigned int idx = *LI;
-    offset = lnit.GetOffset(idx);
-    int vv = 0;
-    for (int J = 0; J < PretendImageType::ImageDimension;J++)
-      {
-      vv += offset[J] * SizeBuff[J];
-      }
+    typename PretendImageType::OffsetType offset = lnit.GetOffset(*LI);
+    long vv = fakeImage->ComputeOffset(startidx + offset) - startoffset;
     LineOffsets.push_back( vv);
     }
   
