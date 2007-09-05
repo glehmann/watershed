@@ -26,7 +26,7 @@
 #include "itkConstantBoundaryCondition.h"
 #include "itkSize.h"
 #include "itkConnectedComponentAlgorithm.h"
-#include "itkPriorityQueue.h"
+#include "itkHierarchicalQueue.h"
 #include "itkImageDuplicator.h"
 namespace itk {
 
@@ -137,8 +137,8 @@ MorphologicalWatershedFromMarkersImageFilter<TInputImage, TLabelImage>
   if (!m_UseImageIntegration)
     {
     // FAH (in french: File d'Attente Hierarchique)
-    typedef PriorityQueue< InputImagePixelType, IndexType > PriorityQueueType;
-    PriorityQueueType fah;
+    typedef HierarchicalQueue< InputImagePixelType, IndexType > HierarchicalQueueType;
+    HierarchicalQueueType fah;
     //---------------------------------------------------------------------------
     // Meyer's algorithm
     //---------------------------------------------------------------------------
@@ -410,8 +410,8 @@ MorphologicalWatershedFromMarkersImageFilter<TInputImage, TLabelImage>
     setConnectivity( &inputIt2, m_FullyConnected );
 
     // FAH (in french: File d'Attente Hierarchique)
-    typedef PriorityQueue< InputImagePixelType, IndexType > PriorityQueueType;
-    PriorityQueueType fah;
+    typedef HierarchicalQueue< InputImagePixelType, IndexType > HierarchicalQueueType;
+    HierarchicalQueueType fah;
     // iterator for the distance image
     typedef ShapedNeighborhoodIterator<DistanceImageType> DistanceIteratorType;
     typename DistanceIteratorType::Iterator ndIt;
