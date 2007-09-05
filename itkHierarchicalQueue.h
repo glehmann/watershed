@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Insight Segmentation & Registration Toolkit
-  Module:    $RCSfile: itkPriorityQueue.h,v $
+  Module:    $RCSfile: itkHierarchicalQueue.h,v $
   Language:  C++
   Date:      $Date: 2005/01/21 20:13:31 $
   Version:   $Revision: 1.6 $
@@ -14,8 +14,8 @@
      PURPOSE.  See the above copyright notices for more information.
 
 =========================================================================*/
-#ifndef __itkPriorityQueue_h
-#define __itkPriorityQueue_h
+#ifndef __itkHierarchicalQueue_h
+#define __itkHierarchicalQueue_h
 
 // #include <vector>
 #include <list>
@@ -23,8 +23,8 @@
 
 namespace itk
 {
-/** \class PriorityQueue
- *  \brief PriorityQueue class
+/** \class HierarchicalQueue
+ *  \brief HierarchicalQueue class
  * 
  * This class implement a priority queue based on list and map or list and vector,
  * depending on the key type. Image analysis are making a particular
@@ -37,13 +37,13 @@ namespace itk
  * the output order of the values.
  */
 template <typename TKey, typename TValue, typename TCompare=typename std::less<TKey> >
-class PriorityQueue
+class HierarchicalQueue
 {
 
 public:
 
   /** Standard typedefs */
-  typedef PriorityQueue      Self;
+  typedef HierarchicalQueue      Self;
 
   typedef TValue ValueType;
   typedef TKey KeyType;
@@ -99,7 +99,7 @@ public:
     m_Size--;
     }
 
-  PriorityQueue()
+  HierarchicalQueue()
     {
     m_Size = 0;
     }
@@ -118,13 +118,13 @@ private:
 
 
 template <typename TKey, typename TValue, typename TCompare >
-class VectorPriorityQueue
+class VectorHierarchicalQueue
 {
 
 public:
 
   /** Standard typedefs */
-  typedef VectorPriorityQueue      Self;
+  typedef VectorHierarchicalQueue      Self;
 
   typedef TValue ValueType;
   typedef TKey KeyType;
@@ -153,6 +153,9 @@ public:
   /** push a value in the queue */
   inline void Push( const KeyType & k, const ValueType & v)
     {
+    assert( k  - NT::NonpositiveMin() < m_Vector.size() );
+    assert( k  - NT::NonpositiveMin() >= 0 );
+
     m_Vector[ k  - NT::NonpositiveMin() ].push_back( v );
     if( this->Empty() || m_Compare( k, m_CurrentValue ) )
       {
@@ -192,7 +195,7 @@ public:
 
     }
 
-  VectorPriorityQueue()
+  VectorHierarchicalQueue()
     {
     m_Vector.resize( NT::max() - NT::NonpositiveMin() + 1 );
     if( m_Compare( NT::max(), NT::NonpositiveMin() ) )
@@ -206,6 +209,8 @@ public:
     m_Size = 0;
     // initialized to make valgrind happy
     m_CurrentValue = 0;
+
+    assert( m_Vector.size() != 0 );
     }
 
 
@@ -222,32 +227,32 @@ private:
 };
 
 template <typename TValue, typename TCompare >
-class PriorityQueue<unsigned char, TValue, TCompare>
-: public VectorPriorityQueue<unsigned char, TValue, TCompare>
+class HierarchicalQueue<unsigned char, TValue, TCompare>
+: public VectorHierarchicalQueue<unsigned char, TValue, TCompare>
 {
 };
 
 template <typename TValue, typename TCompare >
-class PriorityQueue<unsigned short, TValue, TCompare>
-: public VectorPriorityQueue<unsigned short, TValue, TCompare>
+class HierarchicalQueue<unsigned short, TValue, TCompare>
+: public VectorHierarchicalQueue<unsigned short, TValue, TCompare>
 {
 };
 
 template <typename TValue, typename TCompare >
-class PriorityQueue<signed char, TValue, TCompare>
-: public VectorPriorityQueue<signed char, TValue, TCompare>
+class HierarchicalQueue<signed char, TValue, TCompare>
+: public VectorHierarchicalQueue<signed char, TValue, TCompare>
 {
 };
 
 template <typename TValue, typename TCompare >
-class PriorityQueue<signed short, TValue, TCompare>
-: public VectorPriorityQueue<signed short, TValue, TCompare>
+class HierarchicalQueue<signed short, TValue, TCompare>
+: public VectorHierarchicalQueue<signed short, TValue, TCompare>
 {
 };
 
 template <typename TValue, typename TCompare >
-class PriorityQueue<bool, TValue, TCompare>
-: public VectorPriorityQueue<bool, TValue, TCompare>
+class HierarchicalQueue<bool, TValue, TCompare>
+: public VectorHierarchicalQueue<bool, TValue, TCompare>
 {
 };
 
