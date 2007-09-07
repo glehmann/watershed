@@ -1,5 +1,5 @@
-#ifndef itkConnectivity_h
-#define itkConnectivity_h
+#ifndef __itkConnectivity_h
+#define __itkConnectivity_h
 
 #include <itkObject.h>
 #include <itkIndex.h>
@@ -246,4 +246,4 @@ private :
 #include "itkConnectivity.txx"
 #endif
 
-#endif // itkConnectivity_h
+#endif // __itkConnectivity_h

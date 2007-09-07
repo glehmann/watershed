@@ -1,5 +1,5 @@
-#ifndef itkConnectivity_txx
-#define itkConnectivity_txx
+#ifndef __itkConnectivity_txx
+#define __itkConnectivity_txx
 
 #include "itkConnectivity.h"
 
@@ -350,4 +350,4 @@ Connectivity<VDimension>
 
 
 };
-#endif // itkConnectivity_txx
+#endif // __itkConnectivity_txx
