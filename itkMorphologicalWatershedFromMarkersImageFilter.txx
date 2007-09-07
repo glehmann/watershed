@@ -25,9 +25,9 @@
 #include "itkConstShapedNeighborhoodIterator.h"
 #include "itkConstantBoundaryCondition.h"
 #include "itkSize.h"
-#include "itkConnectedComponentAlgorithm.h"
 #include "itkHierarchicalQueue.h"
 #include "itkImageDuplicator.h"
+
 namespace itk {
 
 template <class TInputImage, class TLabelImage>
@@ -35,9 +35,8 @@ MorphologicalWatershedFromMarkersImageFilter<TInputImage, TLabelImage>
 ::MorphologicalWatershedFromMarkersImageFilter()
 {
   this->SetNumberOfRequiredInputs(2);
-  m_FullyConnected = false;
+  m_Connectivity = ConnectivityType::New();
   m_MarkWatershedLine = true;
-  m_PadImageBoundary = true;
   m_UseImageIntegration = false;
 }
 
@@ -119,20 +118,20 @@ MorphologicalWatershedFromMarkersImageFilter<TInputImage, TLabelImage>
   ConstantBoundaryCondition<LabelImageType> lcbc;
   lcbc.SetConstant( NumericTraits<LabelImagePixelType>::max() );
   markerIt.OverrideBoundaryCondition(&lcbc);
-  setConnectivity( &markerIt, m_FullyConnected );
+  setConnectivity( &markerIt, m_Connectivity.GetPointer() );
 
   // iterator for the input image
   typedef ConstShapedNeighborhoodIterator<InputImageType> InputIteratorType;
   InputIteratorType inputIt(radius, this->GetInput(), this->GetInput()->GetRequestedRegion());
   typename InputIteratorType::ConstIterator niIt;
-  setConnectivity( &inputIt, m_FullyConnected );
+  setConnectivity( &inputIt, m_Connectivity.GetPointer() );
   
   // iterator for the output image
   typedef ShapedNeighborhoodIterator<LabelImageType> OutputIteratorType;
   typedef typename OutputIteratorType::OffsetType OffsetType;
   typename OutputIteratorType::Iterator noIt;
   OutputIteratorType outputIt(radius, this->GetOutput(), this->GetOutput()->GetRequestedRegion());
-  setConnectivity( &outputIt, m_FullyConnected );
+  setConnectivity( &outputIt, m_Connectivity.GetPointer() );
 
   if (!m_UseImageIntegration)
     {
@@ -166,7 +165,7 @@ MorphologicalWatershedFromMarkersImageFilter<TInputImage, TLabelImage>
       ConstantBoundaryCondition< StatusImageType > bcbc;
       bcbc.SetConstant( true );  // outside pixel are already processed
       statusIt.OverrideBoundaryCondition(&bcbc);
-      setConnectivity( &statusIt, m_FullyConnected );
+      setConnectivity( &statusIt, m_Connectivity.GetPointer() );
 
       // the status image must be initialized before the first stage. In the first stage, the
       // set to true are the neighbors of the marker (and the marker) so it's difficult
@@ -407,7 +406,7 @@ MorphologicalWatershedFromMarkersImageFilter<TInputImage, TLabelImage>
     typedef ShapedNeighborhoodIterator<InputImageType> InputIteratorType2;
     InputIteratorType2 inputIt2(radius, reconImage, this->GetInput()->GetRequestedRegion());
     typename InputIteratorType2::Iterator niIt;
-    setConnectivity( &inputIt2, m_FullyConnected );
+    setConnectivity( &inputIt2, m_Connectivity.GetPointer() );
 
     // FAH (in french: File d'Attente Hierarchique)
     typedef HierarchicalQueue< InputImagePixelType, IndexType > HierarchicalQueueType;
@@ -416,7 +415,7 @@ MorphologicalWatershedFromMarkersImageFilter<TInputImage, TLabelImage>
     typedef ShapedNeighborhoodIterator<DistanceImageType> DistanceIteratorType;
     typename DistanceIteratorType::Iterator ndIt;
     DistanceIteratorType distanceIt(radius, distanceImage, this->GetOutput()->GetRequestedRegion());
-    setConnectivity( &distanceIt, m_FullyConnected );
+    setConnectivity( &distanceIt, m_Connectivity.GetPointer() );
     // a boundary condition for the distance image - set to a minimum
     // because we are always looking to reduce the current value
     ConstantBoundaryCondition<DistanceImageType> dcbc;
@@ -588,7 +587,8 @@ MorphologicalWatershedFromMarkersImageFilter<TInputImage, TLabelImage>
 {
   Superclass::PrintSelf(os, indent);
   
-  os << indent << "FullyConnected: "  << m_FullyConnected << std::endl;
+  os << indent << "Connectivity: ";
+  m_Connectivity->Print( os, indent );
   os << indent << "MarkWatershedLine: "  << m_MarkWatershedLine << std::endl;
   os << indent << "UseImageIntegration: "  << m_UseImageIntegration << std::endl;
 }

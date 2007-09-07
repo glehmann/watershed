@@ -2,6 +2,7 @@
 #define __itkMorphologicalWatershedFromMarkersImageFilter_h
 
 #include "itkImageToImageFilter.h"
+#include "itkConnectivity.h"
 
 namespace itk {
 
@@ -50,11 +51,13 @@ public:
   typedef typename LabelImageType::PixelType      LabelImagePixelType;
   
   typedef typename LabelImageType::IndexType      IndexType;
-  
+
   /** ImageDimension constants */
   itkStaticConstMacro(ImageDimension, unsigned int,
                       TInputImage::ImageDimension);
 
+  typedef Connectivity< ImageDimension > ConnectivityType;
+  
   /** Standard New method. */
   itkNewMacro(Self);  
 
@@ -94,9 +97,31 @@ public:
    * FullyConnectedOff.  For objects that are 1 pixel wide, use
    * FullyConnectedOn.
    */
-  itkSetMacro(FullyConnected, bool);
-  itkGetConstReferenceMacro(FullyConnected, bool);
-  itkBooleanMacro(FullyConnected);
+  void SetFullyConnected( bool value )
+    {
+    int oldCellDimension = m_Connectivity->GetCellDimension();
+    m_Connectivity->SetFullyConnected( value );
+    if( oldCellDimension != m_Connectivity->GetCellDimension() )
+      {
+      this->Modified();
+      }
+    }
+
+  bool GetFullyConnected() const
+    {
+    return m_Connectivity->GetFullyConnected();
+    }
+
+  void FullyConnectedOn()
+    {
+    this->SetFullyConnected( true );
+    }
+
+  void FullyConnectedOff()
+    {
+    this->SetFullyConnected( false );
+    }
+
 
   /**
    * Set/Get whether the watershed pixel must be marked or not. Default
@@ -107,13 +132,16 @@ public:
   itkGetConstReferenceMacro(MarkWatershedLine, bool);
   itkBooleanMacro(MarkWatershedLine);
 
-  itkSetMacro(PadImageBoundary, bool);
-  itkGetConstReferenceMacro(PadImageBoundary, bool);
-  itkBooleanMacro(PadImageBoundary);
-
   itkSetMacro(UseImageIntegration, bool);
   itkGetConstReferenceMacro(UseImageIntegration, bool);
   itkBooleanMacro(UseImageIntegration);
+
+  /**
+   * Get/Set the connectivity to be use by the watershed filter.
+   */
+  itkSetObjectMacro( Connectivity, ConnectivityType );
+  itkGetObjectMacro( Connectivity, ConnectivityType );
+  itkGetConstObjectMacro( Connectivity, ConnectivityType );
 
 protected:
   MorphologicalWatershedFromMarkersImageFilter();
@@ -146,7 +174,7 @@ private:
   MorphologicalWatershedFromMarkersImageFilter(const Self&); //purposely not implemented
   void operator=(const Self&); //purposely not implemented
 
-  bool m_FullyConnected;
+  typename ConnectivityType::Pointer m_Connectivity;
 
   bool m_MarkWatershedLine;
   bool m_PadImageBoundary;
