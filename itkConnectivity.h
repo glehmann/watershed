@@ -240,6 +240,53 @@ private :
   static int m_GlobalDefaultCellDimension;
 };
 
+
+
+/** creation of equivalent iterators */
+template < class IteratorType, class ConnectivityType >
+void setConnectivity( IteratorType * it, ConnectivityType * connectivity )
+  {
+  for( int i=0; i<connectivity->GetNeighbors().size(); i++ )
+    {
+    it->ActivateOffset( connectivity->GetNeighbors()[i] );
+    }
+  }
+
+template < class IteratorType, class ConnectivityType >
+IteratorType LaterConnectivityIterator( IteratorType * it, ConnectivityType * connectivity )
+  {
+  unsigned int centerIndex = it->GetCenterNeighborhoodIndex();
+  typename IteratorType::OffsetType offset;
+  for( unsigned int d=centerIndex+1; d < 2*centerIndex+1; d++ )
+    {
+    offset = it->GetOffset( d );
+    if( connectivity.IsInNeighborhood( offset ) )
+      {
+      it->ActivateOffset( offset );
+      }
+    }
+  offset.Fill(0);
+  it->DeactivateOffset( offset );
+  }
+
+template < class IteratorType, class ConnectivityType >
+IteratorType PreviousConnectivityIterator( IteratorType * it, ConnectivityType * connectivity )
+  {
+  unsigned int centerIndex = it->GetCenterNeighborhoodIndex();
+  typename IteratorType::OffsetType offset;
+  for( unsigned int d=0; d < centerIndex; d++ )
+    {
+    offset = it->GetOffset( d );
+    if( connectivity.IsInNeighborhood( offset ) )
+      {
+      it->ActivateOffset( offset );
+      }
+    }
+  offset.Fill(0);
+  it->DeactivateOffset( offset );
+  }
+
+
 }
 
 #ifndef ITK_MANUAL_INSTANTIATION
