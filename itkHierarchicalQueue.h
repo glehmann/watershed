@@ -153,7 +153,7 @@ public:
   /** push a value in the queue */
   inline void Push( const KeyType & k, const ValueType & v)
     {
-    assert( k  - NT::NonpositiveMin() < m_Vector.size() );
+      assert( (int)(k  - NT::NonpositiveMin()) < (int)m_Vector.size() );
     assert( k  - NT::NonpositiveMin() >= 0 );
 
     m_Vector[ k  - NT::NonpositiveMin() ].push_back( v );

@@ -246,7 +246,7 @@ private :
 template < class IteratorType, class ConnectivityType >
 void setConnectivity( IteratorType * it, ConnectivityType * connectivity )
   {
-  for( int i=0; i<connectivity->GetNeighbors().size(); i++ )
+  for( unsigned i=0; i<connectivity->GetNeighbors().size(); i++ )
     {
     it->ActivateOffset( connectivity->GetNeighbors()[i] );
     }

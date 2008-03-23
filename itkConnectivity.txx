@@ -119,7 +119,7 @@ Connectivity<VDimension>
 ::SetCellDimension( int dim )
 {
   // check the validity of the requested cell dimension
-  if( dim < 0 || dim > VDimension )
+  if( dim < 0 || dim > (int)VDimension )
     {
     itkExceptionMacro( << dim << " is not a valid cell dimension for dimension " << VDimension << "." );
     }
@@ -143,7 +143,7 @@ Connectivity<VDimension>
         }
       }
     
-    if( numberOfZeros!=VDimension && numberOfZeros >= m_CellDimension)
+    if( numberOfZeros!=VDimension && numberOfZeros >= (unsigned int)m_CellDimension)
       {
       m_Neighbors.push_back( offset );
       }
@@ -336,7 +336,7 @@ Connectivity<VDimension>
   os << indent << "NumberOfNeighbors: " << this->GetNumberOfNeighbors() << std::endl;
   os << indent << "FullyConnected: " << this->GetFullyConnected() << std::endl;
   os << indent << "Neighbors: [ ";
-  for( int i=0; i<m_Neighbors.size(); i++ )
+  for( unsigned i=0; i<m_Neighbors.size(); i++ )
     {
     os << m_Neighbors[i] << " ";
     }

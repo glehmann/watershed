@@ -237,7 +237,7 @@ LabelShapeImageFilter<ImageType>
         {
          bb->SetIndex(i, idx[i]);
         }
-      if (bb->GetSize(i) < idx[i])
+      if (bb->GetSize(i) < (unsigned int) idx[i])
         {
          bb->SetSize(i, idx[i]);
         }
