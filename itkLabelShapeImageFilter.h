@@ -176,7 +176,6 @@ public:
   
   /** Return the center of gravity of a label. */
   CenterOfGravityType GetCenterOfGravity(PixelType label) const;
-  typename ImageType::PointType GetCenterOfGravity(PixelType label) const;
   
   /** Return the bounding box of a label. */
   BoundingBoxType GetBoundingBox(PixelType label) const;
