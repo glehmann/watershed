@@ -285,6 +285,20 @@ LabelShapeImageFilter<ImageType>
 }
 
 template<class ImageType>
+typename ImageType::PointType
+LabelShapeImageFilter<ImageType>
+::GetCenterOfGravity(PixelType label) const
+{
+  CenterOfGravityType cog = this->GetCenterOfGravity(label);
+  typename ImageType::PointType result;
+  for (unsigned i = 0;i< ImageType::ImageDimension; i++)
+    {
+    result[i] = cog[i];
+    }
+	 return(result);
+       }
+
+template<class ImageType>
 typename LabelShapeImageFilter<ImageType>::BoundingBoxType
 LabelShapeImageFilter<ImageType>
 ::GetBoundingBox(PixelType label) const
