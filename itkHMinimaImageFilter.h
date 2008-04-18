@@ -98,7 +98,7 @@ public:
    * output. This method is scheduled for removal since the
    * implementation now uses a noniterative solution. */
   unsigned long GetNumberOfIterationsUsed()
-    { itkLegacyBody(itk::HMinimaImageFilter::GetNumberOfIterationsUsed, 2.2);
+    { itkLegacyBodyMacro(itk::HMinimaImageFilter::GetNumberOfIterationsUsed, 2.2);
       return m_NumberOfIterationsUsed; };
 
   /**
