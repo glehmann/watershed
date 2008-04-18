@@ -33,6 +33,7 @@ MorphologicalWatershedImageFilter<TInputImage, TOutputImage>
   m_FullyConnected = false;
   m_MarkWatershedLine = true;
   m_Level = NumericTraits< InputImagePixelType >::Zero;
+  m_WatershedLabel = NumericTraits< OutputImagePixelType >::Zero;
 }
 
 template <class TInputImage, class TOutputImage>
@@ -90,6 +91,7 @@ MorphologicalWatershedImageFilter<TInputImage, TOutputImage>
   typename ConnectedCompType::Pointer label = ConnectedCompType::New();
   label->SetFullyConnected( m_FullyConnected );
   label->SetInput( rmin->GetOutput() );
+  label->SetBackgroundValue( m_WatershedLabel );
 
   // the watershed
   typedef MorphologicalWatershedFromMarkersImageFilter< TInputImage, TOutputImage > WatershedType;
@@ -98,6 +100,7 @@ MorphologicalWatershedImageFilter<TInputImage, TOutputImage>
   wshed->SetMarkerImage( label->GetOutput() );
   wshed->SetFullyConnected( m_FullyConnected );
   wshed->SetMarkWatershedLine( m_MarkWatershedLine );
+  wshed->SetBackgroundValue( m_WatershedLabel );
 
 
   if( m_Level != NumericTraits< InputImagePixelType >::Zero )

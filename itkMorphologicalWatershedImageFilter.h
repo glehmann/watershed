@@ -105,6 +105,11 @@ public:
   itkSetMacro(Level, InputImagePixelType);
   itkGetMacro(Level, InputImagePixelType);
 
+  /**
+   */
+  itkSetMacro(WatershedLabel, OutputImagePixelType);
+  itkGetMacro(WatershedLabel, OutputImagePixelType);
+
 protected:
   MorphologicalWatershedImageFilter();
   ~MorphologicalWatershedImageFilter() {};
@@ -130,6 +135,8 @@ private:
   bool m_FullyConnected;
 
   bool m_MarkWatershedLine;
+
+  OutputImagePixelType m_WatershedLabel;
 
   InputImagePixelType m_Level;
 
