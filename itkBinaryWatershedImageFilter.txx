@@ -136,15 +136,41 @@ BinaryWatershedImageFilter<TInputImage, TOutputImage, TDistance>
 
     mask->SetInput1( th2->GetOutput() );
   
-    progress->RegisterInternalFilter(th,0.066f);
+    progress->RegisterInternalFilter(th,0.05f);
     progress->RegisterInternalFilter(map,0.4f);
     progress->RegisterInternalFilter(watershed,.4f);
-    progress->RegisterInternalFilter(th2,0.066f);
-    progress->RegisterInternalFilter(mask,0.067f);
+    progress->RegisterInternalFilter(th2,0.05f);
+    progress->RegisterInternalFilter(mask,0.05f);
   
     mask->GraftOutput( this->GetOutput() );
     mask->Update();
     this->GraftOutput( mask->GetOutput() );
+
+    // finally copy background which should have been eroded
+    //
+    // iterator on input image
+    ImageRegionConstIterator<InputImageType> inIt
+              = ImageRegionConstIterator<InputImageType>( this->GetInput(),
+                      this->GetOutput()->GetRequestedRegion() );
+    // iterator on output image
+    ImageRegionIterator<OutputImageType> outIt
+              = ImageRegionIterator<OutputImageType>( this->GetOutput(),
+                      this->GetOutput()->GetRequestedRegion() );
+    outIt.GoToBegin();
+    inIt.GoToBegin();
+  
+    ProgressReporter progress2(this, 0, this->GetOutput()->GetRequestedRegion().GetNumberOfPixels(), 20, 0.95, 0.05);
+    while( !outIt.IsAtEnd() )
+      {
+      if( inIt.Get() != m_ForegroundValue )
+        {
+        outIt.Set( static_cast<OutputImagePixelType>( inIt.Get() ) );
+        }
+      ++outIt;
+      ++inIt;
+      progress2.CompletedPixel();
+      }
+    // the end !
 
     }
   else
