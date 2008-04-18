@@ -132,9 +132,9 @@ public:
   itkGetConstReferenceMacro(MarkWatershedLine, bool);
   itkBooleanMacro(MarkWatershedLine);
 
-  itkSetMacro(UseImageIntegration, bool);
-  itkGetConstReferenceMacro(UseImageIntegration, bool);
-  itkBooleanMacro(UseImageIntegration);
+  itkSetMacro(UseImageSpacing, bool);
+  itkGetConstReferenceMacro(UseImageSpacing, bool);
+  itkBooleanMacro(UseImageSpacing);
 
   /**
    * Get/Set the connectivity to be use by the watershed filter.
@@ -142,6 +142,11 @@ public:
   itkSetObjectMacro( Connectivity, ConnectivityType );
   itkGetObjectMacro( Connectivity, ConnectivityType );
   itkGetConstObjectMacro( Connectivity, ConnectivityType );
+
+  /**
+   */
+  itkSetMacro(BackgroundValue, LabelImagePixelType);
+  itkGetMacro(BackgroundValue, LabelImagePixelType);
 
 protected:
   MorphologicalWatershedFromMarkersImageFilter();
@@ -178,7 +183,8 @@ private:
 
   bool m_MarkWatershedLine;
   bool m_PadImageBoundary;
-  bool m_UseImageIntegration;
+  bool m_UseImageSpacing;
+  LabelImagePixelType m_BackgroundValue;
 
   typedef Image< float, ImageDimension > DistanceImageType;
   typedef std::vector<typename DistanceImageType::PixelType> WeightType;

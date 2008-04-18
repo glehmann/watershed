@@ -37,7 +37,8 @@ MorphologicalWatershedFromMarkersImageFilter<TInputImage, TLabelImage>
   this->SetNumberOfRequiredInputs(2);
   m_Connectivity = ConnectivityType::New();
   m_MarkWatershedLine = true;
-  m_UseImageIntegration = false;
+  m_UseImageSpacing = false;
+  m_BackgroundValue = NumericTraits< LabelImagePixelType >::Zero;
 }
 
 
@@ -92,9 +93,9 @@ MorphologicalWatershedFromMarkersImageFilter<TInputImage, TLabelImage>
   //---------------------------------------------------------------------------
 
   // the label used to find background in the marker image
-  static const LabelImagePixelType bgLabel = NumericTraits< LabelImagePixelType >::Zero;
+  static const LabelImagePixelType bgLabel = m_BackgroundValue;
   // the label used to mark the watershed line in the output image
-  static const LabelImagePixelType wsLabel = NumericTraits< LabelImagePixelType >::Zero;
+  static const LabelImagePixelType wsLabel = m_BackgroundValue;
 
   this->AllocateOutputs();
   // Set up the progress reporter
@@ -133,7 +134,7 @@ MorphologicalWatershedFromMarkersImageFilter<TInputImage, TLabelImage>
   OutputIteratorType outputIt(radius, this->GetOutput(), this->GetOutput()->GetRequestedRegion());
   setConnectivity( &outputIt, m_Connectivity.GetPointer() );
 
-  if (!m_UseImageIntegration)
+  if (!m_UseImageSpacing)
     {
     // FAH (in french: File d'Attente Hierarchique)
     typedef HierarchicalQueue< InputImagePixelType, IndexType > HierarchicalQueueType;
@@ -590,7 +591,8 @@ MorphologicalWatershedFromMarkersImageFilter<TInputImage, TLabelImage>
   os << indent << "Connectivity: ";
   m_Connectivity->Print( os, indent );
   os << indent << "MarkWatershedLine: "  << m_MarkWatershedLine << std::endl;
-  os << indent << "UseImageIntegration: "  << m_UseImageIntegration << std::endl;
+  os << indent << "UseImageSpacing: "  << m_UseImageSpacing << std::endl;
+  os << indent << "BackgroundValue: "  << static_cast<typename NumericTraits<LabelImagePixelType>::PrintType>(m_BackgroundValue) << std::endl;
 }
   
 }// end namespace itk
