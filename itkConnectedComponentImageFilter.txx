@@ -434,7 +434,7 @@ ConnectedComponentImageFilter< TInputImage, TOutputImage, TMaskImage>
       // initialize the non labelled pixels
       for (; fstart != oit; ++fstart)
         {
-        fstart.Set(NumericTraits<OutputPixelType>::Zero );
+        fstart.Set( m_BackgroundValue );
         }
       for (long i = 0; i < cIt->length; ++i, ++oit)
         {
@@ -468,15 +468,19 @@ ConnectedComponentImageFilter< TInputImage, TOutputImage, TMaskImage>
 ::CreateConsecutive()
 {
   m_Consecutive = UnionFindType(m_UnionFind.size());
-  m_Consecutive[0] = 0;
+  m_Consecutive[m_BackgroundValue] = m_BackgroundValue;
   unsigned long int CLab = 0;
   for (unsigned long int I = 1; I < m_UnionFind.size(); I++)
     {
     unsigned long int L = m_UnionFind[I];
     if (L == I) 
       {
-      ++CLab;
+      if( CLab == m_BackgroundValue )
+        {
+        ++CLab;
+        }
       m_Consecutive[L] = CLab;
+      ++CLab;
       }
     }
   return(CLab);
@@ -523,6 +527,7 @@ ConnectedComponentImageFilter< TInputImage, TOutputImage, TMaskImage>
 
   os << indent << "FullyConnected: "  << m_FullyConnected << std::endl;
   os << indent << "ObjectCount: "  << m_ObjectCount << std::endl;
+  os << indent << "BackgroundValue: "  << static_cast<typename NumericTraits<OutputImagePixelType>::PrintType>(m_BackgroundValue) << std::endl;
 }
 
 } // end namespace itk

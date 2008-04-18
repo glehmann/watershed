@@ -94,6 +94,7 @@ public:
   typedef typename TOutputImage::IndexType  OutputIndexType;
   typedef typename TOutputImage::SizeType   OutputSizeType;
   typedef typename TOutputImage::OffsetType OutputOffsetType;
+  typedef typename TOutputImage::PixelType  OutputImagePixelType;
 
   typedef std::list<IndexType>              ListType;
   typedef typename MaskImageType::Pointer   MaskImagePointer;
@@ -143,11 +144,17 @@ public:
     return (static_cast<const TMaskImage*>(this->ProcessObject::GetInput(1)));
     }
   
+  /**
+   */
+  itkSetMacro(BackgroundValue, OutputImagePixelType);
+  itkGetMacro(BackgroundValue, OutputImagePixelType);
+
 protected:
   ConnectedComponentImageFilter() 
     {
     m_FullyConnected = false;
     m_ObjectCount = 0;
+    m_BackgroundValue = NumericTraits< OutputImagePixelType >::Zero;
     }
   virtual ~ConnectedComponentImageFilter() {}
   ConnectedComponentImageFilter(const Self&) {}
@@ -173,6 +180,8 @@ protected:
   
 private:
   unsigned long m_ObjectCount;
+  OutputImagePixelType m_BackgroundValue;
+
   // some additional types
   typedef typename TOutputImage::RegionType::SizeType OutSizeType;
 
