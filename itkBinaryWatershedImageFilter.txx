@@ -121,9 +121,8 @@ BinaryWatershedImageFilter<TInputImage, TOutputImage, TDistance>
     watershed->SetInput( map->GetOutput() );
     watershed->SetLevel( m_Level );
     watershed->SetFullyConnected( m_FullyConnected );
-    watershed->SetMarkWatershedLine( m_BinaryOutput );
+    watershed->SetMarkWatershedLine( true );
     watershed->SetNumberOfThreads( this->GetNumberOfThreads() );
-    watershed->SetWatershedLabel( m_BackgroundValue );
   
     // switch back to a lighter type (and binarize the image)
     typedef itk::BinaryThresholdImageFilter< InternalLabelImageType, OutputImageType > Threshold2Type;
@@ -182,8 +181,9 @@ BinaryWatershedImageFilter<TInputImage, TOutputImage, TDistance>
     watershed->SetInput( map->GetOutput() );
     watershed->SetLevel( m_Level );
     watershed->SetFullyConnected( m_FullyConnected );
-    watershed->SetMarkWatershedLine( m_BinaryOutput );
+    watershed->SetMarkWatershedLine( false );
     watershed->SetNumberOfThreads( this->GetNumberOfThreads() );
+    watershed->SetWatershedLabel( m_BackgroundValue );
   
     mask->SetInput1( watershed->GetOutput() );
   
