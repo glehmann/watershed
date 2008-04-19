@@ -8,8 +8,15 @@
 
 
 
-int main(int arglen, char * argv[])
+int main(int argc, char * argv[])
 {
+  if( argc != 8 )
+    {
+    std::cerr << "usage: " << argv[0] << " input output binary fullyConnected fg bg level" << std::endl;
+    // std::cerr << "  : " << std::endl;
+    exit(1);
+    }
+
   const int dim = 2;
   
   typedef unsigned char PType;
