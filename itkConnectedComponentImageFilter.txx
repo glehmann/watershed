@@ -445,10 +445,10 @@ ConnectedComponentImageFilter< TInputImage, TOutputImage, TMaskImage>
       }
     progress.CompletedPixel();
     }
-  // fill the rest of the image with zeros
+  // fill the rest of the image with background value
   for (; fstart != fend; ++fstart)
     {
-    fstart.Set(NumericTraits<OutputPixelType>::Zero );
+    fstart.Set( m_BackgroundValue );
     }
 
 }
