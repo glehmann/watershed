@@ -87,10 +87,8 @@ ConnectedComponentImageFilter< TInputImage, TOutputImage, TMaskImage>
     input = maskFilter->GetOutput();
     }
 
-  long LineIdx = 0;
   InputLineIteratorType inLineIt(input, output->GetRequestedRegion());
   inLineIt.SetDirection(0);
-  LineMapType LineMap;
   // Allocate the output
   this->AllocateOutputs();
 
@@ -103,11 +101,14 @@ ConnectedComponentImageFilter< TInputImage, TOutputImage, TMaskImage>
   long linecount = pixelcount/xsize;
   ProgressReporter progress(this, 0, linecount * 2);
 
+  LineMapType LineMap;
+  LineMap.reserve( xsize );
+
   SetupLineOffsets(LineOffsets);
 
   for( inLineIt.GoToBegin();
     !inLineIt.IsAtEnd();
-    inLineIt.NextLine(), ++LineIdx)
+    inLineIt.NextLine() )
     {
     inLineIt.GoToBeginOfLine();
     lineEncoding ThisLine;
@@ -143,18 +144,7 @@ ConnectedComponentImageFilter< TInputImage, TOutputImage, TMaskImage>
         ++inLineIt;
         }
       }
-    if (ThisLine.size() != 0)
-      {
-      //
-      // There are some runs on this line, so insert it into the map.
-      // This conditional insertion "breaks" the full progress report - because
-      // of it, the report will not be 1.0 at the end of the execution if some
-      // lines are empty - but with it, the computation time decrease from 
-      // 0.059922 s to 0.0452819 s on the test image
-      // http://voxel.jouy.inra.fr/darcs/contrib-itk/watershed/images/ESCells-markers.tif
-      //
-      LineMap[LineIdx] = ThisLine;
-      }
+    LineMap.push_back( ThisLine );
     progress.CompletedPixel();
     }
   
@@ -169,34 +159,27 @@ ConnectedComponentImageFilter< TInputImage, TOutputImage, TMaskImage>
   // now process the map and make appropriate entries in an equivalence
   // table
   
-
-  typename LineMapType::iterator MapBegin, MapEnd, LineIt;
-
-  MapBegin = LineMap.begin();
-  MapEnd = LineMap.end(); 
-  LineIt = MapBegin;
-
-  //while( LineIt != MapEnd)
-  for (LineIt = MapBegin; LineIt != MapEnd; ++LineIt)
+  assert( xsize == LineMap.size() );
+  for(long ThisIdx = 0; ThisIdx < xsize; ++ThisIdx)
     {
-    //lineEncoding L = LineIt->second;
-    long ThisIdx = LineIt->first;
     //std::cout << "Line number = " << LineIt->first << std::endl;
     for (OffsetVec::const_iterator I = LineOffsets.begin();
          I != LineOffsets.end(); ++I)
       {
-      long NeighIdx = ThisIdx + (*I);
-      // check if the neighbor is in the map
-      typename LineMapType::const_iterator NN = LineMap.find(NeighIdx);
-      if (NN != MapEnd) 
+      if( !LineMap[ThisIdx].empty() )
         {
-        // Now check whether they are really neighbors
-        bool areNeighbors
-          = CheckNeighbors(LineIt->second[0].where, NN->second[0].where);
-        if (areNeighbors)
+        long NeighIdx = ThisIdx + (*I);
+        // check if the neighbor is in the map
+        if ( NeighIdx >= 0 && NeighIdx < xsize && !LineMap[NeighIdx].empty() ) 
           {
-          // Compare the two lines
-          CompareLines(LineIt->second, NN->second);
+          // Now check whether they are really neighbors
+          bool areNeighbors
+            = CheckNeighbors(LineMap[ThisIdx][0].where, LineMap[NeighIdx][0].where);
+          if (areNeighbors)
+            {
+            // Compare the two lines
+            CompareLines(LineMap[ThisIdx], LineMap[NeighIdx]);
+            }
           }
         }
       }
@@ -424,9 +407,7 @@ ConnectedComponentImageFilter< TInputImage, TOutputImage, TMaskImage>
     // now fill the labelled sections
     typename lineEncoding::const_iterator cIt;
 
-    //std::cout << LineIt->first << std::endl;
-
-    for (cIt = LineIt->second.begin();cIt != LineIt->second.end();++cIt)
+    for (cIt = LineIt->begin();cIt != LineIt->end();++cIt)
       {
       unsigned long Ilab = LookupSet( cIt->label);
       OutputPixelType lab = m_Consecutive[Ilab];

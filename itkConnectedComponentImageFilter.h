@@ -198,7 +198,7 @@ private:
   typedef std::vector<runLength> lineEncoding;
 
   // the map storing lines
-  typedef std::map<long, lineEncoding> LineMapType;
+  typedef std::vector<lineEncoding> LineMapType;
   
   typedef std::vector<long> OffsetVec;
 
