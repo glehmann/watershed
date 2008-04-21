@@ -102,7 +102,7 @@ ConnectedComponentImageFilter< TInputImage, TOutputImage, TMaskImage>
   ProgressReporter progress(this, 0, linecount * 2);
 
   LineMapType LineMap;
-  LineMap.reserve( xsize );
+  LineMap.reserve( linecount );
 
   SetupLineOffsets(LineOffsets);
 
@@ -159,8 +159,8 @@ ConnectedComponentImageFilter< TInputImage, TOutputImage, TMaskImage>
   // now process the map and make appropriate entries in an equivalence
   // table
   
-  assert( xsize == LineMap.size() );
-  for(long ThisIdx = 0; ThisIdx < xsize; ++ThisIdx)
+  assert( linecount == LineMap.size() );
+  for(long ThisIdx = 0; ThisIdx < linecount; ++ThisIdx)
     {
     //std::cout << "Line number = " << LineIt->first << std::endl;
     if( !LineMap[ThisIdx].empty() )
@@ -170,7 +170,7 @@ ConnectedComponentImageFilter< TInputImage, TOutputImage, TMaskImage>
         {
         long NeighIdx = ThisIdx + (*I);
         // check if the neighbor is in the map
-        if ( NeighIdx >= 0 && NeighIdx < xsize && !LineMap[NeighIdx].empty() ) 
+        if ( NeighIdx >= 0 && NeighIdx < linecount && !LineMap[NeighIdx].empty() ) 
           {
           // Now check whether they are really neighbors
           bool areNeighbors
