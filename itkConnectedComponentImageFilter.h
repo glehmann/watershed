@@ -24,6 +24,7 @@
 #include <vector>
 #include <map>
 #include "itkProgressReporter.h"
+#include "itkBarrier.h"
 
 namespace itk
 {
@@ -161,9 +162,11 @@ protected:
   void PrintSelf(std::ostream& os, Indent indent) const;
 
   /**
-   * Standard pipeline method. 
+   * Standard pipeline methods.
    */
-  void GenerateData();
+  void BeforeThreadedGenerateData ();
+  void AfterThreadedGenerateData ();
+  void ThreadedGenerateData (const RegionType& outputRegionForThread, int threadId) ;
 
   /** ConnectedComponentImageFilter needs the entire input. Therefore
    * it must provide an implementation GenerateInputRequestedRegion().
@@ -225,6 +228,10 @@ private:
                   ProgressReporter &progress);
 
   void SetupLineOffsets(OffsetVec &LineOffsets);
+
+  typename std::vector< long > m_NumberOfLabels;
+  typename Barrier::Pointer m_Barrier;
+  LineMapType m_LineMap;
 };
   
 } // end namespace itk

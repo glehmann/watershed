@@ -66,12 +66,8 @@ ConnectedComponentImageFilter< TInputImage, TOutputImage, TMaskImage>
 template< class TInputImage, class TOutputImage, class TMaskImage >
 void
 ConnectedComponentImageFilter< TInputImage, TOutputImage, TMaskImage>
-::GenerateData()
+::BeforeThreadedGenerateData()
 {
-  // create a line iterator
-  typedef itk::ImageLinearConstIteratorWithIndex<InputImageType>
-    InputLineIteratorType;
-
   typename TOutputImage::Pointer output = this->GetOutput();
   typename TInputImage::ConstPointer input = this->GetInput();
   typename TMaskImage::ConstPointer mask = this->GetMaskImage();
@@ -87,25 +83,62 @@ ConnectedComponentImageFilter< TInputImage, TOutputImage, TMaskImage>
     input = maskFilter->GetOutput();
     }
 
-  InputLineIteratorType inLineIt(input, output->GetRequestedRegion());
-  inLineIt.SetDirection(0);
-  // Allocate the output
-  this->AllocateOutputs();
+  // set up the vars used in the threads
+  m_NumberOfLabels.clear();
+  m_NumberOfLabels.resize( this->GetNumberOfThreads(), 0 );
+  m_Barrier = Barrier::New();
+  m_Barrier->Initialize( this->GetNumberOfThreads() );
+  long pixelcount = output->GetRequestedRegion().GetNumberOfPixels();
+  long xsize = output->GetRequestedRegion().GetSize()[0];
+  long linecount = pixelcount/xsize;
+  m_LineMap.resize( linecount );
 
-  long int lab = NumericTraits<long int>::Zero;
-  OffsetVec LineOffsets;
+}
+
+
+template< class TInputImage, class TOutputImage, class TMaskImage >
+void
+ConnectedComponentImageFilter< TInputImage, TOutputImage, TMaskImage>
+::ThreadedGenerateData(const RegionType& outputRegionForThread,
+         int threadId) 
+{
+  typename TOutputImage::Pointer output = this->GetOutput();
+  typename TInputImage::ConstPointer input = this->GetInput();
+  typename TMaskImage::ConstPointer mask = this->GetMaskImage();
+
+  // create a line iterator
+  typedef itk::ImageLinearConstIteratorWithIndex<InputImageType>
+    InputLineIteratorType;
+  InputLineIteratorType inLineIt(input, outputRegionForThread);
+  inLineIt.SetDirection(0);
 
   // set the progress reporter to deal with the number of lines
-  long pixelcount = this->GetOutput()->GetRequestedRegion().GetNumberOfPixels();
-  long xsize = this->GetOutput()->GetRequestedRegion().GetSize()[0];
+  long pixelcount = outputRegionForThread.GetNumberOfPixels();
+  long xsize = outputRegionForThread.GetSize()[0];
   long linecount = pixelcount/xsize;
   ProgressReporter progress(this, 0, linecount * 2);
 
-  LineMapType LineMap;
-  LineMap.reserve( linecount );
+  // find the split axis
+  IndexType outputRegionIdx = output->GetRequestedRegion().GetIndex();
+  IndexType outputRegionForThreadIdx = outputRegionForThread.GetIndex();
+  int splitAxis = 0;
+  for( int i=0; i<ImageDimension; i++ )
+    {
+    if( outputRegionIdx[i] != outputRegionForThreadIdx[i] )
+      {
+      splitAxis = i;
+      }
+    }
 
+  // compute the number of pixels before that threads
+  SizeType outputRegionSize = output->GetRequestedRegion().GetSize();
+  outputRegionSize[splitAxis] = outputRegionForThreadIdx[splitAxis] - outputRegionIdx[splitAxis];
+  long lineId = RegionType( outputRegionIdx, outputRegionSize ).GetNumberOfPixels() / xsize;
+
+  OffsetVec LineOffsets;
   SetupLineOffsets(LineOffsets);
 
+  long nbOfLabels = 0;
   for( inLineIt.GoToBegin();
     !inLineIt.IsAtEnd();
     inLineIt.NextLine() )
@@ -122,7 +155,6 @@ ConnectedComponentImageFilter< TInputImage, TOutputImage, TMaskImage>
         runLength thisRun;
         long length=0;
         IndexType thisIndex;
-        ++lab;
         thisIndex = inLineIt.GetIndex();
         //std::cout << thisIndex << std::endl;
         ++length;
@@ -135,50 +167,99 @@ ConnectedComponentImageFilter< TInputImage, TOutputImage, TMaskImage>
           }
         // create the run length object to go in the vector
         thisRun.length=length;
-        thisRun.label=lab;
+        thisRun.label=0; // will give a real label later
         thisRun.where = thisIndex;
         ThisLine.push_back(thisRun);
+        nbOfLabels++;
         }
       else 
         {
         ++inLineIt;
         }
       }
-    LineMap.push_back( ThisLine );
+    m_LineMap[lineId] = ThisLine;
+    lineId++;
     progress.CompletedPixel();
     }
-  
-  // set up the union find structure
-  InitUnion(lab);
-  // insert all the labels into the structure -- an extra loop but
-  // saves complicating the ones that come later
-  for (long pp = 1; pp <= lab; pp++)
+
+  m_NumberOfLabels[threadId] = nbOfLabels;
+
+}
+
+template< class TInputImage, class TOutputImage, class TMaskImage >
+void
+ConnectedComponentImageFilter< TInputImage, TOutputImage, TMaskImage>
+::AfterThreadedGenerateData()
+{
+  typename TOutputImage::Pointer output = this->GetOutput();
+  typename TInputImage::ConstPointer input = this->GetInput();
+  typename TMaskImage::ConstPointer mask = this->GetMaskImage();
+
+  long pixelcount = output->GetRequestedRegion().GetNumberOfPixels();
+  long xsize = output->GetRequestedRegion().GetSize()[0];
+  long linecount = pixelcount/xsize;
+
+  OffsetVec LineOffsets;
+  SetupLineOffsets(LineOffsets);
+
+  // wait for the other threads to complete that part
+//   m_Barrier->Wait();
+
+  // compute the total number of labels
+  long nbOfLabels = 0;
+  for( int i=0; i<this->GetNumberOfThreads(); i++ )
     {
-    InsertSet(pp);
+    nbOfLabels += m_NumberOfLabels[i];
     }
+  
+/*  if( threadId == 0 )
+    {*/
+    // set up the union find structure
+    InitUnion(nbOfLabels);
+    // insert all the labels into the structure -- an extra loop but
+    // saves complicating the ones that come later
+    typename LineMapType::iterator MapBegin, MapEnd, LineIt;
+    MapBegin = m_LineMap.begin();
+    MapEnd = m_LineMap.end(); 
+    LineIt = MapBegin;
+    unsigned long label = 1;
+    for (LineIt = MapBegin; LineIt != MapEnd; ++LineIt)
+      {
+      typename lineEncoding::iterator cIt;
+      for (cIt = LineIt->begin();cIt != LineIt->end();++cIt)
+        {
+        cIt->label = label;
+        InsertSet(label);
+        label++;
+        }
+      }
+//     }
+
+  // wait for the other threads to complete that part
+//   m_Barrier->Wait();
+
   // now process the map and make appropriate entries in an equivalence
   // table
   
-  assert( linecount == LineMap.size() );
+  assert( linecount == m_LineMap.size() );
   for(long ThisIdx = 0; ThisIdx < linecount; ++ThisIdx)
     {
-    //std::cout << "Line number = " << LineIt->first << std::endl;
-    if( !LineMap[ThisIdx].empty() )
+    if( !m_LineMap[ThisIdx].empty() )
       {
       for (OffsetVec::const_iterator I = LineOffsets.begin();
            I != LineOffsets.end(); ++I)
         {
         long NeighIdx = ThisIdx + (*I);
         // check if the neighbor is in the map
-        if ( NeighIdx >= 0 && NeighIdx < linecount && !LineMap[NeighIdx].empty() ) 
+        if ( NeighIdx >= 0 && NeighIdx < linecount && !m_LineMap[NeighIdx].empty() ) 
           {
           // Now check whether they are really neighbors
           bool areNeighbors
-            = CheckNeighbors(LineMap[ThisIdx][0].where, LineMap[NeighIdx][0].where);
+            = CheckNeighbors(m_LineMap[ThisIdx][0].where, m_LineMap[NeighIdx][0].where);
           if (areNeighbors)
             {
             // Compare the two lines
-            CompareLines(LineMap[ThisIdx], LineMap[NeighIdx]);
+            CompareLines(m_LineMap[ThisIdx], m_LineMap[NeighIdx]);
             }
           }
         }
@@ -203,8 +284,12 @@ ConnectedComponentImageFilter< TInputImage, TOutputImage, TMaskImage>
   // make much difference in practice.
   // Note - this is unnecessary if AllocateOutputs initalizes to zero
 
-  FillOutput(LineMap, progress);
+  ProgressReporter progress(this, 0, linecount * 2);
+  FillOutput(m_LineMap, progress);
 
+  m_NumberOfLabels.clear();
+  m_Barrier = NULL;
+  m_LineMap.clear();
 }
 
 
