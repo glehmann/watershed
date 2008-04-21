@@ -83,16 +83,23 @@ ConnectedComponentImageFilter< TInputImage, TOutputImage, TMaskImage>
     input = maskFilter->GetOutput();
     }
 
+  long nbOfThreads = this->GetNumberOfThreads();
+  if( itk::MultiThreader::GetGlobalMaximumNumberOfThreads() != 0 )
+    {
+    nbOfThreads = std::min( this->GetNumberOfThreads(), itk::MultiThreader::GetGlobalMaximumNumberOfThreads() );
+    }
+//  std::cout << "nbOfThreads: " << nbOfThreads << std::endl;
+
   // set up the vars used in the threads
   m_NumberOfLabels.clear();
-  m_NumberOfLabels.resize( this->GetNumberOfThreads(), 0 );
+  m_NumberOfLabels.resize( nbOfThreads, 0 );
   m_Barrier = Barrier::New();
-  m_Barrier->Initialize( this->GetNumberOfThreads() );
+  m_Barrier->Initialize( nbOfThreads );
   long pixelcount = output->GetRequestedRegion().GetNumberOfPixels();
   long xsize = output->GetRequestedRegion().GetSize()[0];
   long linecount = pixelcount/xsize;
   m_LineMap.resize( linecount );
-  m_FirstLineIdToJoin.resize( this->GetNumberOfThreads() - 1 );
+  m_FirstLineIdToJoin.resize( nbOfThreads - 1 );
 }
 
 
@@ -105,6 +112,12 @@ ConnectedComponentImageFilter< TInputImage, TOutputImage, TMaskImage>
   typename TOutputImage::Pointer output = this->GetOutput();
   typename TInputImage::ConstPointer input = this->GetInput();
   typename TMaskImage::ConstPointer mask = this->GetMaskImage();
+
+  long nbOfThreads = this->GetNumberOfThreads();
+  if( itk::MultiThreader::GetGlobalMaximumNumberOfThreads() != 0 )
+    {
+    nbOfThreads = std::min( this->GetNumberOfThreads(), itk::MultiThreader::GetGlobalMaximumNumberOfThreads() );
+    }
 
   // create a line iterator
   typedef itk::ImageLinearConstIteratorWithIndex<InputImageType>
@@ -190,7 +203,7 @@ ConnectedComponentImageFilter< TInputImage, TOutputImage, TMaskImage>
 
   // compute the total number of labels
   nbOfLabels = 0;
-  for( int i=0; i<this->GetNumberOfThreads(); i++ )
+  for( int i=0; i<nbOfThreads; i++ )
     {
     nbOfLabels += m_NumberOfLabels[i];
     }
@@ -230,7 +243,7 @@ ConnectedComponentImageFilter< TInputImage, TOutputImage, TMaskImage>
 
   long lastLineIdForThread =  linecount;
   long nbOfLineIdToJoin = 0;
-  if( threadId != this->GetNumberOfThreads() - 1 )
+  if( threadId != nbOfThreads - 1 )
     {
     SizeType outputRegionForThreadSize = outputRegionForThread.GetSize();
     outputRegionForThreadSize[splitAxis] -= 1;
@@ -297,7 +310,9 @@ ConnectedComponentImageFilter< TInputImage, TOutputImage, TMaskImage>
           }
         }
       }
+
     m_Barrier->Wait();
+
     if( threadId == 0 )
       {
       // remove the region already joined
@@ -308,7 +323,9 @@ ConnectedComponentImageFilter< TInputImage, TOutputImage, TMaskImage>
         }
       m_FirstLineIdToJoin = newFirstLineIdToJoin;
       }
+
     m_Barrier->Wait();
+
     }
 }
 
