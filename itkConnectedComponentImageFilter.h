@@ -229,6 +229,19 @@ private:
 
   void SetupLineOffsets(OffsetVec &LineOffsets);
 
+  void Wait()
+    {
+    long nbOfThreads = this->GetNumberOfThreads();
+    if( itk::MultiThreader::GetGlobalMaximumNumberOfThreads() != 0 )
+      {
+      nbOfThreads = std::min( this->GetNumberOfThreads(), itk::MultiThreader::GetGlobalMaximumNumberOfThreads() );
+      }
+    if( nbOfThreads > 1 )
+      {
+      m_Barrier->Wait();
+      }
+    }
+
   typename std::vector< long > m_NumberOfLabels;
   typename std::vector< long > m_FirstLineIdToJoin;
   typename Barrier::Pointer m_Barrier;

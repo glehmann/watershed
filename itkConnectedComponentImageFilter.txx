@@ -199,7 +199,7 @@ ConnectedComponentImageFilter< TInputImage, TOutputImage, TMaskImage>
   m_NumberOfLabels[threadId] = nbOfLabels;
 
   // wait for the other threads to complete that part
-  m_Barrier->Wait();
+  this->Wait();
 
   // compute the total number of labels
   nbOfLabels = 0;
@@ -232,7 +232,7 @@ ConnectedComponentImageFilter< TInputImage, TOutputImage, TMaskImage>
     }
 
   // wait for the other threads to complete that part
-  m_Barrier->Wait();
+  this->Wait();
 
   // now process the map and make appropriate entries in an equivalence
   // table
@@ -278,7 +278,7 @@ ConnectedComponentImageFilter< TInputImage, TOutputImage, TMaskImage>
     }
   
   // wait for the other threads to complete that part
-  m_Barrier->Wait();
+  this->Wait();
 
   while( m_FirstLineIdToJoin.size() != 0 )
     {
@@ -311,7 +311,7 @@ ConnectedComponentImageFilter< TInputImage, TOutputImage, TMaskImage>
         }
       }
 
-    m_Barrier->Wait();
+    this->Wait();
 
     if( threadId == 0 )
       {
@@ -324,7 +324,7 @@ ConnectedComponentImageFilter< TInputImage, TOutputImage, TMaskImage>
       m_FirstLineIdToJoin = newFirstLineIdToJoin;
       }
 
-    m_Barrier->Wait();
+    this->Wait();
 
     }
 }
