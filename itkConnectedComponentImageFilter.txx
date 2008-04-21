@@ -327,33 +327,22 @@ ConnectedComponentImageFilter< TInputImage, TOutputImage, TMaskImage>
     this->Wait();
 
     }
-}
 
-template< class TInputImage, class TOutputImage, class TMaskImage >
-void
-ConnectedComponentImageFilter< TInputImage, TOutputImage, TMaskImage>
-::AfterThreadedGenerateData()
-{
-  typename TOutputImage::Pointer output = this->GetOutput();
-  typename TInputImage::ConstPointer input = this->GetInput();
-  typename TMaskImage::ConstPointer mask = this->GetMaskImage();
-
-  long pixelcount = output->GetRequestedRegion().GetNumberOfPixels();
-  long xsize = output->GetRequestedRegion().GetSize()[0];
-  long linecount = pixelcount/xsize;
-
-  OffsetVec LineOffsets;
-  SetupLineOffsets(LineOffsets);
-
-  unsigned long int totalLabs = CreateConsecutive();
-  m_ObjectCount = totalLabs;
-  // check for overflow exception here
-  if( totalLabs > static_cast<unsigned long int>(
-           NumericTraits<OutputPixelType>::max() ) )
+  if( threadId == 0 )
     {
-    itkExceptionMacro(
-      << "Number of objects greater than maximum of output pixel type " );
+    unsigned long int totalLabs = CreateConsecutive();
+    m_ObjectCount = totalLabs;
+    // check for overflow exception here
+    if( totalLabs > static_cast<unsigned long int>(
+            NumericTraits<OutputPixelType>::max() ) )
+      {
+      itkExceptionMacro(
+        << "Number of objects greater than maximum of output pixel type " );
+      }
     }
+  this->Wait();
+
+
   // create the output
   // A more complex version that is intended to minimize the number of
   // visits to the output image which should improve cache
@@ -363,9 +352,50 @@ ConnectedComponentImageFilter< TInputImage, TOutputImage, TMaskImage>
   // make much difference in practice.
   // Note - this is unnecessary if AllocateOutputs initalizes to zero
 
-  ProgressReporter progress(this, 0, linecount * 2);
-  FillOutput(m_LineMap, progress);
+  ImageRegionIterator<OutputImageType> oit(output, outputRegionForThread);
+  ImageRegionIterator<OutputImageType> fstart=oit, fend=oit;
+  fstart.GoToBegin();
+  fend.GoToEnd();
 
+  lastLineIdForThread = firstLineIdForThread + RegionType( outputRegionIdx, outputRegionForThread.GetSize() ).GetNumberOfPixels() / xsizeForThread;
+
+  for (long ThisIdx = firstLineIdForThread; ThisIdx<lastLineIdForThread; ThisIdx++)
+    {
+    // now fill the labelled sections
+    typename lineEncoding::const_iterator cIt;
+
+    for (cIt = m_LineMap[ThisIdx].begin();cIt != m_LineMap[ThisIdx].end();++cIt)
+      {
+      unsigned long Ilab = LookupSet( cIt->label);
+      OutputPixelType lab = m_Consecutive[Ilab];
+      oit.SetIndex(cIt->where);
+      // initialize the non labelled pixels
+      for (; fstart != oit; ++fstart)
+        {
+        fstart.Set( m_BackgroundValue );
+        }
+      for (long i = 0; i < cIt->length; ++i, ++oit)
+        {
+        oit.Set(lab);
+        }
+      fstart = oit;
+      //++fstart;
+      }
+    progress.CompletedPixel();
+    }
+  // fill the rest of the image with background value
+  for (; fstart != fend; ++fstart)
+    {
+    fstart.Set( m_BackgroundValue );
+    }
+
+}
+
+template< class TInputImage, class TOutputImage, class TMaskImage >
+void
+ConnectedComponentImageFilter< TInputImage, TOutputImage, TMaskImage>
+::AfterThreadedGenerateData()
+{
   m_NumberOfLabels.clear();
   m_Barrier = NULL;
   m_LineMap.clear();
@@ -542,58 +572,6 @@ ConnectedComponentImageFilter< TInputImage, TOutputImage, TMaskImage>
         break;
         }
       }
-    }
-
-}
-
-template< class TInputImage, class TOutputImage, class TMaskImage >
-void
-ConnectedComponentImageFilter< TInputImage, TOutputImage, TMaskImage>
-::FillOutput(const LineMapType &LineMap,
-             ProgressReporter &progress)
-{
-
-  typename LineMapType::const_iterator MapBegin, MapEnd, LineIt;
-  typename TOutputImage::Pointer output = this->GetOutput();
-  MapBegin = LineMap.begin();
-  MapEnd = LineMap.end(); 
-  LineIt = MapBegin;
-
-  ImageRegionIterator<OutputImageType> oit(output,
-                                           output->GetRequestedRegion());
-
-  ImageRegionIterator<OutputImageType> fstart=oit, fend=oit;
-  fstart.GoToBegin();
-  fend.GoToEnd();
-
-  for (LineIt = MapBegin; LineIt != MapEnd; ++LineIt)
-    {
-    // now fill the labelled sections
-    typename lineEncoding::const_iterator cIt;
-
-    for (cIt = LineIt->begin();cIt != LineIt->end();++cIt)
-      {
-      unsigned long Ilab = LookupSet( cIt->label);
-      OutputPixelType lab = m_Consecutive[Ilab];
-      oit.SetIndex(cIt->where);
-      // initialize the non labelled pixels
-      for (; fstart != oit; ++fstart)
-        {
-        fstart.Set( m_BackgroundValue );
-        }
-      for (long i = 0; i < cIt->length; ++i, ++oit)
-        {
-        oit.Set(lab);
-        }
-      fstart = oit;
-      //++fstart;
-      }
-    progress.CompletedPixel();
-    }
-  // fill the rest of the image with background value
-  for (; fstart != fend; ++fstart)
-    {
-    fstart.Set( m_BackgroundValue );
     }
 
 }
