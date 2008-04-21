@@ -163,10 +163,10 @@ ConnectedComponentImageFilter< TInputImage, TOutputImage, TMaskImage>
   for(long ThisIdx = 0; ThisIdx < xsize; ++ThisIdx)
     {
     //std::cout << "Line number = " << LineIt->first << std::endl;
-    for (OffsetVec::const_iterator I = LineOffsets.begin();
-         I != LineOffsets.end(); ++I)
+    if( !LineMap[ThisIdx].empty() )
       {
-      if( !LineMap[ThisIdx].empty() )
+      for (OffsetVec::const_iterator I = LineOffsets.begin();
+           I != LineOffsets.end(); ++I)
         {
         long NeighIdx = ThisIdx + (*I);
         // check if the neighbor is in the map
