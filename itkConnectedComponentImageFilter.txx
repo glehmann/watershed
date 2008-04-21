@@ -92,7 +92,7 @@ ConnectedComponentImageFilter< TInputImage, TOutputImage, TMaskImage>
   long xsize = output->GetRequestedRegion().GetSize()[0];
   long linecount = pixelcount/xsize;
   m_LineMap.resize( linecount );
-
+  m_FirstLineIdToJoin.resize( this->GetNumberOfThreads() - 1 );
 }
 
 
@@ -113,10 +113,10 @@ ConnectedComponentImageFilter< TInputImage, TOutputImage, TMaskImage>
   inLineIt.SetDirection(0);
 
   // set the progress reporter to deal with the number of lines
-  long pixelcount = outputRegionForThread.GetNumberOfPixels();
-  long xsize = outputRegionForThread.GetSize()[0];
-  long linecount = pixelcount/xsize;
-  ProgressReporter progress(this, 0, linecount * 2);
+  long pixelcountForThread = outputRegionForThread.GetNumberOfPixels();
+  long xsizeForThread = outputRegionForThread.GetSize()[0];
+  long linecountForThread = pixelcountForThread/xsizeForThread;
+  ProgressReporter progress(this, 0, linecountForThread * 2);
 
   // find the split axis
   IndexType outputRegionIdx = output->GetRequestedRegion().GetIndex();
@@ -133,7 +133,8 @@ ConnectedComponentImageFilter< TInputImage, TOutputImage, TMaskImage>
   // compute the number of pixels before that threads
   SizeType outputRegionSize = output->GetRequestedRegion().GetSize();
   outputRegionSize[splitAxis] = outputRegionForThreadIdx[splitAxis] - outputRegionIdx[splitAxis];
-  long lineId = RegionType( outputRegionIdx, outputRegionSize ).GetNumberOfPixels() / xsize;
+  long firstLineIdForThread = RegionType( outputRegionIdx, outputRegionSize ).GetNumberOfPixels() / xsizeForThread;
+  long lineId = firstLineIdForThread;
 
   OffsetVec LineOffsets;
   SetupLineOffsets(LineOffsets);
@@ -184,36 +185,18 @@ ConnectedComponentImageFilter< TInputImage, TOutputImage, TMaskImage>
 
   m_NumberOfLabels[threadId] = nbOfLabels;
 
-}
-
-template< class TInputImage, class TOutputImage, class TMaskImage >
-void
-ConnectedComponentImageFilter< TInputImage, TOutputImage, TMaskImage>
-::AfterThreadedGenerateData()
-{
-  typename TOutputImage::Pointer output = this->GetOutput();
-  typename TInputImage::ConstPointer input = this->GetInput();
-  typename TMaskImage::ConstPointer mask = this->GetMaskImage();
-
-  long pixelcount = output->GetRequestedRegion().GetNumberOfPixels();
-  long xsize = output->GetRequestedRegion().GetSize()[0];
-  long linecount = pixelcount/xsize;
-
-  OffsetVec LineOffsets;
-  SetupLineOffsets(LineOffsets);
-
   // wait for the other threads to complete that part
-//   m_Barrier->Wait();
+  m_Barrier->Wait();
 
   // compute the total number of labels
-  long nbOfLabels = 0;
+  nbOfLabels = 0;
   for( int i=0; i<this->GetNumberOfThreads(); i++ )
     {
     nbOfLabels += m_NumberOfLabels[i];
     }
   
-/*  if( threadId == 0 )
-    {*/
+  if( threadId == 0 )
+    {
     // set up the union find structure
     InitUnion(nbOfLabels);
     // insert all the labels into the structure -- an extra loop but
@@ -233,16 +216,31 @@ ConnectedComponentImageFilter< TInputImage, TOutputImage, TMaskImage>
         label++;
         }
       }
-//     }
+    }
 
   // wait for the other threads to complete that part
-//   m_Barrier->Wait();
+  m_Barrier->Wait();
 
   // now process the map and make appropriate entries in an equivalence
   // table
-  
-  assert( linecount == m_LineMap.size() );
-  for(long ThisIdx = 0; ThisIdx < linecount; ++ThisIdx)
+  // assert( linecount == m_LineMap.size() );
+  long pixelcount = output->GetRequestedRegion().GetNumberOfPixels();
+  long xsize = output->GetRequestedRegion().GetSize()[0];
+  long linecount = pixelcount/xsize;
+
+  long lastLineIdForThread =  linecount;
+  long nbOfLineIdToJoin = 0;
+  if( threadId != this->GetNumberOfThreads() - 1 )
+    {
+    SizeType outputRegionForThreadSize = outputRegionForThread.GetSize();
+    outputRegionForThreadSize[splitAxis] -= 1;
+    lastLineIdForThread = firstLineIdForThread + RegionType( outputRegionIdx, outputRegionForThreadSize ).GetNumberOfPixels() / xsizeForThread;
+    m_FirstLineIdToJoin[threadId] = lastLineIdForThread;
+    // found the number of line ids to join
+    nbOfLineIdToJoin = RegionType( outputRegionIdx, outputRegionForThread.GetSize() ).GetNumberOfPixels() / xsizeForThread - RegionType( outputRegionIdx, outputRegionForThreadSize ).GetNumberOfPixels() / xsizeForThread;
+    }
+
+  for(long ThisIdx = firstLineIdForThread; ThisIdx < lastLineIdForThread; ++ThisIdx)
     {
     if( !m_LineMap[ThisIdx].empty() )
       {
@@ -266,6 +264,70 @@ ConnectedComponentImageFilter< TInputImage, TOutputImage, TMaskImage>
       }
     }
   
+  // wait for the other threads to complete that part
+  m_Barrier->Wait();
+
+  while( m_FirstLineIdToJoin.size() != 0 )
+    {
+    if( threadId * 2 < m_FirstLineIdToJoin.size() )
+      {
+      for(long ThisIdx = m_FirstLineIdToJoin[threadId * 2];
+          ThisIdx < m_FirstLineIdToJoin[threadId * 2] + nbOfLineIdToJoin;
+          ++ThisIdx)
+        {
+        if( !m_LineMap[ThisIdx].empty() )
+          {
+          for (OffsetVec::const_iterator I = LineOffsets.begin();
+              I != LineOffsets.end(); ++I)
+            {
+            long NeighIdx = ThisIdx + (*I);
+            // check if the neighbor is in the map
+            if ( NeighIdx >= 0 && NeighIdx < linecount && !m_LineMap[NeighIdx].empty() ) 
+              {
+              // Now check whether they are really neighbors
+              bool areNeighbors
+                = CheckNeighbors(m_LineMap[ThisIdx][0].where, m_LineMap[NeighIdx][0].where);
+              if (areNeighbors)
+                {
+                // Compare the two lines
+                CompareLines(m_LineMap[ThisIdx], m_LineMap[NeighIdx]);
+                }
+              }
+            }
+          }
+        }
+      }
+    m_Barrier->Wait();
+    if( threadId == 0 )
+      {
+      // remove the region already joined
+      typename std::vector< long > newFirstLineIdToJoin;
+      for( int i = 1; i<m_FirstLineIdToJoin.size(); i+=2 )
+        {
+        newFirstLineIdToJoin.push_back( m_FirstLineIdToJoin[i] );
+        }
+      m_FirstLineIdToJoin = newFirstLineIdToJoin;
+      }
+    m_Barrier->Wait();
+    }
+}
+
+template< class TInputImage, class TOutputImage, class TMaskImage >
+void
+ConnectedComponentImageFilter< TInputImage, TOutputImage, TMaskImage>
+::AfterThreadedGenerateData()
+{
+  typename TOutputImage::Pointer output = this->GetOutput();
+  typename TInputImage::ConstPointer input = this->GetInput();
+  typename TMaskImage::ConstPointer mask = this->GetMaskImage();
+
+  long pixelcount = output->GetRequestedRegion().GetNumberOfPixels();
+  long xsize = output->GetRequestedRegion().GetSize()[0];
+  long linecount = pixelcount/xsize;
+
+  OffsetVec LineOffsets;
+  SetupLineOffsets(LineOffsets);
+
   unsigned long int totalLabs = CreateConsecutive();
   m_ObjectCount = totalLabs;
   // check for overflow exception here

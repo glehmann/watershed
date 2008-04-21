@@ -230,6 +230,7 @@ private:
   void SetupLineOffsets(OffsetVec &LineOffsets);
 
   typename std::vector< long > m_NumberOfLabels;
+  typename std::vector< long > m_FirstLineIdToJoin;
   typename Barrier::Pointer m_Barrier;
   LineMapType m_LineMap;
 };
