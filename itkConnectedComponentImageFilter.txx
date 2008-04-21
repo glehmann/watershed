@@ -129,7 +129,7 @@ ConnectedComponentImageFilter< TInputImage, TOutputImage, TMaskImage>
   long pixelcountForThread = outputRegionForThread.GetNumberOfPixels();
   long xsizeForThread = outputRegionForThread.GetSize()[0];
   long linecountForThread = pixelcountForThread/xsizeForThread;
-  ProgressReporter progress(this, 0, linecountForThread * 2);
+  ProgressReporter progress(this, threadId, linecountForThread * 2);
 
   // find the split axis
   IndexType outputRegionIdx = output->GetRequestedRegion().GetIndex();
