@@ -245,6 +245,7 @@ private:
   typename std::vector< long > m_NumberOfLabels;
   typename std::vector< long > m_FirstLineIdToJoin;
   typename Barrier::Pointer m_Barrier;
+  typename TInputImage::ConstPointer m_Input;
   LineMapType m_LineMap;
 };
   

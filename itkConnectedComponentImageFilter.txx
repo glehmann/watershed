@@ -80,7 +80,11 @@ ConnectedComponentImageFilter< TInputImage, TOutputImage, TMaskImage>
     maskFilter->SetInput( input );
     maskFilter->SetInput2( mask );
     maskFilter->Update();
-    input = maskFilter->GetOutput();
+    m_Input = maskFilter->GetOutput();
+    }
+  else
+    {
+    m_Input = input;
     }
 
   long nbOfThreads = this->GetNumberOfThreads();
@@ -110,7 +114,6 @@ ConnectedComponentImageFilter< TInputImage, TOutputImage, TMaskImage>
          int threadId) 
 {
   typename TOutputImage::Pointer output = this->GetOutput();
-  typename TInputImage::ConstPointer input = this->GetInput();
   typename TMaskImage::ConstPointer mask = this->GetMaskImage();
 
   long nbOfThreads = this->GetNumberOfThreads();
@@ -122,7 +125,7 @@ ConnectedComponentImageFilter< TInputImage, TOutputImage, TMaskImage>
   // create a line iterator
   typedef itk::ImageLinearConstIteratorWithIndex<InputImageType>
     InputLineIteratorType;
-  InputLineIteratorType inLineIt(input, outputRegionForThread);
+  InputLineIteratorType inLineIt(m_Input, outputRegionForThread);
   inLineIt.SetDirection(0);
 
   // set the progress reporter to deal with the number of lines
@@ -399,6 +402,7 @@ ConnectedComponentImageFilter< TInputImage, TOutputImage, TMaskImage>
   m_NumberOfLabels.clear();
   m_Barrier = NULL;
   m_LineMap.clear();
+  m_Input = NULL;
 }
 
 
