@@ -37,7 +37,7 @@ int main(int arglen, char * argv[])
   filter->SetMarkerImage( reader2->GetOutput() );
   filter->SetMarkWatershedLine( atoi( argv[1] ) );
   filter->SetFullyConnected( atoi( argv[2] ) );
-  filter->SetUseImageIntegration(true);
+  filter->SetUseImageSpacing(true);
 
   itk::SimpleFilterWatcher watcher(filter, "filter");
 
