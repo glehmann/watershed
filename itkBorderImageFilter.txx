@@ -262,9 +262,9 @@ void
 BorderImageFilter< TInputImage, TOutputImage>
 ::AfterThreadedGenerateData()
 {
-  m_NumberOfLabels.clear();
   m_Barrier = NULL;
   m_ForegroundLineMap.clear();
+  m_BackgroundLineMap.clear();
 }
 
 

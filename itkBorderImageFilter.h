@@ -31,22 +31,12 @@ namespace itk
 
 /**
  * \class BorderImageFilter
- * \brief Label the objects in a binary image
+ * \brief Give the pixels on the border of an object.
  *
- * BorderImageFilter labels the objects in a binary image.
- * Each distinct object is assigned a unique label. The filter experiments
- * with some improvements to the existing implementation, and is based on
- * run length encoding along raster lines.
- * The final object labels start with 1 and are consecutive. Objects
- * that are reached earlier by a raster order scan have a lower
- * label. This is different to the behaviour of the original connected
- * component image filter which did not produce consecutive labels or
- * impose any particular ordering.
- *
+ * BorderImageFilter labels the pixels on the borders
+ * of the objects in a binary image.
  *
  * \sa ImageToImageFilter 
- *
- * \ingroup Singlethreaded
  */
 
 template <class TInputImage, class TOutputImage>
