@@ -449,7 +449,7 @@ BorderImageFilter< TInputImage, TOutputImage>
         for( int x=oStart; x<=oLast; x++ )
           {
           idx[0] = x;
-          output->SetPixel( idx, 255 );
+          output->SetPixel( idx, m_ForegroundValue );
 //           std::cout << idx << std::endl;
           }
         if( oStart == cStart && oLast == cLast )
