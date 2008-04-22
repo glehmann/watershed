@@ -21,8 +21,7 @@
 #include "itkImageRegionConstIteratorWithIndex.h"
 #include "itkImageRegionIteratorWithIndex.h"
 #include "itkBinaryThresholdImageFilter.h"
-#include "itkBinaryBallStructuringElement.h"
-#include "itkBinaryErodeImageFilter.h"
+#include "itkBorderImageFilter.h"
 #include "itkProgressReporter.h"
 #include "itkProgressAccumulator.h"
 #include "vnl/vnl_vector.h"
@@ -143,13 +142,8 @@ SignedMaurerDistanceMapImageFilter<TInputImage, TOutputImage>
   this->AllocateOutputs();
   this->m_Spacing = this->GetOutput()->GetSpacing();
 
-
-  // store the binary image in an image with a pixel type as small as possible
-  // instead of keeping the native input pixel type to avoid using too much
-  // memory.
-  typedef Image< unsigned char, InputImageDimension > BinaryImageType;
   typedef BinaryThresholdImageFilter<InputImageType, 
-                                     BinaryImageType
+                                     OutputImageType
                                         > BinaryFilterType;
   
   ProgressAccumulator::Pointer progressAcc = ProgressAccumulator::New();
@@ -162,59 +156,28 @@ SignedMaurerDistanceMapImageFilter<TInputImage, TOutputImage>
 
   binaryFilter->SetLowerThreshold( this->m_BackgroundValue );
   binaryFilter->SetUpperThreshold( this->m_BackgroundValue );
-  binaryFilter->SetInsideValue( 0 );
-  binaryFilter->SetOutsideValue( 1 );
+  binaryFilter->SetInsideValue( NumericTraits< OutputPixelType >::max() );
+  binaryFilter->SetOutsideValue( NumericTraits< OutputPixelType >::Zero );
   binaryFilter->SetInput( this->GetInput() );
-//   progressAcc->RegisterInternalFilter( binaryFilter, 0.1f );
+  binaryFilter->SetNumberOfThreads( this->GetNumberOfThreads() );
+  progressAcc->RegisterInternalFilter( binaryFilter, 0.1f );
+  binaryFilter->GraftOutput( this->GetOutput() );
   binaryFilter->Update();
 
   // Dilate the inverted image by 1 pixel to give it the same boundary
   // as the univerted this->GetInput().
-
-  typedef BinaryBallStructuringElement<
-                     unsigned char,
-                     InputImageDimension  > StructuringElementType;
-
-  typedef BinaryErodeImageFilter<
-                         BinaryImageType,
-                         BinaryImageType,
-                         StructuringElementType >     ErodeType;
-
-  typename ErodeType::Pointer erode = ErodeType::New();
-
-  StructuringElementType structuringElement;
-  structuringElement.SetRadius( 1 );
-  structuringElement.CreateStructuringElement();
-  erode->SetKernel( structuringElement );
-  erode->SetForegroundValue( 1 );
-  erode->SetBackgroundValue( 2 );
-  erode->SetInput( binaryFilter->GetOutput() );
-  progressAcc->RegisterInternalFilter( erode, 0.33f );
-  erode->Update();
-
-  typedef ImageRegionConstIterator<BinaryImageType> InputIterator;
-
-  InputIterator inIterator( erode->GetOutput(),
-                            erode->GetOutput()->GetRequestedRegion() );
-
-  typedef ImageRegionIterator<OutputImageType>  OutputIterator;
-
-  OutputIterator outIterator( this->GetOutput(),
-                              this->GetOutput()->GetRequestedRegion() );
-
-  for (  inIterator.GoToBegin(), outIterator.GoToBegin();
-        !inIterator.IsAtEnd();
-        ++inIterator, ++outIterator )
-    {
-    if( inIterator.Get() == 2 )
-      {
-      outIterator.Set( NumericTraits< OutputPixelType >::Zero );
-      }
-    else
-      {
-      outIterator.Set( NumericTraits< OutputPixelType >::max() );
-      }
-    }
+  typedef BorderImageFilter<OutputImageType, 
+                                     OutputImageType
+                                        > BorderFilterType;
+  typename BorderFilterType::Pointer borderFilter = BorderFilterType::New();
+  borderFilter->SetInput( binaryFilter->GetOutput() );
+  borderFilter->SetForegroundValue( NumericTraits< OutputPixelType >::Zero );
+  borderFilter->SetBackgroundValue( NumericTraits< OutputPixelType >::max() );
+  borderFilter->SetFullyConnected(true);
+  borderFilter->SetNumberOfThreads( this->GetNumberOfThreads() );
+  progressAcc->RegisterInternalFilter( borderFilter, 0.23f );
+  borderFilter->Update();
+  this->GraftOutput( borderFilter->GetOutput() );
   
   // Set up the multithreaded processing
   typename ImageSource< TOutputImage >::ThreadStruct str;
