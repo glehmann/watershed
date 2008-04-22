@@ -264,8 +264,14 @@ SignedMaurerDistanceMapImageFilter<TInputImage, TOutputImage>
     totalNumberOfRows += NumberOfRows[i];
     }
 
-  // set the progress reporter
-//  ProgressReporter progress(this, 0, totalNumberOfRows, 67, 0.33f, 0.67f);
+  // set the progress reporter. Use a pointer to be able to destroy it before the creation of progress2
+  // so it won't set wrong progress at the end of ThreadedGenerateData()
+  float progressPerDimension = 0.67f / ImageDimension;
+  if( !this->m_SquaredDistance )
+    {
+    progressPerDimension = 0.67f / ( ImageDimension + 1 );
+    }
+  ProgressReporter * progress = new ProgressReporter(this, threadId, NumberOfRows[m_CurrentDimension], 30, 0.33f + m_CurrentDimension * progressPerDimension, progressPerDimension);
 
   unsigned int i = m_CurrentDimension;
 
@@ -300,9 +306,9 @@ SignedMaurerDistanceMapImageFilter<TInputImage, TOutputImage>
         count++;
         }
       this->Voronoi(i, idx);
-//      progress.CompletedPixel();
+      progress->CompletedPixel();
       }
-
+  delete progress;
 
   if ( m_CurrentDimension == ImageDimension - 1 && !this->m_SquaredDistance )
     {
@@ -317,6 +323,7 @@ SignedMaurerDistanceMapImageFilter<TInputImage, TOutputImage>
     Ot.GoToBegin();
     It.GoToBegin();
 
+    ProgressReporter progress2(this, threadId, outputRegionForThread.GetNumberOfPixels(), 30, 0.33f + ImageDimension * progressPerDimension, progressPerDimension);
     while( !Ot.IsAtEnd() )
       {
       
@@ -352,6 +359,7 @@ SignedMaurerDistanceMapImageFilter<TInputImage, TOutputImage>
 
       ++Ot;
       ++It;
+      progress2.CompletedPixel();
       }
     }
 
