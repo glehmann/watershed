@@ -21,7 +21,7 @@
 #include "itkImageRegionConstIteratorWithIndex.h"
 #include "itkImageRegionIteratorWithIndex.h"
 #include "itkBinaryThresholdImageFilter.h"
-#include "itkBorderImageFilter.h"
+#include "itkBinaryBorderImageFilter.h"
 #include "itkProgressReporter.h"
 #include "itkProgressAccumulator.h"
 #include "vnl/vnl_vector.h"
@@ -166,7 +166,7 @@ SignedMaurerDistanceMapImageFilter<TInputImage, TOutputImage>
 
   // Dilate the inverted image by 1 pixel to give it the same boundary
   // as the univerted this->GetInput().
-  typedef BorderImageFilter<OutputImageType, 
+  typedef BinaryBorderImageFilter<OutputImageType, 
                                      OutputImageType
                                         > BorderFilterType;
   typename BorderFilterType::Pointer borderFilter = BorderFilterType::New();

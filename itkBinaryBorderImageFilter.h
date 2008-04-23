@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Insight Segmentation & Registration Toolkit
-  Module:    $RCSfile: itkBorderImageFilter.h,v $
+  Module:    $RCSfile: itkBinaryBorderImageFilter.h,v $
   Language:  C++
   Date:      $Date: 2007/10/05 10:31:58 $
   Version:   $Revision: 1.17 $
@@ -15,8 +15,8 @@
 
 =========================================================================*/
 
-#ifndef __itkBorderImageFilter_h
-#define __itkBorderImageFilter_h
+#ifndef __itkBinaryBorderImageFilter_h
+#define __itkBinaryBorderImageFilter_h
 
 #include "itkInPlaceImageFilter.h"
 #include "itkImage.h"
@@ -30,24 +30,24 @@ namespace itk
 {
 
 /**
- * \class BorderImageFilter
+ * \class BinaryBorderImageFilter
  * \brief Give the pixels on the border of an object.
  *
- * BorderImageFilter labels the pixels on the borders
+ * BinaryBorderImageFilter labels the pixels on the borders
  * of the objects in a binary image.
  *
  * \sa ImageToImageFilter 
  */
 
 template <class TInputImage, class TOutputImage>
-class ITK_EXPORT BorderImageFilter : 
+class ITK_EXPORT BinaryBorderImageFilter : 
     public InPlaceImageFilter< TInputImage, TOutputImage > 
 {
 public:
   /**
    * Standard "Self" & Superclass typedef.
    */
-  typedef BorderImageFilter                   Self;
+  typedef BinaryBorderImageFilter                   Self;
   typedef InPlaceImageFilter< TInputImage, TOutputImage > Superclass;
 
   /**
@@ -98,7 +98,7 @@ public:
   /**
    * Run-time type information (and related methods)
    */
-  itkTypeMacro(BorderImageFilter, ImageToImageFilter);
+  itkTypeMacro(BinaryBorderImageFilter, ImageToImageFilter);
   
   /**
    * Method for creation through the object factory.
@@ -131,14 +131,14 @@ public:
   itkGetMacro(ForegroundValue, InputImagePixelType);
 
 protected:
-  BorderImageFilter() 
+  BinaryBorderImageFilter() 
     {
     m_FullyConnected = false;
     m_ForegroundValue = NumericTraits< InputImagePixelType >::max();
     m_BackgroundValue = NumericTraits< OutputImagePixelType >::Zero;
     }
-  virtual ~BorderImageFilter() {}
-  BorderImageFilter(const Self&) {}
+  virtual ~BinaryBorderImageFilter() {}
+  BinaryBorderImageFilter(const Self&) {}
   void PrintSelf(std::ostream& os, Indent indent) const;
 
   /**
@@ -148,12 +148,12 @@ protected:
   void AfterThreadedGenerateData ();
   void ThreadedGenerateData (const RegionType& outputRegionForThread, int threadId) ;
 
-  /** BorderImageFilter needs the entire input. Therefore
+  /** BinaryBorderImageFilter needs the entire input. Therefore
    * it must provide an implementation GenerateInputRequestedRegion().
    * \sa ProcessObject::GenerateInputRequestedRegion(). */
   void GenerateInputRequestedRegion();
 
-  /** BorderImageFilter will produce all of the output.
+  /** BinaryBorderImageFilter will produce all of the output.
    * Therefore it must provide an implementation of
    * EnlargeOutputRequestedRegion().
    * \sa ProcessObject::EnlargeOutputRequestedRegion() */
@@ -218,7 +218,7 @@ private:
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkBorderImageFilter.txx"
+#include "itkBinaryBorderImageFilter.txx"
 #endif
 
 #endif

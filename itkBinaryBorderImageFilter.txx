@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Insight Segmentation & Registration Toolkit
-  Module:    $RCSfile: itkBorderImageFilter.txx,v $
+  Module:    $RCSfile: itkBinaryBorderImageFilter.txx,v $
   Language:  C++
   Date:      $Date: 2007/09/05 15:43:34 $
   Version:   $Revision: 1.22 $
@@ -14,10 +14,10 @@
      PURPOSE.  See the above copyright notices for more information.
 
 =========================================================================*/
-#ifndef __itkBorderImageFilter_txx
-#define __itkBorderImageFilter_txx
+#ifndef __itkBinaryBorderImageFilter_txx
+#define __itkBinaryBorderImageFilter_txx
 
-#include "itkBorderImageFilter.h"
+#include "itkBinaryBorderImageFilter.h"
 #include "itkNumericTraits.h"
 
 // don't think we need the indexed version as we only compute the
@@ -33,7 +33,7 @@ namespace itk
 {
 template< class TInputImage, class TOutputImage>
 void
-BorderImageFilter< TInputImage, TOutputImage>
+BinaryBorderImageFilter< TInputImage, TOutputImage>
 ::GenerateInputRequestedRegion()
 {
   // call the superclass' implementation of this method
@@ -51,7 +51,7 @@ BorderImageFilter< TInputImage, TOutputImage>
 
 template< class TInputImage, class TOutputImage>
 void 
-BorderImageFilter< TInputImage, TOutputImage>
+BinaryBorderImageFilter< TInputImage, TOutputImage>
 ::EnlargeOutputRequestedRegion(DataObject *)
 {
   this->GetOutput()
@@ -61,7 +61,7 @@ BorderImageFilter< TInputImage, TOutputImage>
 
 template< class TInputImage, class TOutputImage>
 void
-BorderImageFilter< TInputImage, TOutputImage>
+BinaryBorderImageFilter< TInputImage, TOutputImage>
 ::BeforeThreadedGenerateData()
 {
   typename TOutputImage::Pointer output = this->GetOutput();
@@ -89,7 +89,7 @@ BorderImageFilter< TInputImage, TOutputImage>
 
 template< class TInputImage, class TOutputImage>
 void
-BorderImageFilter< TInputImage, TOutputImage>
+BinaryBorderImageFilter< TInputImage, TOutputImage>
 ::ThreadedGenerateData(const RegionType& outputRegionForThread,
          int threadId) 
 {
@@ -259,7 +259,7 @@ BorderImageFilter< TInputImage, TOutputImage>
 
 template< class TInputImage, class TOutputImage>
 void
-BorderImageFilter< TInputImage, TOutputImage>
+BinaryBorderImageFilter< TInputImage, TOutputImage>
 ::AfterThreadedGenerateData()
 {
   m_Barrier = NULL;
@@ -270,7 +270,7 @@ BorderImageFilter< TInputImage, TOutputImage>
 
 template< class TInputImage, class TOutputImage>
 void
-BorderImageFilter< TInputImage, TOutputImage>
+BinaryBorderImageFilter< TInputImage, TOutputImage>
 ::SetupLineOffsets(OffsetVec &LineOffsets)
 {
   // Create a neighborhood so that we can generate a table of offsets
@@ -328,7 +328,7 @@ BorderImageFilter< TInputImage, TOutputImage>
 
 template< class TInputImage, class TOutputImage>
 bool
-BorderImageFilter< TInputImage, TOutputImage>
+BinaryBorderImageFilter< TInputImage, TOutputImage>
 ::CheckNeighbors(const OutputIndexType &A, 
                  const OutputIndexType &B)
 {
@@ -349,7 +349,7 @@ BorderImageFilter< TInputImage, TOutputImage>
 
 template< class TInputImage, class TOutputImage>
 void
-BorderImageFilter< TInputImage, TOutputImage>
+BinaryBorderImageFilter< TInputImage, TOutputImage>
 ::CompareLines(lineEncoding &current, const lineEncoding &Neighbour)
 {
   bool sameLine = true;
@@ -413,8 +413,8 @@ BorderImageFilter< TInputImage, TOutputImage>
         // case 1
 //         std::cout << "case 1" << std::endl;
         eq = true;
-        oStart = nStart;
-        oLast = nLast;
+        oStart = ss1;
+        oLast = ee2;
         } 
       else if ((ss1 <= cStart) && (ee2 >= cLast))
         {
@@ -464,7 +464,7 @@ BorderImageFilter< TInputImage, TOutputImage>
 
 template< class TInputImage, class TOutputImage>
 void
-BorderImageFilter< TInputImage, TOutputImage>
+BinaryBorderImageFilter< TInputImage, TOutputImage>
 ::PrintSelf(std::ostream& os, Indent indent) const
 {
   Superclass::PrintSelf(os,indent);
