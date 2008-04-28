@@ -98,11 +98,13 @@ LabelMapFilter<TInputImage, TOutputImage>
   while( true )
     {
     // first lock the mutex
+    assert( !m_LabelObjectContainerLock.IsNull() );
     m_LabelObjectContainerLock->Lock();
 
     if( m_LabelObjectIterator == this->GetLabelMap()->GetLabelObjectContainer().end() )
       {
       // no more objects. Release the lock and return
+      assert( !m_LabelObjectContainerLock.IsNull() );
       m_LabelObjectContainerLock->Unlock();
       return;
       }
@@ -114,6 +116,7 @@ LabelMapFilter<TInputImage, TOutputImage>
     // pretend one more object is processed, even if it will be done later, to simplify the lock management
     // TODO: progress++
     // unlock the mutex, so the other threads can get an object
+    assert( !m_LabelObjectContainerLock.IsNull() );
     m_LabelObjectContainerLock->Unlock();
     // and run the user defined method for that object
     ThreadedGenerateData( labelObject );

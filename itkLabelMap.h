@@ -277,6 +277,12 @@ public:
   void AddLabelObject( LabelObjectType * labelObject );
   
   /**
+   * Add a label object to the image. The label of the label object is 
+   * ignored, and a new label is given to the label object.
+   */
+  void PushLabelObject( LabelObjectType * labelObject );
+  
+  /**
    * Remove a label object.
    */
   void RemoveLabelObject( LabelObjectType * labelObject );

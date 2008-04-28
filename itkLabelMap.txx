@@ -332,6 +332,70 @@ LabelMap<TLabelObject>
 template<class TLabelObject >
 void
 LabelMap<TLabelObject>
+::PushLabelObject( LabelObjectType * labelObject )
+{
+  assert( labelObject != NULL );
+
+  if( m_LabelObjectContainer.empty() )
+    {
+    if( m_BackgroundValue == 0 )
+      {
+      labelObject->SetLabel( 1 );
+      }
+    else
+      {
+      labelObject->SetLabel( 0 );
+      }
+    }
+  else
+    {
+    LabelType lastLabel = m_LabelObjectContainer.rbegin()->first;
+    LabelType firstLabel = m_LabelObjectContainer.begin()->first;
+    if( lastLabel != NumericTraits< LabelType >::max() && lastLabel + 1 != m_BackgroundValue )
+      {
+      labelObject->SetLabel( lastLabel + 1 );
+      }
+    else if( lastLabel != NumericTraits< LabelType >::max() && lastLabel + 1 != NumericTraits< LabelType >::max() && lastLabel + 2 != m_BackgroundValue )
+      {
+      labelObject->SetLabel( lastLabel + 2 );
+      }
+    else if( firstLabel != NumericTraits< LabelType >::NonpositiveMin() && firstLabel - 1 != m_BackgroundValue )
+      {
+      labelObject->SetLabel( firstLabel - 1 );
+      }
+    else
+      {
+      // search for an unused label
+      LabelType label = firstLabel;
+      typename LabelObjectContainerType::const_iterator it;
+      for( it = m_LabelObjectContainer.begin();
+        it != m_LabelObjectContainer.end();
+        it++, label++ )
+        {
+        assert( it->second.IsNotNull() );
+        if( label == m_BackgroundValue )
+          {
+          label++;
+          }
+        if( label != it->first )
+          {
+          labelObject->SetLabel( label );
+          break;
+          }
+        }
+      if( label == lastLabel )
+        {
+        itkExceptionMacro( << "Can't push the label object: the label map is full." );
+        }
+      }
+    }
+  this->AddLabelObject( labelObject );
+}
+
+
+template<class TLabelObject >
+void
+LabelMap<TLabelObject>
 ::RemoveLabelObject( LabelObjectType * labelObject )
 {
   assert( labelObject != NULL );
