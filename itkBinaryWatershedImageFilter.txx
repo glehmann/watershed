@@ -92,7 +92,7 @@ BinaryWatershedImageFilter<TInputImage, TOutputImage, TDistance>
   i2l->SetNumberOfThreads( this->GetNumberOfThreads() );
   i2l->SetBackgroundValue( m_BackgroundValue );
   progress->RegisterInternalFilter(i2l,0.1f);
-  i2l->UpdateLargestPossibleRegion();
+//   i2l->UpdateLargestPossibleRegion();
 //   i2l->GetOutput()->PrintLabelObjects();
 
   typedef itk::MorphologicalWatershedLabelMapFilter< LabelMapType, LabelMapType, DistanceType > WatershedType;
@@ -104,7 +104,7 @@ BinaryWatershedImageFilter<TInputImage, TOutputImage, TDistance>
   watershed->SetMarkWatershedLine( m_BinaryOutput );
   watershed->SetNumberOfThreads( this->GetNumberOfThreads() );
   progress->RegisterInternalFilter(watershed,0.8f);
-  watershed->UpdateLargestPossibleRegion();
+//   watershed->UpdateLargestPossibleRegion();
 
   // Allocate the output
   this->AllocateOutputs();
