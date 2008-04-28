@@ -53,6 +53,7 @@ public:
   typedef typename OutputImageType::ConstPointer   OutputImageConstPointer;
   typedef typename OutputImageType::RegionType     OutputImageRegionType;
   typedef typename OutputImageType::PixelType      OutputImagePixelType;
+  typedef typename OutputImageType::SizeType       SizeType;
   
   /** ImageDimension constants */
   itkStaticConstMacro(InputImageDimension, unsigned int,
