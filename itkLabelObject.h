@@ -268,6 +268,7 @@ public:
   /** Copy the data of another node to this one */
   virtual void CopyDataFrom( const Self * src )
     {
+    assert( src != NULL );
     m_LineContainer = src->m_LineContainer;
     m_Label = src->m_Label;
     }

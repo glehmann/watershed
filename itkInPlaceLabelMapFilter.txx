@@ -92,6 +92,8 @@ InPlaceLabelMapFilter<TInputImage>
     // copy the content of the input image to the output image
     const TInputImage * input = this->GetInput();
     TOutputImage * output = this->GetOutput();
+    assert( input != NULL );
+    assert( output != NULL );
     
     output->SetBackgroundValue( input->GetBackgroundValue() );
 
@@ -102,6 +104,8 @@ InPlaceLabelMapFilter<TInputImage>
     for( it = labelObjectContainer.begin(); it != labelObjectContainer.end(); it++ )
       {
       const LabelObjectType * labeObject = it->second;
+      assert( labeObject != NULL );
+      assert( labeObject->GetLabel() == it->first );
 
       typename LabelObjectType::Pointer newLabelObject = LabelObjectType::New();
       newLabelObject->CopyDataFrom( labeObject );
